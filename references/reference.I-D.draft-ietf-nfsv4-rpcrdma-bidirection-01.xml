@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='I-D.ietf-nfsv4-rpcrdma-bidirection'>
+<front>
+<title>Size-Limited Bi-directional Remote Procedure Call On Remote Direct Memory Access Transports</title>
+
+<author initials='C' surname='Lever' fullname='Chuck Lever'>
+    <organization />
+</author>
+
+<date month='September' day='25' year='2015' />
+
+<abstract><t>Recent minor versions of NFSv4 work best when ONC RPC transports can send ONC RPC transactions in both directions.  This document describes conventions that enable RPC-over-RDMA Version One transport endpoints to interoperate when operation in both directions is necessary.</t></abstract>
+
+</front>
+
+<seriesInfo name='Internet-Draft' value='draft-ietf-nfsv4-rpcrdma-bidirection-01' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-nfsv4-rpcrdma-bidirection-01.txt' />
+<format type='PS'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-nfsv4-rpcrdma-bidirection-01.ps' />
+<format type='PDF'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-nfsv4-rpcrdma-bidirection-01.pdf' />
+</reference>

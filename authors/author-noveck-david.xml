@@ -1,0 +1,24 @@
+<!-- Copyright (C) The IETF Trust (2016) -->
+
+<author
+  initials="D.N."
+  surname="Noveck"
+  fullname="David Noveck">
+
+  <organization abbrev="HPE">
+    Hewlett Packard Enterprise
+  </organization>
+
+  <address>
+    <postal>
+      <street>165 Dascomb Road</street>
+      <city>Andover</city>
+      <region>MA</region>
+      <code>01810</code>
+      <country>USA</country>
+    </postal>
+    <phone>+1 978 474 2011</phone>
+    <email>davenoveck@gmail.com</email>
+  </address>
+
+</author>

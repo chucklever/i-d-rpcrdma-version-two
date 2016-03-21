@@ -1,0 +1,652 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [ ]>
+
+<?xml-stylesheet type="text/xsl" href="rfc2629.xslt" ?>
+<?rfc strict="yes" ?>
+<?rfc toc="yes"?>
+<?rfc tocdepth="2"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc subcompact="no" ?>
+
+<rfc
+  category="std"
+  ipr="trust200902"
+  docName="DOCNAMEVAR">
+
+<front>
+
+<title abbrev="RDMA Transport for RPC V2">
+RPC-over-RDMA Version Two
+</title>
+
+<?rfc include="authors/author-lever-chuck.xml"?>
+<?rfc include="authors/author-noveck-david.xml"?>
+
+<date />
+
+<area>Transport</area>
+<workgroup>Network File System Version 4</workgroup>
+
+<abstract>
+<t>
+This document specifies an improved protocol for
+conveying Remote Procedure Call (RPC) messages
+on physical transports capable of
+Remote Direct Memory Access (RDMA),
+based on RPC-over-RDMA Version One.
+</t>
+</abstract>
+
+</front>
+
+<middle>
+
+<section title="Introduction">
+<t>
+Remote Direct Memory Access (RDMA)
+<xref target="RFC5040"/> <xref target="RFC5041"/>
+<xref target="IB"/> is a
+technique for moving data efficiently between end nodes.
+By directing data into destination buffers as it is sent
+on a network, and placing it via direct memory access by
+hardware, the benefits of faster transfers and reduced host
+overhead are obtained.
+</t>
+<t>
+A protocol already exists that enables RPC
+<xref target="RFC5531"/> messages to be
+conveyed on RDMA transports.
+This is RPC-over-RDMA Version One, specified in
+<xref target="I-D.ietf-nfsv4-rfc5666bis"/>.
+RPC-over-RDMA Version One is deployed and in use,
+though there are some shortcomings to this protocol,
+such as:
+<list style="symbols">
+<t>
+The use of small Receive buffers force the use of RDMA
+Read and Write transfers for small payloads, and limit
+the size of backchannel messages
+</t>
+<t>
+Lack of support for potential optimizations such as
+remote invalidation
+</t>
+</list>
+</t>
+<t>
+To address these issues in a way that is
+compatible with existing Version One deployments,
+a new version of RPC-over-RDMA is presented in this
+document.
+Version Two contains only incremental changes over
+Version One to facilitate adoption of Version Two by
+existing Version One implementations.
+</t>
+<t>
+The major new feature in Version Two is the addition
+of extensibility to the RPC-over-RDMA header.
+Extensibility enables narrow changes to RPC-over-RDMA
+Version Two so that new optional capabilities can be
+introduced without a protocol version change and
+while maintaining interoperability with existing
+implementations.
+New capabilities can be proposed and developed
+independently of each other, and implementaters
+can choose among them.
+</t>
+<t>
+In addition to extensibility, the default inline
+threshold value is larger in RPC-over-RDMA Version Two.
+This change is driven by the increase in average
+size of RPC messages containing common NFS operations.
+With NFSv4.1 <xref target="RFC5661"/> and later,
+compound operations convey more data per RPC message.
+The default 1KB inline threshold in RPC-over-RDMA
+Version One prevents attaining the best possible
+performance.
+</t>
+
+<section
+ title="Requirements Language"
+ anchor="requirements-language">
+<t>
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL",
+"SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY",
+and "OPTIONAL" in this document are to be interpreted as
+described in <xref target="RFC2119"/>.
+</t>
+</section>
+
+</section>
+
+<section
+ title="Inline Threshold">
+
+<t>
+The term "inline threshold" is defined in Section 4 of
+<xref target="I-D.ietf-nfsv4-rfc5666bis"/>.
+A receiver's "inline threshold" value is the largest message size (in
+octets) that the receiver can accept via an RDMA Receive operation.
+Each connection has two inline threshold values, one for each peer
+receiver.
+Inline threshold values are not advertised to peers via the base
+RPC-over-RDMA Version Two protocol.
+</t>
+<t>
+RPC-over-RDMA Version Two receiver implementations MUST support
+an inline threshold of 4096 bytes, but MAY support larger inline
+threshold values.
+A mechanism for discovering a peer's preferred inline threshold
+value may be used to optimize the use of RDMA Send operations.
+In the absense of such a mechanism, senders MUST assume a receiver's
+inline threshold is 4096 bytes.
+</t>
+
+<section
+ title="Initial Connection State">
+
+<t>
+When an RPC-over-RDMA Version Two requester establishes a
+connection to a responder, the first order of business is to
+determine the responder's highest supported protocol version.
+</t>
+<t>
+As with RPC-over-RDMA Version One, a requester MUST assume the
+ability to exchange only a single RPC-over-RDMA message at a
+time until it receives a non-error RPC-over-RDMA message from
+the responder that reports the responder's actual credit limit.
+</t>
+<t>
+First, the requester sends a single valid RPC-over-RDMA message
+with the value two (2) in the rdma_vers field.
+Because the responder might support only RPC-over-RDMA
+Version One, this initial message can be no larger than the
+Version One default inline threshold of 1024 bytes.
+</t>
+
+<section
+ title="Responder Does Support RPC-over-RDMA Version Two">
+
+<t>
+If the responder does support RPC-over-RDMA Version Two,
+it sends an RPC-over-RDMA message back to the requester
+with the same XID containing a valid non-error response.
+Subsequently, both peers use the default inline threshold
+value for RPC-over-RDMA Version Two connections (4096 bytes).
+</t>
+
+</section>
+
+<section
+ title="Responder Does Not Support RPC-over-RDMA Version Two">
+
+<t>
+If the responder does not support RPC-over-RDMA Version Two,
+<xref target="I-D.ietf-nfsv4-rfc5666bis"/> REQUIRES that it
+send an RPC-over-RDMA message to the requester with the same
+XID, with RDMA_ERROR in the rdma_proc field, and with the
+error code RDMA_ERR_VERS.
+This message also reports a range of protocol versions that
+the responder supports.
+To continue operation, the requester selects a protocol
+version in the range of responder-supported versions for
+subsequent messages on this connection.
+</t>
+<t>
+If the connection is lost immediately after the RDMA_ERROR reply
+is received, a requester can avoid a possible version negotiation
+loop when re-establishing another connection by assuming that
+particular responder does not support RPC-over-RDMA
+Version Two.
+A requester can assume the same situation (no responder support
+for RPC-over-RDMA Version Two) if the initial negotiation message
+is lost or dropped.
+</t>
+<t>
+Once the negotiation exchange is complete, both peers use the
+default inline threshold value for the protocol version that
+will be used for the remainder of the connection lifetime.
+To permit inline threshold values to change during negotiation
+of protocol version, RPC-over-RDMA Version Two implementations
+MUST allow inline threshold values to change without triggering
+a connection loss.
+</t>
+
+</section>
+
+<section
+ title="Requester Does Not Support RPC-over-RDMA Version Two">
+
+<t>
+<xref target="I-D.ietf-nfsv4-rfc5666bis"/> REQUIRES that
+a responder MUST send Replies with the same RPC-over-RDMA
+protocol version that the requester uses to send its Calls.
+</t>
+
+</section>
+
+</section>
+
+</section>
+
+<section title="XDR Protocol Definition">
+
+<t>
+This section contains a description of the core features of
+the RPC-over-RDMA Version Two protocol, expressed in the XDR
+language <xref target="RFC4506" />.
+</t>
+<t>
+This description is provided in a way that makes it simple
+to extract into ready-to-compile form.
+The reader can apply the following shell script to this
+document to produce a machine-readable XDR description of
+the RPC-over-RDMA Version One protocol without any OPTIONAL
+extensions.
+</t>
+<figure>
+<artwork>
+<![CDATA[
+<CODE BEGINS>
+
+#!/bin/sh
+grep '^ *///' | sed 's?^ /// ??' | sed 's?^ *///$??'
+
+<CODE ENDS>
+]]>
+</artwork>
+</figure>
+<t>
+That is, if the above script is stored in a file called
+"extract.sh" and this document is in a file called
+"spec.txt" then the reader can do the following to extract
+an XDR description file:
+</t>
+<figure>
+<artwork>
+<![CDATA[
+<CODE BEGINS>
+
+sh extract.sh < spec.txt > rpcrdma_corev2.x
+
+<CODE ENDS>
+]]>
+</artwork>
+</figure>
+<t>
+Optional extensions to RPC-over-RDMA Version Two,
+published as Standards Track documents,
+will have similar means of providing XDR that describes
+those extensions.
+Once XDR for all desired extensions is also extracted,
+it can be appended to the XDR description file extracted
+from this document to produce a consolidated XDR description
+file reflecting all extensions selected for an RPC-over-RDMA
+implementation.
+</t>
+
+<section
+ title="Code Component License">
+
+<t>
+Code components extracted from this document must include the
+following license text.
+When the extracted XDR code is combined with other complementary
+XDR code which itself has an identical license, only a single
+copy of the license text need be preserved.
+<figure>
+<artwork>
+<![CDATA[
+<CODE BEGINS>
+
+/// /*
+///  * Copyright (c) 2010, 2016 IETF Trust and the persons
+///  * identified as authors of the code.  All rights reserved.
+///  *
+///  * The authors of the code are:
+///  * B. Callaghan, T. Talpey, C. Lever, and D. Noveck.
+///  *
+///  * Redistribution and use in source and binary forms, with
+///  * or without modification, are permitted provided that the
+///  * following conditions are met:
+///  *
+///  * - Redistributions of source code must retain the above
+///  *   copyright notice, this list of conditions and the
+///  *   following disclaimer.
+///  *
+///  * - Redistributions in binary form must reproduce the above
+///  *   copyright notice, this list of conditions and the
+///  *   following disclaimer in the documentation and/or other
+///  *   materials provided with the distribution.
+///  *
+///  * - Neither the name of Internet Society, IETF or IETF
+///  *   Trust, nor the names of specific contributors, may be
+///  *   used to endorse or promote products derived from this
+///  *   software without specific prior written permission.
+///  *
+///  *   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS
+///  *   AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+///  *   WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+///  *   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+///  *   FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+///  *   EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+///  *   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+///  *   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+///  *   NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+///  *   SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+///  *   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+///  *   LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+///  *   OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+///  *   IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+///  *   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+///  */
+
+<CODE ENDS>
+]]>
+</artwork>
+</figure>
+</t>
+</section>
+
+<section title="RPC-Over-RDMA Version Two XDR">
+<t>
+The XDR defined in this section is used to encode the
+Transport Header Stream in each RPC-over-RDMA Version
+Two message.
+The terms "Transport Header Stream" and "RPC Payload Stream"
+are defined in Section 4 of
+<xref target="I-D.ietf-nfsv4-rfc5666bis"/>.
+<figure>
+<artwork>
+<![CDATA[
+<CODE BEGINS>
+
+/// struct rpcrdma2_segment {
+///         uint32 rdma_handle;
+///         uint32 rdma_length;
+///         uint64 rdma_offset;
+/// };
+///
+/// struct rpcrdma2_read_segment {
+///         uint32                  rdma_position;
+///         struct rpcrdma2_segment rdma_target;
+/// };
+///
+/// struct rpcrdma2_read_list {
+///         struct rpcrdma2_read_segment rdma_entry;
+///         struct rpcrdma2_read_list    *rdma_next;
+/// };
+///
+/// struct rpcrdma2_write_chunk {
+///         struct rpcrdma2_segment rdma_target<>;
+/// };
+///
+/// struct rpcrdma2_write_list {
+///         struct rpcrdma2_write_chunk rdma_entry;
+///         struct rpcrdma2_write_list  *rdma_next;
+/// };
+///
+/// struct rpcrdma2_chunk_lists {
+///         struct rpcrdma2_read_list   *rdma_reads;
+///         struct rpcrdma2_write_list  *rdma_writes;
+///         struct rpcrdma2_write_chunk *rdma_reply;
+/// };
+///
+/// enum rpcrdma2_errcode {
+///         RDMA_ERR_VERS = 1,
+///         RDMA_ERR_BAD_HEADER = 2,
+///         RDMA_ERR_INVAL_OPTION = 3
+/// };
+///
+/// struct rpcrdma2_err_vers {
+///         uint32 rdma_vers_low;
+///         uint32 rdma_vers_high;
+/// };
+///
+/// union rpcrdma2_error switch (rpcrdma2_errcode rdma_err) {
+///         case RDMA_ERR_VERS:
+///           rpcrdma2_err_vers rdma_vrange;
+///         case RDMA_ERR_BAD_HEADER:
+///           void;
+///         case RDMA_ERR_INVAL_OPTION:
+///           void;
+/// };
+///
+/// struct rpcrdma2_optional {
+///         uint32 rdma_opttype;
+///         opaque rdma_optinfo<>;
+/// };
+///
+/// enum rpcrdma2_proc {
+///         RDMA_MSG = 0,
+///         RDMA_NOMSG = 1,
+///         RDMA_MSGP = 2,  /* Reserved */
+///         RDMA_DONE = 3,  /* Reserved */
+///         RDMA_ERROR = 4,
+///         RDMA_OPTIONAL = 5
+/// };
+///
+/// union rpcrdma2_body switch (rpcrdma2_proc rdma_proc) {
+///         case RDMA_MSG:
+///           rpcrdma2_chunks rdma_chunks;
+///         case RDMA_NOMSG:
+///           rpcrdma2_chunks rdma_chunks;
+///         case RDMA_MSGP:
+///           void;
+///         case RDMA_DONE:
+///           void;
+///         case RDMA_ERROR:
+///           rpcrdma2_error rdma_error;
+///         case RDMA_OPTIONAL:
+///           rpcrdma2_optional rdma_optional;
+/// };
+///
+/// struct rpcrdma2_xprt_hdr {
+///         uint32        rdma_xid;
+///         uint32        rdma_vers;
+///         uint32        rdma_credit;
+///         rpcrdma2_body rdma_body;
+/// };
+
+<CODE ENDS>
+]]>
+</artwork>
+</figure>
+</t>
+<t>
+When the rdma_proc field has the value RDMA_MSG,
+an RPC Payload Stream MUST follow the Transport Header
+Stream in the Send buffer.
+When the rdma_proc field has the value RDMA_OPTIONAL,
+an RPC Payload Stream MAY follow the Transport header
+Stream in the Send buffer.
+When the rdma_proc field has any other value,
+an RPC Payload Stream MUST NOT follow the
+Transport Header Stream.
+</t>
+<t>
+Implementations of RPC-over-RDMA Version Two are REQUIRED to
+support backwards direction operation as described in
+<xref target="I-D.ietf-nfsv4-rpcrdma-bidirection"/>.
+</t>
+<t>
+Error handling works the same way in RPC-over-RDMA Version
+Two as it does in RPC-over-RDMA Version One, with one
+change described in <xref target="optional-features"/>.
+Version One error handling is described in Section 5 of
+<xref target="I-D.ietf-nfsv4-rfc5666bis"/>.
+</t>
+
+</section>
+
+</section>
+
+<section
+ title="Protocol Extensibility"
+ anchor="protocol-extensibility">
+
+<t>
+The core RPC-over-RDMA Version Two header format is specified
+in this document as a complete and stand-alone piece of XDR.
+Any change to this XDR description requires a protocol
+version number bump.
+</t>
+
+<section
+ title="Optional Features"
+ anchor="optional-features">
+
+<t>
+RPC-over-RDMA Version Two introduces the ability to extend
+the core protocol via optional features.
+</t>
+<t>
+The rdma_opttype field carries a 32-bit unsigned integer.
+The value in this field denotes an optional operation
+that MAY be supported by the receiver.
+The values of this field and their meaning are defined in
+other Standards Track documents.
+</t>
+<t>
+The rdma_optinfo field carries opaque data.
+The content of this field is data meaningful to the
+optional operation denoted by the value in rdma_opttype.
+The content of this field is not
+defined in the base RPC-over-RDMA Version Two protocol,
+but is defined in other Standards Track documents
+</t>
+<t>
+When an implementation does not recognize or support the
+value contained in the rdma_opttype field, it MUST send
+an RPC-over-RDMA message with the rdma_xid field set
+to the same value as the erroneous message, the rdma_proc
+field set to RDMA_ERROR, and the rdma_err field set to
+RDMA_ERR_INVAL_OPTION.
+</t>
+
+</section>
+
+<section title="Documentation Requirements">
+<t>
+RPC-over-RDMA Version Two may be extended by defining a new
+rdma_opttype value and XDR description of the corresponding
+rdma_optinfo content.
+</t>
+<t>
+A set of such new protocol elements may be introduced by a
+Standards Track document and are together considered an
+OPTIONAL feature.
+nfsv4 Working Group and IESG review, together with appropriate
+testing of prototype implementations, should ensure continued
+interoperation with existing implementations.
+</t>
+<t>
+Documents describing extensions to RPC-over-RDMA Version Two
+should contain:
+<list style="symbols">
+<t>
+An explanation of the purpose and use of each new protocol
+element added
+</t>
+<t>
+An XDR description and a script to extract it
+</t>
+<t>
+A mechanism for reporting errors to the message sender
+that are outside the available choices in the base
+RPC-over-RDMA Version Two protocol
+</t>
+<t>
+A requirement that an RPC Payload Stream MUST or MUST NOT
+follow the Transport Header Stream for each new opttype code
+added
+</t>
+<t>
+A description of interactions with existing features
+(e.g., requirements that another OPTIONAL feature needs
+to be present and supported for newly added features to work)
+</t>
+</list>
+Implementers concatenate the XDR description of the new feature
+with the XDR description of the base protocol, extracted from
+this document, to produce a combined XDR description for the
+RPC-over-RDMA Version Two protocol with the specified
+extension.
+</t>
+</section>
+
+</section>
+
+<section
+ title="Security Considerations"
+ anchor="security-considerations">
+
+<t>
+The security considerations for RPC-over-RDMA Version Two
+are the same as those for RPC-over-RDMA Version One.
+</t>
+
+</section>
+
+<section
+ title="IANA Considerations"
+ anchor="iana-considerations">
+
+<t>
+There are no IANA considerations at this time.
+</t>
+</section>
+
+<section title="Acknowledgments">
+<t>
+The authors gratefully acknowledge the work of Brent Callaghan
+and Tom Talpey on the original RPC-over-RDMA Version One
+specification <xref target="RFC5666" />.
+The authors also wish to thank
+Bill Baker, Greg Marsden, and Matt Benjamin
+for their support of this work.
+</t>
+<t>
+The extract.sh shell script and formatting conventions were
+first described by the authors of the NFSv4.1 XDR specification
+<xref target="RFC5662" />.
+</t>
+<t>
+Special thanks go to
+nfsv4 Working Group Chair Spencer Shepler
+and
+nfsv4 Working Group Secretary Thomas Haynes
+for their support.
+</t>
+</section>
+
+</middle>
+
+<back>
+
+<references title="Normative References">
+
+<?rfc include="references/reference.RFC.2119.xml"?>
+<?rfc include="references/reference.RFC.4506.xml"?>
+<?rfc include="references/reference.RFC.5531.xml"?>
+
+</references>
+
+<references title="Informative References">
+
+<?rfc include="references/reference.I-D.draft-ietf-nfsv4-rfc5666bis-04.xml"?>
+<?rfc include="references/reference.I-D.draft-ietf-nfsv4-rpcrdma-bidirection-01.xml"?>
+<?rfc include="references/reference.IBTA.spec.xml"?>
+<?rfc include="references/reference.RFC.5040.xml"?>
+<?rfc include="references/reference.RFC.5041.xml"?>
+<?rfc include="references/reference.RFC.5661.xml"?>
+<?rfc include="references/reference.RFC.5662.xml"?>
+<?rfc include="references/reference.RFC.5666.xml"?>
+
+</references>
+
+</back>
+
+</rfc>

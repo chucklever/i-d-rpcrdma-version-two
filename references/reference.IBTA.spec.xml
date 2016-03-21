@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor="IB" target="http://www.infinibandta.org">
+  <front>
+    <title>InfiniBand Architecture Specifications</title>
+    <author>
+      <organization>InfiniBand Trade Association</organization>
+    </author>
+    <date />
+  </front>
+</reference>

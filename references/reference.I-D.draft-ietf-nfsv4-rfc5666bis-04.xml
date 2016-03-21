@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='I-D.ietf-nfsv4-rfc5666bis'>
+<front>
+<title>Remote Direct Memory Access Transport for Remote Procedure Call</title>
+
+<author initials='C' surname='Lever' fullname='Chuck Lever'>
+    <organization />
+</author>
+
+<author initials='W' surname='Simpson' fullname='William Simpson'>
+    <organization />
+</author>
+
+<author initials='T' surname='Talpey' fullname='Tom Talpey'>
+    <organization />
+</author>
+
+<date month='March' day='4' year='2016' />
+
+<abstract><t>This document specifies a protocol for conveying Remote Procedure Call (RPC) messages on physical transports capable of Remote Direct Memory Access (RDMA).  It requires no revision to application RPC protocols or the RPC protocol itself.  This document obsoletes RFC 5666.</t></abstract>
+
+</front>
+
+<seriesInfo name='Internet-Draft' value='draft-ietf-nfsv4-rfc5666bis-04' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-nfsv4-rfc5666bis-04.txt' />
+<format type='PS'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-nfsv4-rfc5666bis-04.ps' />
+<format type='PDF'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-nfsv4-rfc5666bis-04.pdf' />
+</reference>
