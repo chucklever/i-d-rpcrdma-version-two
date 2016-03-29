@@ -58,7 +58,7 @@ overhead are obtained.
 A protocol already exists that enables RPC
 <xref target="RFC5531"/> messages to be
 conveyed on RDMA transports.
-This is RPC-over-RDMA Version One, specified in
+That protocol is RPC-over-RDMA Version One, specified in
 <xref target="I-D.ietf-nfsv4-rfc5666bis"/>.
 RPC-over-RDMA Version One is deployed and in use,
 though there are some shortcomings to this protocol,
@@ -70,23 +70,24 @@ Read and Write transfers for small payloads, and limit
 the size of backchannel messages
 </t>
 <t>
-Lack of support for potential optimizations such as
-remote invalidation
+Lack of support for potential optimizations, such as
+remote invalidation, that require changes to on-the-wire
+behavior
 </t>
 </list>
 </t>
 <t>
 To address these issues in a way that is
-compatible with existing Version One deployments,
-a new version of RPC-over-RDMA is presented in this
-document.
-Version Two contains only incremental changes over
-Version One to facilitate adoption of Version Two by
-existing Version One implementations.
+compatible with existing RPC-over-RDMA Version One
+deployments, a new version of RPC-over-RDMA is presented
+in this document.
+RPC-over-RDMA Version Two contains only incremental changes
+over RPC-over-RDMA Version One to facilitate adoption of
+Version Two by existing Version One implementations.
 </t>
 <t>
-The major new feature in Version Two is the addition
-of extensibility to the RPC-over-RDMA header.
+The major new feature in RPC-over-RDMA Version Two is
+extensibility of the RPC-over-RDMA header.
 Extensibility enables narrow changes to RPC-over-RDMA
 Version Two so that new optional capabilities can be
 introduced without a protocol version change and
@@ -95,6 +96,9 @@ implementations.
 New capabilities can be proposed and developed
 independently of each other, and implementaters
 can choose among them.
+It should be straightforward to create and document
+experimental features and then bring them through
+the standards process.
 </t>
 <t>
 In addition to extensibility, the default inline
@@ -124,6 +128,8 @@ described in <xref target="RFC2119"/>.
 <section
  title="Inline Threshold">
 
+<section
+ title="Terminology">
 <t>
 The term "inline threshold" is defined in Section 4 of
 <xref target="I-D.ietf-nfsv4-rfc5666bis"/>.
@@ -135,103 +141,183 @@ Inline threshold values are not advertised to peers via the base
 RPC-over-RDMA Version Two protocol.
 </t>
 <t>
+A connection's inline threshold determines when full RDMA Read or
+Write operations are required because the RPC message to be send
+is larger than the peer's Receive buffer.
+If an RPC message does not contain DDP-eligible data items,
+a requester prepares a Long Call or Reply to convey the whole
+RPC message using an RDMA Read or Write.
+</t>
+</section>
+
+<section
+ title="Motivation">
+<t>
+RDMA Read and Write operations require that each data payload
+resides in a region of memory that is registered with the RNIC.
+When an RPC is complete, that region is unregistered, fencing it
+from the responder.
+</t>
+<t>
+Both registration and unregistration have a latency cost which is
+insignificant compared to data handling costs.
+When a data payload is small, however, the cost of registering and
+unregistering the memory where it resides becomes a relatively
+significant part of total RPC latency.
+Therefore the most efficient operation of RPC-over-RDMA occurs
+when RDMA Read and Write operations are used for large payloads,
+and avoided for small payloads.
+</t>
+<t>
+When RPC-over-RDMA Version One was conceived, the typical size
+of RPC messages that did not involve a significant data payload
+was under 500 bytes.
+A 1024-byte inline threshold adequately minimized the frequency
+of inefficient Long Calls and Replies.
+</t>
+<t>
+Starting with NFSv4.1 <xref target="RFC5661"/>, NFS COMPOUND RPC
+messages are larger and more complex than before.
+With a 1024-byte inline threshold, RDMA Read or Write operations
+are needed for frequent operations that do not bear a data payload,
+such as GETATTR and LOOKUP, reducing the efficiency of the
+transport.
+To reduce the need to use Long Calls and Replies, RPC-over-RDMA
+Version Two quadruples the default inline threshold size.
+This also increases the maximum size of backward direction
+RPC messages.
+</t>
+</section>
+
+<section
+ title="Default Values">
+<t>
 RPC-over-RDMA Version Two receiver implementations MUST support
 an inline threshold of 4096 bytes, but MAY support larger inline
 threshold values.
 A mechanism for discovering a peer's preferred inline threshold
-value may be used to optimize the use of RDMA Send operations.
+value may be used to optimize RDMA Send operations further.
 In the absense of such a mechanism, senders MUST assume a receiver's
 inline threshold is 4096 bytes.
 </t>
-
-<section
- title="Initial Connection State">
-
 <t>
-When an RPC-over-RDMA Version Two requester establishes a
-connection to a responder, the first order of business is to
-determine the responder's highest supported protocol version.
+The new default inline threshold size is no larger than the size
+of a hardware page on typical platforms.
+This conserves the resources needed to Send and Receive base
+level RPC-over-RDMA Version Two messages, enabling RPC-over-RDMA
+Version Two to be used on a broad base of hardware.
 </t>
-<t>
-As with RPC-over-RDMA Version One, a requester MUST assume the
-ability to exchange only a single RPC-over-RDMA message at a
-time until it receives a non-error RPC-over-RDMA message from
-the responder that reports the responder's actual credit limit.
-</t>
-<t>
-First, the requester sends a single valid RPC-over-RDMA message
-with the value two (2) in the rdma_vers field.
-Because the responder might support only RPC-over-RDMA
-Version One, this initial message can be no larger than the
-Version One default inline threshold of 1024 bytes.
-</t>
-
-<section
- title="Responder Does Support RPC-over-RDMA Version Two">
-
-<t>
-If the responder does support RPC-over-RDMA Version Two,
-it sends an RPC-over-RDMA message back to the requester
-with the same XID containing a valid non-error response.
-Subsequently, both peers use the default inline threshold
-value for RPC-over-RDMA Version Two connections (4096 bytes).
-</t>
+</section>
 
 </section>
 
 <section
- title="Responder Does Not Support RPC-over-RDMA Version Two">
+ title="Protocol Extensibility"
+ anchor="protocol-extensibility">
 
 <t>
-If the responder does not support RPC-over-RDMA Version Two,
-<xref target="I-D.ietf-nfsv4-rfc5666bis"/> REQUIRES that it
-send an RPC-over-RDMA message to the requester with the same
-XID, with RDMA_ERROR in the rdma_proc field, and with the
-error code RDMA_ERR_VERS.
-This message also reports a range of protocol versions that
-the responder supports.
-To continue operation, the requester selects a protocol
-version in the range of responder-supported versions for
-subsequent messages on this connection.
+The core RPC-over-RDMA Version Two header format is specified
+in <xref target="xdr-protocol-definition"/> as a complete and
+stand-alone piece of XDR.
+Any change to this XDR description requires a protocol
+version number change.
+</t>
+
+<section
+ title="Optional Features"
+ anchor="optional-features">
+
+<t>
+RPC-over-RDMA Version Two introduces the ability to extend
+the core protocol via optional features.
+Extensibility enables minor protocol issues to be addressed
+and incremental enhancements to be made without the need to
+change the protocol version.
+The key capability is that both sides can detect whether a
+feature is supported by their peer or not.
+With this ability, OPTIONAL features can be introduced over
+time to an otherwise stable protocol.
 </t>
 <t>
-If the connection is lost immediately after the RDMA_ERROR reply
-is received, a requester can avoid a possible version negotiation
-loop when re-establishing another connection by assuming that
-particular responder does not support RPC-over-RDMA
-Version Two.
-A requester can assume the same situation (no responder support
-for RPC-over-RDMA Version Two) if the initial negotiation message
-is lost or dropped.
+The rdma_opttype field carries a 32-bit unsigned integer.
+The value in this field denotes an optional operation
+that MAY be supported by the receiver.
+The values of this field and their meaning are defined in
+other Standards Track documents.
 </t>
 <t>
-Once the negotiation exchange is complete, both peers use the
-default inline threshold value for the protocol version that
-will be used for the remainder of the connection lifetime.
-To permit inline threshold values to change during negotiation
-of protocol version, RPC-over-RDMA Version Two implementations
-MUST allow inline threshold values to change without triggering
-a connection loss.
+The rdma_optinfo field carries opaque data.
+The content of this field is data meaningful to the
+optional operation denoted by the value in rdma_opttype.
+The content of this field is not
+defined in the base RPC-over-RDMA Version Two protocol,
+but is defined in other Standards Track documents
 </t>
+<t>
+When an implementation does not recognize or support the
+value contained in the rdma_opttype field, it MUST send
+an RPC-over-RDMA message with the rdma_xid field set
+to the same value as the erroneous message, the rdma_proc
+field set to RDMA_ERROR, and the rdma_err field set to
+RDMA_ERR_INVAL_OPTION.
+</t>
+
+</section>
+
+<section title="Documentation Requirements">
+<t>
+RPC-over-RDMA Version Two may be extended by defining a new
+rdma_opttype value and XDR description of the corresponding
+rdma_optinfo content.
+</t>
+<t>
+A set of such new protocol elements may be introduced by a
+Standards Track document and are together considered an
+OPTIONAL feature.
+nfsv4 Working Group and IESG review, together with appropriate
+testing of prototype implementations, should ensure continued
+interoperation with existing implementations.
+</t>
+<t>
+Documents describing extensions to RPC-over-RDMA Version Two
+should contain:
+<list style="symbols">
+<t>
+An explanation of the purpose and use of each new protocol
+element added
+</t>
+<t>
+An XDR description and a script to extract it
+</t>
+<t>
+A mechanism for reporting errors to the message sender
+that are outside the available choices in the base
+RPC-over-RDMA Version Two protocol
+</t>
+<t>
+A requirement that an RPC Payload Stream MUST or MUST NOT
+follow the Transport Header Stream for each new opttype code
+added
+</t>
+<t>
+A description of interactions with existing features
+(e.g., requirements that another OPTIONAL feature needs
+to be present and supported for newly added features to work)
+</t>
+</list>
+Implementers concatenate the XDR description of the new feature
+with the XDR description of the base protocol, extracted from
+this document, to produce a combined XDR description for the
+RPC-over-RDMA Version Two protocol with the specified
+extension.
+</t>
+</section>
 
 </section>
 
 <section
- title="Requester Does Not Support RPC-over-RDMA Version Two">
-
-<t>
-<xref target="I-D.ietf-nfsv4-rfc5666bis"/> REQUIRES that
-a responder MUST send Replies with the same RPC-over-RDMA
-protocol version that the requester uses to send its Calls.
-</t>
-
-</section>
-
-</section>
-
-</section>
-
-<section title="XDR Protocol Definition">
+ title="XDR Protocol Definition"
+ anchor="xdr-protocol-definition">
 
 <t>
 This section contains a description of the core features of
@@ -484,97 +570,86 @@ Version One error handling is described in Section 5 of
 </section>
 
 <section
- title="Protocol Extensibility"
- anchor="protocol-extensibility">
+ title="Protocol Version Negotiation">
 
 <t>
-The core RPC-over-RDMA Version Two header format is specified
-in this document as a complete and stand-alone piece of XDR.
-Any change to this XDR description requires a protocol
-version number bump.
+When an RPC-over-RDMA Version Two requester establishes a
+connection to a responder, the first order of business is to
+determine the responder's highest supported protocol version.
+</t>
+<t>
+As with RPC-over-RDMA Version One, a requester MUST assume the
+ability to exchange only a single RPC-over-RDMA message at a
+time until it receives a non-error RPC-over-RDMA message from
+the responder that reports the responder's actual credit limit.
+</t>
+<t>
+First, the requester sends a single valid RPC-over-RDMA message
+with the value two (2) in the rdma_vers field.
+Because the responder might support only RPC-over-RDMA
+Version One, this initial message can be no larger than the
+Version One default inline threshold of 1024 bytes.
 </t>
 
 <section
- title="Optional Features"
- anchor="optional-features">
+ title="Responder Does Support RPC-over-RDMA Version Two">
 
 <t>
-RPC-over-RDMA Version Two introduces the ability to extend
-the core protocol via optional features.
-</t>
-<t>
-The rdma_opttype field carries a 32-bit unsigned integer.
-The value in this field denotes an optional operation
-that MAY be supported by the receiver.
-The values of this field and their meaning are defined in
-other Standards Track documents.
-</t>
-<t>
-The rdma_optinfo field carries opaque data.
-The content of this field is data meaningful to the
-optional operation denoted by the value in rdma_opttype.
-The content of this field is not
-defined in the base RPC-over-RDMA Version Two protocol,
-but is defined in other Standards Track documents
-</t>
-<t>
-When an implementation does not recognize or support the
-value contained in the rdma_opttype field, it MUST send
-an RPC-over-RDMA message with the rdma_xid field set
-to the same value as the erroneous message, the rdma_proc
-field set to RDMA_ERROR, and the rdma_err field set to
-RDMA_ERR_INVAL_OPTION.
+If the responder does support RPC-over-RDMA Version Two,
+it sends an RPC-over-RDMA message back to the requester
+with the same XID containing a valid non-error response.
+Subsequently, both peers use the default inline threshold
+value for RPC-over-RDMA Version Two connections (4096 bytes).
 </t>
 
 </section>
 
-<section title="Documentation Requirements">
+<section
+ title="Responder Does Not Support RPC-over-RDMA Version Two">
+
 <t>
-RPC-over-RDMA Version Two may be extended by defining a new
-rdma_opttype value and XDR description of the corresponding
-rdma_optinfo content.
+If the responder does not support RPC-over-RDMA Version Two,
+<xref target="I-D.ietf-nfsv4-rfc5666bis"/> REQUIRES that it
+send an RPC-over-RDMA message to the requester with the same
+XID, with RDMA_ERROR in the rdma_proc field, and with the
+error code RDMA_ERR_VERS.
+This message also reports a range of protocol versions that
+the responder supports.
+To continue operation, the requester selects a protocol
+version in the range of responder-supported versions for
+subsequent messages on this connection.
 </t>
 <t>
-A set of such new protocol elements may be introduced by a
-Standards Track document and are together considered an
-OPTIONAL feature.
-nfsv4 Working Group and IESG review, together with appropriate
-testing of prototype implementations, should ensure continued
-interoperation with existing implementations.
+If the connection is lost immediately after the RDMA_ERROR reply
+is received, a requester can avoid a possible version negotiation
+loop when re-establishing another connection by assuming that
+particular responder does not support RPC-over-RDMA
+Version Two.
+A requester can assume the same situation (no responder support
+for RPC-over-RDMA Version Two) if the initial negotiation message
+is lost or dropped.
 </t>
 <t>
-Documents describing extensions to RPC-over-RDMA Version Two
-should contain:
-<list style="symbols">
+Once the negotiation exchange is complete, both peers use the
+default inline threshold value for the protocol version that
+will be used for the remainder of the connection lifetime.
+To permit inline threshold values to change during negotiation
+of protocol version, RPC-over-RDMA Version Two implementations
+MUST allow inline threshold values to change without triggering
+a connection loss.
+</t>
+
+</section>
+
+<section
+ title="Requester Does Not Support RPC-over-RDMA Version Two">
+
 <t>
-An explanation of the purpose and use of each new protocol
-element added
+<xref target="I-D.ietf-nfsv4-rfc5666bis"/> REQUIRES that
+a responder MUST send Replies with the same RPC-over-RDMA
+protocol version that the requester uses to send its Calls.
 </t>
-<t>
-An XDR description and a script to extract it
-</t>
-<t>
-A mechanism for reporting errors to the message sender
-that are outside the available choices in the base
-RPC-over-RDMA Version Two protocol
-</t>
-<t>
-A requirement that an RPC Payload Stream MUST or MUST NOT
-follow the Transport Header Stream for each new opttype code
-added
-</t>
-<t>
-A description of interactions with existing features
-(e.g., requirements that another OPTIONAL feature needs
-to be present and supported for newly added features to work)
-</t>
-</list>
-Implementers concatenate the XDR description of the new feature
-with the XDR description of the base protocol, extracted from
-this document, to produce a combined XDR description for the
-RPC-over-RDMA Version Two protocol with the specified
-extension.
-</t>
+
 </section>
 
 </section>
