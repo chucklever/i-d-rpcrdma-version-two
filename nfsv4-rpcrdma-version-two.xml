@@ -295,16 +295,18 @@ RPC-over-RDMA header at the receiver.
 <section title="Documentation Requirements">
 <t>
 RPC-over-RDMA Version Two may be extended by defining a new
-rdma_opttype value and XDR description of the corresponding
-rdma_optinfo content.
+rdma_opttype value, and then by providing an XDR description
+of the rdma_optinfo content that corresponds with the new
+rdma_opttype value.
+As a result, a new header type is effectively created.
 </t>
 <t>
-A set of such new protocol elements may be introduced by a
-Standards Track document and are together considered an
-OPTIONAL feature.
-nfsv4 Working Group and IESG review, together with appropriate
-testing of prototype implementations, should ensure continued
-interoperation with existing implementations.
+A Standards Track document introduces each set of such
+protocol elements.
+Together these elements are considered an OPTIONAL feature.
+Each implementation is either aware of all the protocol
+elements introduced by that feature, or is aware of none of
+them.
 </t>
 <t>
 Documents describing extensions to RPC-over-RDMA Version Two
@@ -315,29 +317,42 @@ An explanation of the purpose and use of each new protocol
 element added
 </t>
 <t>
-An XDR description and a script to extract it
+An XDR description of the protocol elements,
+and a script to extract it
 </t>
 <t>
-A mechanism for reporting errors to the message sender
-that are outside the available choices in the base
-RPC-over-RDMA Version Two protocol
+A mechanism for reporting errors when the error is
+outside the available choices already available in the
+base protocol or in other extensions
 </t>
 <t>
-A requirement that an RPC Payload Stream MUST or MUST NOT
-follow the Transport Header Stream for each new opttype code
-added
+An indication of whether a Payload stream must be present,
+and a description of its contents
 </t>
 <t>
-A description of interactions with existing features
-(e.g., requirements that another OPTIONAL feature needs
-to be present and supported for newly added features to work)
+A description of interactions with existing extensions
 </t>
 </list>
-Implementers concatenate the XDR description of the new feature
-with the XDR description of the base protocol, extracted from
-this document, to produce a combined XDR description for the
-RPC-over-RDMA Version Two protocol with the specified
-extension.
+</t>
+<t>
+The last bullet includes requirements that another OPTIONAL
+feature needs to be present for new protocol elements to work,
+or that a particular level of support be provided for some
+particular facility for the new extension to work.
+</t>
+<t>
+Implementers combine the XDR descriptions of the new features
+they intend to use with the XDR description of the base protocol
+in this document.
+This may be necessary to create a valid XDR input file because
+extensions are free to use XDR types defined in the base
+protocol, and later extensions may use types defined by earlier
+extensions.
+</t>
+<t>
+The XDR description for the RPC-over-RDMA Version Two protocol
+combined with that for any selected extensions should provide
+an adequate human-readable description of the extended protocol.
 </t>
 </section>
 
@@ -581,8 +596,8 @@ Stream in the Send buffer.
 </t>
 <t>
 When the rdma_proc field has the value RDMA2_OPTIONAL,
-an RPC Payload Stream MAY follow the Transport header
-Stream in the Send buffer.
+all, part of, or no RPC Payload Stream MAY follow the
+Transport header Stream in the Send buffer.
 </t>
 <t>
 When the rdma_proc field has any other value,
