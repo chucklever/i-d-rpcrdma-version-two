@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='I-D.ietf-nfsv4-rpcrdma-bidirection'>
+<front>
+<title>Bi-directional Remote Procedure Call On RPC-over-RDMA Transports</title>
+
+<author initials='C' surname='Lever' fullname='Chuck Lever'>
+    <organization />
+</author>
+
+<date month='May' day='27' year='2016' />
+
+<abstract><t>Minor versions of NFSv4 newer than NFSv4.0 work best when ONC RPC transports can send Remote Procedure Call transactions in both directions on the same connection.  This document describes how RPC- over-RDMA transport endpoints convey RPCs in both directions on a single connection.</t></abstract>
+
+</front>
+
+<seriesInfo name='Internet-Draft' value='draft-ietf-nfsv4-rpcrdma-bidirection-04' />
+<format type='TXT'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-nfsv4-rpcrdma-bidirection-04.txt' />
+<format type='PS'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-nfsv4-rpcrdma-bidirection-04.ps' />
+<format type='PDF'
+        target='http://www.ietf.org/internet-drafts/draft-ietf-nfsv4-rpcrdma-bidirection-04.pdf' />
+</reference>

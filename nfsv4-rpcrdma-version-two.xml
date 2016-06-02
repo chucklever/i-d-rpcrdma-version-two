@@ -18,7 +18,7 @@
 <front>
 
 <title abbrev="RDMA Transport for RPC V2">
-RPC-over-RDMA Version Two
+RPC-over-RDMA Version Two Protocol
 </title>
 
 <?rfc include="authors/author-lever-chuck.xml"?>
@@ -52,11 +52,11 @@ Remote Direct Memory Access (RDMA)
 technique for moving data efficiently between end nodes.
 By directing data into destination buffers as it is sent
 on a network, and placing it via direct memory access by
-hardware, the benefits of faster transfers and reduced host
-overhead are obtained.
+hardware, the complementary benefits of
+faster transfers and reduced host overhead are obtained.
 </t>
 <t>
-A protocol already exists that enables RPC
+A protocol already exists that enables ONC RPC
 <xref target="RFC5531"/> messages to be
 conveyed on RDMA transports.
 That protocol is RPC-over-RDMA Version One, specified in
