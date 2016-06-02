@@ -262,7 +262,34 @@ to the same value as the erroneous message, the rdma_proc
 field set to RDMA_ERROR, and the rdma_err field set to
 RDMA_ERR_INVAL_OPTION.
 </t>
+</section>
 
+<section title="Message Direction">
+<t>
+Backward direction operation depends on the ability
+of the receiver to distinguish between incoming
+forward and backward direction calls and replies.
+This needs to be done because both the XID field and
+the flow control value (RPC-over-RDMA credits) in the
+RPC-over-RDMA header are interpreted in the context
+of each message's direction.
+</t>
+<t>
+A receiver typically distinguishes message direction
+by examining the mtype field in the RPC header of each
+incoming payload message.
+However, RDMA_OPTIONAL type messages may not carry an
+RPC message payload.
+</t>
+<t>
+To enable RDMA_OPTIONAL type messages that do not carry
+an RPC message payload to be interpreted unambiguously,
+the rdma2_optional structure contains a field that
+identifies the message direction.
+A similar field has been added to the rpcrdma2_chunks
+and rpcrdma2_error structures to simplify parsing the
+RPC-over-RDMA header at the receiver.
+</t>
 </section>
 
 <section title="Documentation Requirements">
@@ -450,6 +477,12 @@ are defined in Section 4 of
 <![CDATA[
 <CODE BEGINS>
 
+/// /* From RFC 5531, Section 9 */
+/// enum msg_type {
+///         CALL = 0,
+///         REPLY = 1
+/// };
+///
 /// struct rpcrdma2_segment {
 ///         uint32 rdma_handle;
 ///         uint32 rdma_length;
@@ -476,6 +509,7 @@ are defined in Section 4 of
 /// };
 ///
 /// struct rpcrdma2_chunk_lists {
+///         enum msg_type               rdma_direction;
 ///         struct rpcrdma2_read_list   *rdma_reads;
 ///         struct rpcrdma2_write_list  *rdma_writes;
 ///         struct rpcrdma2_write_chunk *rdma_reply;
@@ -502,6 +536,7 @@ are defined in Section 4 of
 /// };
 ///
 /// struct rpcrdma2_optional {
+///         enum msg_type rdma_optdir;
 ///         uint32 rdma_opttype;
 ///         opaque rdma_optinfo<>;
 /// };
@@ -542,22 +577,56 @@ are defined in Section 4 of
 </artwork>
 </figure>
 </t>
+<section title="Presence Of Payload">
+<t>
+<list style="symbols">
 <t>
 When the rdma_proc field has the value RDMA_MSG,
 an RPC Payload Stream MUST follow the Transport Header
 Stream in the Send buffer.
+</t>
+<t>
 When the rdma_proc field has the value RDMA_OPTIONAL,
 an RPC Payload Stream MAY follow the Transport header
 Stream in the Send buffer.
+</t>
+<t>
 When the rdma_proc field has any other value,
 an RPC Payload Stream MUST NOT follow the
 Transport Header Stream.
 </t>
+</list>
+</t>
+</section>
+
+<section title="Message Direction">
 <t>
 Implementations of RPC-over-RDMA Version Two are REQUIRED to
 support backwards direction operation as described in
 <xref target="I-D.ietf-nfsv4-rpcrdma-bidirection"/>.
+<list style="symbols">
+<t>
+When an RPC message payload is present, the value of
+the rdma_direction or rdma_optdir fields MUST be the
+same as the value of the RPC message's msg_type field.
 </t>
+<t>
+When the rdma_proc field has the value RDMA_ERROR,
+the direction of the message is always
+Responder-to-Requester (REPLY).
+</t>
+<t>
+Otherwise, when no RPC message payload is present,
+a Requester MUST set the value of the rdma_direction
+or rdma_optdir field to CALL.
+A Responder MUST set the value of the rdma_direction or
+rdma_optdir field to REPLY.
+</t>
+</list>
+</t>
+</section>
+
+<section title="Transport Errors">
 <t>
 Error handling works the same way in RPC-over-RDMA Version
 Two as it does in RPC-over-RDMA Version One, with one
@@ -565,6 +634,7 @@ change described in <xref target="optional-features"/>.
 Version One error handling is described in Section 5 of
 <xref target="I-D.ietf-nfsv4-rfc5666bis"/>.
 </t>
+</section>
 
 </section>
 
@@ -712,8 +782,8 @@ for their support.
 
 <references title="Informative References">
 
-<?rfc include="references/reference.I-D.draft-ietf-nfsv4-rfc5666bis-04.xml"?>
-<?rfc include="references/reference.I-D.draft-ietf-nfsv4-rpcrdma-bidirection-01.xml"?>
+<?rfc include="references/reference.I-D.draft-ietf-nfsv4-rfc5666bis-07.xml"?>
+<?rfc include="references/reference.I-D.draft-ietf-nfsv4-rpcrdma-bidirection-04.xml"?>
 <?rfc include="references/reference.IBTA.spec.xml"?>
 <?rfc include="references/reference.RFC.5040.xml"?>
 <?rfc include="references/reference.RFC.5041.xml"?>
