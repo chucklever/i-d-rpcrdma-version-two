@@ -259,8 +259,8 @@ When an implementation does not recognize or support the
 value contained in the rdma_opttype field, it MUST send
 an RPC-over-RDMA message with the rdma_xid field set
 to the same value as the erroneous message, the rdma_proc
-field set to RDMA_ERROR, and the rdma_err field set to
-RDMA_ERR_INVAL_OPTION.
+field set to RDMA2_ERROR, and the rdma_err field set to
+RDMA2_ERR_INVAL_OPTION.
 </t>
 </section>
 
@@ -278,11 +278,11 @@ of each message's direction.
 A receiver typically distinguishes message direction
 by examining the mtype field in the RPC header of each
 incoming payload message.
-However, RDMA_OPTIONAL type messages may not carry an
+However, RDMA2_OPTIONAL type messages may not carry an
 RPC message payload.
 </t>
 <t>
-To enable RDMA_OPTIONAL type messages that do not carry
+To enable RDMA2_OPTIONAL type messages that do not carry
 an RPC message payload to be interpreted unambiguously,
 the rdma2_optional structure contains a field that
 identifies the message direction.
@@ -516,9 +516,9 @@ are defined in Section 4 of
 /// };
 ///
 /// enum rpcrdma2_errcode {
-///         RDMA_ERR_VERS = 1,
-///         RDMA_ERR_BAD_HEADER = 2,
-///         RDMA_ERR_INVAL_OPTION = 3
+///         RDMA2_ERR_VERS = 1,
+///         RDMA2_ERR_BAD_HEADER = 2,
+///         RDMA2_ERR_INVAL_OPTION = 3
 /// };
 ///
 /// struct rpcrdma2_err_vers {
@@ -527,11 +527,11 @@ are defined in Section 4 of
 /// };
 ///
 /// union rpcrdma2_error switch (rpcrdma2_errcode rdma_err) {
-///         case RDMA_ERR_VERS:
+///         case RDMA2_ERR_VERS:
 ///           rpcrdma2_err_vers rdma_vrange;
-///         case RDMA_ERR_BAD_HEADER:
+///         case RDMA2_ERR_BAD_HEADER:
 ///           void;
-///         case RDMA_ERR_INVAL_OPTION:
+///         case RDMA2_ERR_INVAL_OPTION:
 ///           void;
 /// };
 ///
@@ -542,26 +542,20 @@ are defined in Section 4 of
 /// };
 ///
 /// enum rpcrdma2_proc {
-///         RDMA_MSG = 0,
-///         RDMA_NOMSG = 1,
-///         RDMA_MSGP = 2,  /* Reserved */
-///         RDMA_DONE = 3,  /* Reserved */
-///         RDMA_ERROR = 4,
-///         RDMA_OPTIONAL = 5
+///         RDMA2_MSG = 0,
+///         RDMA2_NOMSG = 1,
+///         RDMA2_ERROR = 4,
+///         RDMA2_OPTIONAL = 5
 /// };
 ///
 /// union rpcrdma2_body switch (rpcrdma2_proc rdma_proc) {
-///         case RDMA_MSG:
+///         case RDMA2_MSG:
 ///           rpcrdma2_chunks rdma_chunks;
-///         case RDMA_NOMSG:
+///         case RDMA2_NOMSG:
 ///           rpcrdma2_chunks rdma_chunks;
-///         case RDMA_MSGP:
-///           void;
-///         case RDMA_DONE:
-///           void;
-///         case RDMA_ERROR:
+///         case RDMA2_ERROR:
 ///           rpcrdma2_error rdma_error;
-///         case RDMA_OPTIONAL:
+///         case RDMA2_OPTIONAL:
 ///           rpcrdma2_optional rdma_optional;
 /// };
 ///
@@ -581,12 +575,12 @@ are defined in Section 4 of
 <t>
 <list style="symbols">
 <t>
-When the rdma_proc field has the value RDMA_MSG,
+When the rdma_proc field has the value RDMA2_MSG,
 an RPC Payload Stream MUST follow the Transport Header
 Stream in the Send buffer.
 </t>
 <t>
-When the rdma_proc field has the value RDMA_OPTIONAL,
+When the rdma_proc field has the value RDMA2_OPTIONAL,
 an RPC Payload Stream MAY follow the Transport header
 Stream in the Send buffer.
 </t>
@@ -611,7 +605,7 @@ the rdma_direction or rdma_optdir fields MUST be the
 same as the value of the RPC message's msg_type field.
 </t>
 <t>
-When the rdma_proc field has the value RDMA_ERROR,
+When the rdma_proc field has the value RDMA2_ERROR,
 the direction of the message is always
 Responder-to-Requester (REPLY).
 </t>
@@ -682,8 +676,8 @@ value for RPC-over-RDMA Version Two connections (4096 bytes).
 If the responder does not support RPC-over-RDMA Version Two,
 <xref target="I-D.ietf-nfsv4-rfc5666bis"/> REQUIRES that it
 send an RPC-over-RDMA message to the requester with the same
-XID, with RDMA_ERROR in the rdma_proc field, and with the
-error code RDMA_ERR_VERS.
+XID, with RDMA2_ERROR in the rdma_proc field, and with the
+error code RDMA2_ERR_VERS.
 This message also reports a range of protocol versions that
 the responder supports.
 To continue operation, the requester selects a protocol
@@ -691,7 +685,7 @@ version in the range of responder-supported versions for
 subsequent messages on this connection.
 </t>
 <t>
-If the connection is lost immediately after the RDMA_ERROR reply
+If the connection is lost immediately after the RDMA2_ERROR reply
 is received, a requester can avoid a possible version negotiation
 loop when re-establishing another connection by assuming that
 particular responder does not support RPC-over-RDMA
