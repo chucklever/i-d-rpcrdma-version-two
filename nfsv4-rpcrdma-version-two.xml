@@ -134,10 +134,14 @@ described in <xref target="RFC2119"/>.
 <t>
 The term "inline threshold" is defined in Section 4 of
 <xref target="I-D.ietf-nfsv4-rfc5666bis"/>.
-A receiver's "inline threshold" value is the largest message size (in
-octets) that the receiver can accept via an RDMA Receive operation.
-Each connection has two inline threshold values, one for each peer
-receiver.
+An "inline threshold" value is the largest message size (in octets)
+that can be conveyed in one direction between peer implementations
+using RDMA Send and Receive.
+Each connection has two inline threshold values: one for messages
+flowing from requester-to-responder (referred to as the
+"call inline threshold"),
+and one for messages flowing from responder-to-requester
+(referred to as the "reply inline threshold").
 Inline threshold values are not advertised to peers via the base
 RPC-over-RDMA Version Two protocol.
 </t>
