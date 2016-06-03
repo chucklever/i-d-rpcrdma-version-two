@@ -599,14 +599,14 @@ an RPC Payload Stream MUST follow the Transport Header
 Stream in the Send buffer.
 </t>
 <t>
+When the rdma_proc field has the value RDMA2_ERROR,
+an RPC Payload Stream MUST NOT follow the
+Transport Header Stream.
+</t>
+<t>
 When the rdma_proc field has the value RDMA2_OPTIONAL,
 all, part of, or no RPC Payload Stream MAY follow the
 Transport header Stream in the Send buffer.
-</t>
-<t>
-When the rdma_proc field has any other value,
-an RPC Payload Stream MUST NOT follow the
-Transport Header Stream.
 </t>
 </list>
 </t>
@@ -614,14 +614,16 @@ Transport Header Stream.
 
 <section title="Message Direction">
 <t>
-Implementations of RPC-over-RDMA Version Two are REQUIRED to
-support backwards direction operation as described in
+Implementations of RPC-over-RDMA Version Two are REQUIRED
+to support backwards direction operation as described in
 <xref target="I-D.ietf-nfsv4-rpcrdma-bidirection"/>.
 <list style="symbols">
 <t>
-When an RPC message payload is present, the value of
-the rdma_direction or rdma_optdir fields MUST be the
-same as the value of the RPC message's msg_type field.
+When the rdma_proc field has the value RDMA2_MSG
+or RDMA2_NOMSG,
+the value of the rdma_direction field MUST be the
+same as the value of the associated RPC message's
+msg_type field.
 </t>
 <t>
 When the rdma_proc field has the value RDMA2_ERROR,
@@ -629,11 +631,24 @@ the direction of the message is always
 Responder-to-Requester (REPLY).
 </t>
 <t>
-Otherwise, when no RPC message payload is present,
-a Requester MUST set the value of the rdma_direction
-or rdma_optdir field to CALL.
-A Responder MUST set the value of the rdma_direction or
-rdma_optdir field to REPLY.
+When the rdma_proc field has the value RDMA2_OPTIONAL
+and a whole or partial RPC message payload is present, 
+the value of the rdma_optdir field MUST be the
+same as the value of the associated RPC message's
+msg_type field.
+</t>
+<t>
+When the rdma_proc field has the value RDMA2_OPTIONAL
+and no RPC message payload is present,
+a Requester MUST set the value of the rdma_optdir field
+to CALL, and
+a Responder MUST set the value of the rdma_optdir field
+to REPLY.
+The Requester chooses a value for the rdma_xid field
+from the XID space that matches the message's direction.
+Requesters and Responders set the rdma_credit field
+in a similar fashion: a value is set that is appropriate
+for the direction of the message.
 </t>
 </list>
 </t>
