@@ -146,12 +146,12 @@ Inline threshold values are not advertised to peers via the base
 RPC-over-RDMA Version Two protocol.
 </t>
 <t>
-A connection's inline threshold determines when full RDMA Read or
-Write operations are required because the RPC message to be send
-is larger than the peer's Receive buffer.
-If an RPC message does not contain DDP-eligible data items,
+A connection's inline threshold determines when RDMA Read or
+Write operations are required because the RPC message to be
+sent cannot be conveyed via RDMA Send and Receive.
+When an RPC message does not contain DDP-eligible data items,
 a requester prepares a Long Call or Reply to convey the whole
-RPC message using an RDMA Read or Write.
+RPC message using RDMA Read or Write operations.
 </t>
 </section>
 
@@ -167,8 +167,8 @@ from the responder.
 Both registration and unregistration have a latency cost which is
 insignificant compared to data handling costs.
 When a data payload is small, however, the cost of registering and
-unregistering the memory where it resides becomes a relatively
-significant part of total RPC latency.
+unregistering the memory where the payload resides becomes
+a relatively significant part of total RPC latency.
 Therefore the most efficient operation of RPC-over-RDMA occurs
 when RDMA Read and Write operations are used for large payloads,
 and avoided for small payloads.
@@ -188,7 +188,7 @@ are needed for frequent operations that do not bear a data payload,
 such as GETATTR and LOOKUP, reducing the efficiency of the
 transport.
 To reduce the need to use Long Calls and Replies, RPC-over-RDMA
-Version Two quadruples the default inline threshold size.
+Version Two increases the default inline threshold size.
 This also increases the maximum size of backward direction
 RPC messages.
 </t>
@@ -201,7 +201,8 @@ RPC-over-RDMA Version Two receiver implementations MUST support
 an inline threshold of 4096 bytes, but MAY support larger inline
 threshold values.
 A mechanism for discovering a peer's preferred inline threshold
-value may be used to optimize RDMA Send operations further.
+value (not defined in this document) may be used to optimize
+RDMA Send operations further.
 In the absense of such a mechanism, senders MUST assume a receiver's
 inline threshold is 4096 bytes.
 </t>
@@ -210,7 +211,7 @@ The new default inline threshold size is no larger than the size
 of a hardware page on typical platforms.
 This conserves the resources needed to Send and Receive base
 level RPC-over-RDMA Version Two messages, enabling RPC-over-RDMA
-Version Two to be used on a broad base of hardware.
+Version Two to be used on a broad variety of hardware.
 </t>
 </section>
 
@@ -657,8 +658,9 @@ for the direction of the message.
 <section title="Transport Errors">
 <t>
 Error handling works the same way in RPC-over-RDMA Version
-Two as it does in RPC-over-RDMA Version One, with one
-change described in <xref target="optional-features"/>.
+Two as it does in RPC-over-RDMA Version One,
+with the addition of RDMA_ERR_INVAL_OPTION, as
+described in <xref target="optional-features"/>.
 Version One error handling is described in Section 5 of
 <xref target="I-D.ietf-nfsv4-rfc5666bis"/>.
 </t>
