@@ -217,6 +217,78 @@ Version Two to be used on a broad variety of hardware.
 
 </section>
 
+<section title="Remote Invalidation">
+<t>
+An STag that is registered using
+the FRWR mechanism (in a privileged execution context),
+or is registered via a Memory Window (in user space),
+may be invalidated remotely <xref target="RFC5040" />.
+These mechanisms are available only when a requester's
+RNIC supports MEM_MGT_EXTENSIONS.
+</t>
+<t>
+For the purposes of this discussion, there are two classes of STags.
+Dynamically-registered STags are used in a single RPC, then invalidated.
+Persistently-registered STags live longer than one RPC.
+They may persist for the life of an RPC-over-RDMA connection, or longer.
+</t>
+<t>
+An RPC-over-RDMA requester may provide more than one STag
+in one transport header.
+It may provide any combination of the following registration types
+in one RPC message,
+any combination of these in a series of RPCs on the same connection,
+or it may use some other registration model.
+</t>
+<t>
+Only dynamically-registered STags using Memory Windows
+or FRWR (ie. registered via MEM_MGT_EXTENSIONS) may be invalidated remotely.
+</t>
+<t>
+There is no transport-level mechanism by which a responder can determine
+how a requester-provided STag was registered, nor whether it is
+eligible to be invalidated remotely.
+A requester that mixes persistently- and dynamically-registered STags in one RPC,
+or mixes them across RPCs on the same connection,
+must therefore indicate which handle may be invalidated via a mechanism
+provided in the Upper Layer Protocol (in this case, RPC-over-RDMA).
+RPC-over-RDMA Version Two provides such a mechanism.
+</t>
+<t>
+The RDMA Send With Invalidate operation is used to invalidate an
+STag on a remote system.
+It is available only when a responder's RNIC supports MEM_MGT_EXTENSIONS,
+and must be utilized only when a requester's RNIC supports MEM_MGT_EXTENSIONS
+(can receive and recognize an IETH).
+</t>
+
+<section title="Backward-Direction Remote Invalidation">
+<t>
+Existing RPC-over-RDMA protocol specifications
+<xref target="I-D.ietf-nfsv4-rfc5666bis" />
+<xref target="I-D.ietf-nfsv4-rpcrdma-bidirection" />
+do not forbid
+direct data placement in the backward-direction,
+even though there is currently no Upper Layer Protocol that may use it.
+</t>
+<t>
+When chunks are present in a backward-direction RPC request,
+Remote Invalidation allows the responder
+to trigger invalidation of a requester's STags as part of sending a reply,
+the same as in the forward direction.
+</t>
+<t>
+However, in the backward direction,
+the server acts as the requester,
+and the client is the responder.
+The server's RNIC, therefore, must support receiving an IETH,
+and the server must have registered the STags with an appropriate registration mechanism.
+</t>
+
+</section>
+
+</section>
+
 <section
  title="Protocol Extensibility"
  anchor="protocol-extensibility">
@@ -530,6 +602,7 @@ are defined in Section 4 of
 ///
 /// struct rpcrdma2_chunk_lists {
 ///         enum msg_type               rdma_direction;
+///         u32                         rdma_inv_handle;
 ///         struct rpcrdma2_read_list   *rdma_reads;
 ///         struct rpcrdma2_write_list  *rdma_writes;
 ///         struct rpcrdma2_write_chunk *rdma_reply;
@@ -655,11 +728,37 @@ for the direction of the message.
 </t>
 </section>
 
+<section title="Remote Invalidation">
+<t>
+Among the set of handles in the RPC Call's transport header,
+the requester selects one handle that may be invalidated remotedly.
+The requester sets the rdma_inv_handle field to that value.
+If none of the rdma_handle
+values in the Call may be invalidated by the responder,
+the requester MUST set the rdma_inv_handle field to the value zero.
+The requester MUST NOT set the value of the rdma_inv_handle
+field to any other value.
+</t>
+<t>
+The responder copies the value of the rdma_inv_handle field
+set by the requester to the rdma_inv_handle field in the
+matching reply.
+If the rdma_inv_handle field contains zero,
+the responder MUST NOT use RDMA Send With Invalidate to
+transmit the matching RPC reply.
+Otherwise, the responder SHOULD use RDMA Send With Invalidate
+to transmit the reply,
+specifying the value in the rdma_inv_handle field
+as the handle to be invalidated remotely.
+The responder MUST NOT specify any other handle for this operation.
+</t>
+</section>
+
 <section title="Transport Errors">
 <t>
 Error handling works the same way in RPC-over-RDMA Version
 Two as it does in RPC-over-RDMA Version One,
-with the addition of RDMA_ERR_INVAL_OPTION, as
+with the addition of RDMA2_ERR_INVAL_OPTION, as
 described in <xref target="optional-features"/>.
 Version One error handling is described in Section 5 of
 <xref target="I-D.ietf-nfsv4-rfc5666bis"/>.
