@@ -950,6 +950,27 @@ There are no IANA considerations at this time.
 </t>
 </section>
 
+</middle>
+
+<back>
+
+<references title="Normative References">
+<?rfc include="references/reference.RFC.2119.xml"?>
+<?rfc include="references/reference.RFC.4506.xml"?>
+<?rfc include="references/reference.RFC.5531.xml"?>
+</references>
+
+<references title="Informative References">
+<?rfc include="references/reference.I-D.draft-ietf-nfsv4-rfc5666bis-07.xml"?>
+<?rfc include="references/reference.I-D.draft-ietf-nfsv4-rpcrdma-bidirection-05.xml"?>
+<?rfc include="references/reference.IBTA.spec.xml"?>
+<?rfc include="references/reference.RFC.5040.xml"?>
+<?rfc include="references/reference.RFC.5041.xml"?>
+<?rfc include="references/reference.RFC.5661.xml"?>
+<?rfc include="references/reference.RFC.5662.xml"?>
+<?rfc include="references/reference.RFC.5666.xml"?>
+</references>
+
 <section title="Acknowledgments">
 <t>
 The authors gratefully acknowledge the work of Brent Callaghan
@@ -972,31 +993,6 @@ nfsv4 Working Group Secretary Thomas Haynes
 for their support.
 </t>
 </section>
-
-</middle>
-
-<back>
-
-<references title="Normative References">
-
-<?rfc include="references/reference.RFC.2119.xml"?>
-<?rfc include="references/reference.RFC.4506.xml"?>
-<?rfc include="references/reference.RFC.5531.xml"?>
-
-</references>
-
-<references title="Informative References">
-
-<?rfc include="references/reference.I-D.draft-ietf-nfsv4-rfc5666bis-07.xml"?>
-<?rfc include="references/reference.I-D.draft-ietf-nfsv4-rpcrdma-bidirection-05.xml"?>
-<?rfc include="references/reference.IBTA.spec.xml"?>
-<?rfc include="references/reference.RFC.5040.xml"?>
-<?rfc include="references/reference.RFC.5041.xml"?>
-<?rfc include="references/reference.RFC.5661.xml"?>
-<?rfc include="references/reference.RFC.5662.xml"?>
-<?rfc include="references/reference.RFC.5666.xml"?>
-
-</references>
 
 </back>
 
