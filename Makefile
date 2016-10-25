@@ -3,6 +3,7 @@
 #
 
 # Tools
+SED := sed
 ENSCRIPT := enscript -f Courier@10 --margins 76::76: -B -q -p
 PS2PDF := ps2pdf
 RM := rm -f
@@ -11,9 +12,10 @@ IDNITS := ../idnits-2.14.01/idnits
 
 # docName
 AUTHOR := cel
-NAME := nfsv4-rpcrdma-version-two
+GROUP := nfsv4
+NAME := rpcrdma-version-two
 VERSION := 02
-DOCNAME := draft-$(AUTHOR)-$(NAME)-$(VERSION)
+DOCNAME := draft-$(AUTHOR)-$(GROUP)-$(NAME)-$(VERSION)
 
 # Source
 SOURCE := $(NAME).xml
@@ -28,7 +30,7 @@ XML := $(DOCNAME).xml
 all: $(TXT) $(PS) $(PDF) $(HTML) $(XML)
 
 autogen.xml: $(SOURCE) references/reference.*.xml authors/author*.xml
-	sed -e s/DOCNAMEVAR/$(DOCNAME)/g < $(SOURCE) > $@
+	$(SED) -e s/DOCNAMEVAR/$(DOCNAME)/g < $(SOURCE) > $@
 
 $(XML): autogen.xml
 	$(XML2RFC) $^ --exp -o $@
