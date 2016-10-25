@@ -291,7 +291,7 @@ To enable RDMA2_OPTIONAL type messages that do not carry
 an RPC message payload to be interpreted unambiguously,
 the rdma2_optional structure contains a field that
 identifies the message direction.
-A similar field has been added to the rpcrdma2_chunks
+A similar field has been added to the rpcrdma2_chunk_lists
 and rpcrdma2_error structures to simplify parsing the
 RPC-over-RDMA header at the receiver.
 </t>
@@ -570,9 +570,9 @@ are defined in Section 4 of
 ///
 /// union rpcrdma2_body switch (rpcrdma2_proc rdma_proc) {
 ///         case RDMA2_MSG:
-///           rpcrdma2_chunks rdma_chunks;
+///           rpcrdma2_chunk_lists rdma_chunks;
 ///         case RDMA2_NOMSG:
-///           rpcrdma2_chunks rdma_chunks;
+///           rpcrdma2_chunk_lists rdma_chunks;
 ///         case RDMA2_ERROR:
 ///           rpcrdma2_error rdma_error;
 ///         case RDMA2_OPTIONAL:
