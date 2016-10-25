@@ -60,7 +60,7 @@ Remote Direct Memory Access (RDMA)
 <xref target="IB"/> is a
 technique for moving data efficiently between end nodes.
 By directing data into destination buffers as it is sent
-on a network, and placing it via direct memory access by
+on a network and placing it via direct memory access by
 hardware, the complementary benefits of
 faster transfers and reduced host overhead are obtained.
 </t>
@@ -77,12 +77,12 @@ such as:
 <t>
 The use of small Receive buffers force the use of RDMA
 Read and Write transfers for small payloads, and limit
-the size of backchannel messages
+the size of backchannel messages.
 </t>
 <t>
 Lack of support for potential optimizations, such as
 remote invalidation, that require changes to on-the-wire
-behavior
+behavior.
 </t>
 </list>
 </t>
@@ -121,6 +121,9 @@ The default 1KB inline threshold in RPC-over-RDMA
 Version One prevents attaining the best possible
 performance.
 </t>
+<t>
+Other new features include support for Remote Invalidation.
+</t>
 
 </section>
 
@@ -133,8 +136,8 @@ performance.
 The term "inline threshold" is defined in Section 4 of
 <xref target="I-D.ietf-nfsv4-rfc5666bis"/>.
 An "inline threshold" value is the largest message size (in octets)
-that can be conveyed in one direction between peer implementations
-using RDMA Send and Receive.
+that can be conveyed in one direction on an RDMA connection
+using only RDMA Send and Receive.
 Each connection has two inline threshold values: one for messages
 flowing from requester-to-responder (referred to as the
 "call inline threshold"),
@@ -158,14 +161,14 @@ RPC message using RDMA Read or Write operations.
 <t>
 RDMA Read and Write operations require that each data payload
 resides in a region of memory that is registered with the RNIC.
-When an RPC is complete, that region is unregistered, fencing it
+When an RPC is complete, that region is invalidated, fencing it
 from the responder.
 </t>
 <t>
-Both registration and unregistration have a latency cost which is
+Both registration and invalidation have a latency cost which is
 insignificant compared to data handling costs.
 When a data payload is small, however, the cost of registering and
-unregistering the memory where the payload resides becomes
+invalidating the memory where the payload resides becomes
 a relatively significant part of total RPC latency.
 Therefore the most efficient operation of RPC-over-RDMA occurs
 when RDMA Read and Write operations are used for large payloads,
@@ -185,6 +188,8 @@ With a 1024-byte inline threshold, RDMA Read or Write operations
 are needed for frequent operations that do not bear a data payload,
 such as GETATTR and LOOKUP, reducing the efficiency of the
 transport.
+</t>
+<t>
 To reduce the need to use Long Calls and Replies, RPC-over-RDMA
 Version Two increases the default inline threshold size.
 This also increases the maximum size of backward direction
@@ -233,12 +238,9 @@ They may persist for the life of an RPC-over-RDMA connection, or longer.
 <t>
 An RPC-over-RDMA requester may provide more than one STag
 in one transport header.
-It may provide any combination of the following registration types
-in one RPC message,
-any combination of these in a series of RPCs on the same connection,
-or it may use some other registration model.
-</t>
-<t>
+It may provide a combination of dynamically- and
+persistently-registered STags in one RPC message, or
+any combination of these in a series of RPCs on the same connection.
 Only dynamically-registered STags using Memory Windows
 or FRWR (ie. registered via MEM_MGT_EXTENSIONS) may be invalidated remotely.
 </t>
@@ -248,8 +250,8 @@ how a requester-provided STag was registered, nor whether it is
 eligible to be invalidated remotely.
 A requester that mixes persistently- and dynamically-registered STags in one RPC,
 or mixes them across RPCs on the same connection,
-must therefore indicate which handle may be invalidated via a mechanism
-provided in the Upper Layer Protocol (in this case, RPC-over-RDMA).
+must therefore indicate which handles may be invalidated via a mechanism
+provided in the Upper Layer Protocol.
 RPC-over-RDMA Version Two provides such a mechanism.
 </t>
 <t>
