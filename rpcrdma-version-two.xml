@@ -129,8 +129,8 @@ of an STag as part of sending an RPC Reply, saving the
 requester the effort of invalidating after message
 receipt.
 This new feature is general enough to enable a requester
-to precisely control when Remote Invalidation is used
-by responders.
+to control precisely when Remote Invalidation may be
+utilized by responders.
 </t>
 <t>
 RPC-over-RDMA Version Two expands the repertoire of
@@ -850,10 +850,10 @@ resources to transmit the reply,
 the responder MUST send RDMA2_ERR_REPLY_RESOURCE.
 <vspace/>
 <vspace/>
-The responder MUST set the rdma_executed field to
-TRUE if the responder discovered the shortage after
-the Upper Layer Protocol has finished executing the request;
-otherwise the field MUST be set to FALSE.
+If the responder has already modified Upper Layer Protocol state
+(say, it has processed a non-idempotent NFS operation such as SETATTR),
+the responder MUST set the rdma_executed field to TRUE.
+Otherwise the field MUST be set to FALSE.
 <vspace/>
 <vspace/>
 The responder MUST set the rdma_segment_index field to point to the
@@ -868,8 +868,8 @@ needed in that segment in order to convey the reply.
 <vspace/>
 Upon receipt of this error code,
 a responder MAY choose to terminate the operation
-(for instance, if the responder set both fields above to zero), or
-it MAY send the request again using the same XID and larger
+(for instance, if the responder set the index and length fields to zero),
+or it MAY send the request again using the same XID and larger
 reply resources.
 </t>
 <t hangText="RDMA2_ERR_INVAL_OPTION">
