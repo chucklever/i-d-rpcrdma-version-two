@@ -895,81 +895,76 @@ rdma_xid field.
  title="Protocol Version Negotiation">
 
 <t>
-When an RPC-over-RDMA Version Two requester establishes a
-connection to a responder, the first order of business is to
-determine the responder's highest supported protocol version.
+When an RPC-over-RDMA Version Two client establishes a
+connection to a server, the first order of business is to
+determine the server's highest supported protocol version.
 </t>
 <t>
-As with RPC-over-RDMA Version One, a requester MUST assume the
+As with RPC-over-RDMA Version One, a client MUST assume the
 ability to exchange only a single RPC-over-RDMA message at a
-time until it receives a non-error RPC-over-RDMA message from
-the responder that reports the responder's actual credit limit.
+time until it receives a valid non-error RPC-over-RDMA message
+from the server that reports the server's credit limit.
 </t>
 <t>
-First, the requester sends a single valid RPC-over-RDMA message
+First, the client sends a single valid RPC-over-RDMA message
 with the value two (2) in the rdma_vers field.
-Because the responder might support only RPC-over-RDMA
+Because the server might support only RPC-over-RDMA
 Version One, this initial message can be no larger than the
 Version One default inline threshold of 1024 bytes.
 </t>
 
 <section
- title="Responder Does Support RPC-over-RDMA Version Two">
+ title="Server Does Support RPC-over-RDMA Version Two">
 
 <t>
-If the responder does support RPC-over-RDMA Version Two,
-it sends an RPC-over-RDMA message back to the requester
-with the same XID containing a valid non-error response.
-Subsequently, both peers use the default inline threshold
-value for RPC-over-RDMA Version Two connections (4096 bytes).
+If the server does support RPC-over-RDMA Version Two,
+it sends RPC-over-RDMA messages back to the client
+with the value two (2) in the rdma_vers field.
+Both peers may use the default inline threshold value
+for RPC-over-RDMA Version Two connections (4096 bytes).
 </t>
 
 </section>
 
 <section
- title="Responder Does Not Support RPC-over-RDMA Version Two">
+ title="Server Does Not Support RPC-over-RDMA Version Two">
 
 <t>
-If the responder does not support RPC-over-RDMA Version Two,
-<xref target="I-D.ietf-nfsv4-rfc5666bis"/> REQUIRES that it
-send an RPC-over-RDMA message to the requester with the same
-XID, with RDMA2_ERROR in the rdma_proc field, and with the
-error code RDMA2_ERR_VERS.
+If the server does not support RPC-over-RDMA Version Two,
+it MUST send an RPC-over-RDMA message to the client with the
+same XID, with RDMA2_ERROR in the rdma_proc field,
+and with the error code RDMA2_ERR_VERS.
 This message also reports a range of protocol versions that
-the responder supports.
-To continue operation, the requester selects a protocol
-version in the range of responder-supported versions for
+the server supports.
+To continue operation, the client selects a protocol
+version in the range of server-supported versions for
 subsequent messages on this connection.
 </t>
 <t>
-If the connection is lost immediately after the RDMA2_ERROR reply
-is received, a requester can avoid a possible version negotiation
+If the connection is lost immediately after an
+RDMA2_ERROR / RDMA2_ERR_VERS message is received,
+a client can avoid a possible version negotiation
 loop when re-establishing another connection by assuming that
-particular responder does not support RPC-over-RDMA
+particular server does not support RPC-over-RDMA
 Version Two.
-A requester can assume the same situation (no responder support
+A client can assume the same situation (no server support
 for RPC-over-RDMA Version Two) if the initial negotiation message
 is lost or dropped.
-</t>
-<t>
-Once the negotiation exchange is complete, both peers use the
-default inline threshold value for the protocol version that
-will be used for the remainder of the connection lifetime.
-To permit inline threshold values to change during negotiation
-of protocol version, RPC-over-RDMA Version Two implementations
-MUST allow inline threshold values to change without triggering
-a connection loss.
+Once the negotiation exchange is complete, both peers may use
+the default inline threshold value for the transport protocol
+version that has been selected.
 </t>
 
 </section>
 
 <section
- title="Requester Does Not Support RPC-over-RDMA Version Two">
+ title="Client Does Not Support RPC-over-RDMA Version Two">
 
 <t>
-<xref target="I-D.ietf-nfsv4-rfc5666bis"/> REQUIRES that
-a responder MUST send Replies with the same RPC-over-RDMA
-protocol version that the requester uses to send its Calls.
+If the server supports the RPC-over-RDMA protocol version used in
+Call messages from a client, it MUST send Replies with the same
+RPC-over-RDMA protocol version that the client uses to
+send its Calls.
 </t>
 
 </section>
