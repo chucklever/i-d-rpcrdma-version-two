@@ -654,7 +654,6 @@ are defined in Section 4 of
 /// };
 ///
 /// struct rpcrdma2_err_reply {
-///         bool   rdma_executed;
 ///         uint32 rdma_segment_index;
 ///         uint32 rdma_length_needed;
 /// };
@@ -848,12 +847,6 @@ If the RPC-over-RDMA transport header is otherwise correct, but
 the requester has not provided enough Write or Reply chunk
 resources to transmit the reply,
 the responder MUST send RDMA2_ERR_REPLY_RESOURCE.
-<vspace/>
-<vspace/>
-If the responder has already modified Upper Layer Protocol state
-(say, it has processed a non-idempotent NFS operation such as SETATTR),
-the responder MUST set the rdma_executed field to TRUE.
-Otherwise the field MUST be set to FALSE.
 <vspace/>
 <vspace/>
 The responder MUST set the rdma_segment_index field to point to the
