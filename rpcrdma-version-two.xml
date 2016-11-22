@@ -500,16 +500,16 @@ an adequate human-readable description of the extended protocol.
 <![CDATA[
 <CODE BEGINS>
  
-typedef propid          uint32;
+typedef rpcrdma2_propid uint32;
 
-struct propval {
-        propid          pv_which;
-        opaque          pv_data<>;
+struct rpcrdma2_propval {
+        rpcrdma2_propid rdma_which;
+        opaque          rdma_data<>;
 };
 
-typedef propval         propvalset<>;
+typedef rpcrdma2_propval rpcrdma2_propset<>;
 
-typedef uint32          propvalsubset<>;
+typedef uint32 rpcrdma2_propsubset<>;
 
 <CODE ENDS>
 ]]>
@@ -517,66 +517,66 @@ typedef uint32          propvalsubset<>;
         </figure> 
         </t>
         <t>
-          A propid specifies a particular transport property.
+          An rpcrdma2_propid specifies a particular transport property.
           In order to allow easier XDR extension of the set 
           of properties by concatenating XDR files, 
           specific properties
           are defined as const values rather than as elements in an enum.
         </t>
         <t>
-          A propval specifies a value of a particular transport 
+          An rpcrdma2_propval specifies a value of a particular transport 
           property
-          with the particular property identified by pv_which, while
+          with the particular property identified by rdma_which, while
           the associated value of that property is contained within
-          pv_data.
+          rdma_data.
         </t>
         <t>
-          A pv_data which is of zero length is interpreted as indicating
-          the default value or the property indicated by pv_which.
+          A rdma_data field which is of zero length is interpreted as indicating
+          the default value or the property indicated by rdma_which.
         </t>
         <t>
-          While pv_data is defined as opaque within the XDR, the contents
+          While rdma_data is defined as opaque within the XDR, the contents
           are interpreted (except when of length zero)
           using the XDR typedef associated with the
-          property specified by pv_which.  The receiver of a message
-          containing a propval MUST report an XDR error
+          property specified by rdma_which.  The receiver of a message
+          containing an rpcrdma2_propval MUST report an XDR error
  [ cel: which error? BAD_XDR, or do we want to add a new one? ]
-          if the length of pv_data is such that it extends beyond the 
+          if the length of rdma_data is such that it extends beyond the 
           bounds of the message transferred.
         </t>
         <t>
-          In cases in which the propid specified by pv_which is understood
-          by the receiver, the receiver also MUST report an XDR error
-          if either of
-          the following occur:  
+          In cases in which the rpcrdma2_propid specified by rdma_which is
+          understood by the receiver, the receiver also MUST report an
+          XDR error if either of the following occur:  
+ [ cel: which error? BAD_XDR, or do we want to add a new one? ]
         <list style="symbols">
           <t>
-            The nominally opaque data within pv_data is not valid
+            The nominally opaque data within rdma_data is not valid
             when interpreted using the property-associated typedef.
           </t>
           <t>
-            The length of pv_data is insufficient to contain the data
+            The length of rdma_data is insufficient to contain the data
             represented by the property-associated typedef.
           </t>
         </list>
         </t>
         <t>
-          Note that no error is to be reported if pv_which is unknown
+          Note that no error is to be reported if rdma_which is unknown
           to the receiver.
-          In that case, that propval is not processed and processing 
-          continues using the next propval, if any.
+          In that case, that rpcrdma2_propval is not processed and processing 
+          continues using the next rpcrdma2_propval, if any.
         </t>
         <t>
-          A propvalset specifies a set of transport properties.  No
-          particular ordering of the propvals within it is imposed. 
+          A rpcrdma2_propset specifies a set of transport properties.  No
+          particular ordering of the rpcrdma2_propval items within it is imposed. 
         </t>
         <t>
-          A propvalsubset identifies a subset of the properties in a 
-          previously specified propvalset.  Each bit in the mask denotes
-          a particular element in a previously specified propvalset.  If
-          a particular propval is at position N in the array, then bit
+          A rpcrdma2_propsubset identifies a subset of the properties in a 
+          previously specified rpcrdma2_propset.  Each bit in the mask denotes
+          a particular element in a previously specified rpcrdma2_propset.  If
+          a particular rpcrdma2_propval is at position N in the array, then bit
           number N mod 32 in word N div 32 specifies whether that particular
-          propval is included in the defined subset.  Words beyond the last
+          rpcrdma2_propval is included in the defined subset.  Words beyond the last
           one specified are treated as containing zero.    
         </t>
         <t>
@@ -626,7 +626,7 @@ typedef uint32          propvalsubset<>;
           properties.
         </t>
         <t>
-           Prime among these is ROPT_CONNPROP (defined in 
+           Prime among these is RDMA2_CONNPROP (defined in 
            <xref target="OPS-init" /> which serves as a means by which 
            an endpoint's transport properties may be presented to 
            its peer, typically upon establishing a connection. 
@@ -637,18 +637,18 @@ typedef uint32          propvalsubset<>;
            properties:
         <list style="symbols">
           <t>
-            ROPT_REQPROP (defined in <xref target="OPS-req" /> which serves 
+            RDMA2_REQPROP (defined in <xref target="OPS-req" /> which serves 
             as a way for an endpoint to request that a peer change
             the values for a set of transport properties.
           </t>
           <t>
-            ROPT_RESPROP (defined in <xref target="OPS-resp" /> is used to
+            RDMA2_RESPROP (defined in <xref target="OPS-resp" /> is used to
             report on the disposition of each of the individual transport
             property changes requested in a previous 
-            ROPT_REQPROP.
+            RDMA2_REQPROP.
           </t>
           <t>
-            ROPT_UPDPROP (defined in <xref target="OPS-upd" /> is used to
+            RDMA2_UPDPROP (defined in <xref target="OPS-upd" /> is used to
             report an unsolicited change in a transport property. 
           </t>
         </list>
@@ -656,8 +656,8 @@ typedef uint32          propvalsubset<>;
         <t>
           Unlike many other operation types, the above are not used to
           effect transfer of RPC requests but are internal one-way 
-          information transfers.  However, a ROPT_REQPROP and the corresponding
-          ROPT_RESPROP do constitute an RPC-like remote call.  The other 
+          information transfers.  However, a RDMA2_REQPROP and the corresponding
+          RDMA2_RESPROP do constitute an RPC-like remote call.  The other 
           operations are not part of a remote call transaction.
         </t>
       </section>
@@ -678,15 +678,14 @@ typedef uint32          propvalsubset<>;
             property described by the current row.
           </t>
           <t>
-            The column labeled "code" specifies the propid value
+            The column labeled "code" specifies the rpcrdma2_propid value
             used to identify this property.
           </t>
           <t>
             The column labeled "XDR type" gives the XDR type of the data used 
             to communicate the value of this property.  This data 
             type overlays the data portion of the nominally opaque field 
-            pv_data in a
-            propval. 
+            rdma_data in a rpcrdma2_propval. 
           </t>
           <t>
             The column labeled "default" gives the default value for the
@@ -724,8 +723,8 @@ typedef uint32          propvalsubset<>;
         <c><xref target="INIT-rbs" format="counter"/></c>
         <c>Backward Request Support</c>
         <c>2</c>
-        <c>enum bkreqsup</c>
-        <c>BKREQSUP_INLINE</c>
+        <c>enum rpcrdma2_bkreqsup</c>
+        <c>RDMA2_BKREQSUP_INLINE</c>
         <c><xref target="INIT-brs" format="counter"/></c>
       </texttable>
       <t>
@@ -734,8 +733,8 @@ typedef uint32          propvalsubset<>;
         in the value may be requested (see <xref target="OPS-req"/>).
         Such matters are not addressed by the protocol definition. 
         An implementation may provide information about its readiness to
-        make changed in a particular property using the opticonnpr_nochg
-        field in the ROPT_CONNPROP message.
+        make changed in a particular property using the rdma_nochg
+        field in the RDMA2_CONNPROP message.
       </t>
       <t>
         A partner  implementation
@@ -755,7 +754,7 @@ typedef uint32          propvalsubset<>;
           as described in <xref target="OPS-resp" />. 
         </t>
         <t>
-          If an endpoint does not support the ROPT_REQPROP operation, the 
+          If an endpoint does not support the RDMA2_REQPROP operation, the 
           effect would be the same as if every request to change a 
           set of property were rejected.
         </t>
@@ -787,8 +786,8 @@ typedef uint32          propvalsubset<>;
 <![CDATA[
 <CODE BEGINS>
 
-const uint32    PROP_RBSIZ = 1;
-typedef uint32  prop_rbsiz;
+const uint32 RDMA2_PROPID_RBSIZ = 1;
+typedef uint32 rpcrdma2_prop_rbsiz;
 
 <CODE ENDS>
 ]]>
@@ -858,14 +857,14 @@ typedef uint32  prop_rbsiz;
 <![CDATA[
 <CODE BEGINS>
 
-enum bkreqsup {
-        BKREQSUP_NONE    = 0,
-        BKREQSUP_INLINE  = 1,
-        BKREQSUP_GENL    = 2
+enum rpcrdma2_bkreqsup {
+        RDMA2_BKREQSUP_NONE    = 0,
+        RDMA2_BKREQSUP_INLINE  = 1,
+        RDMA2_BKREQSUP_GENL    = 2
 };
 
-const uint32    PROP_BRS = 2;
-typedef bkreqsup prop_brs;
+const uint32 RDMA2_PROPID_BRS = 2;
+typedef rpcrdma2_bkreqsup rpcrdma2_prop_brs;
 
 <CODE ENDS>
 ]]>
@@ -876,12 +875,12 @@ typedef bkreqsup prop_brs;
           Multiple levels of support are distinguished:
         <list style="symbols">
           <t>
-            The value BKREQSUP_NONE indicates that receipt of 
+            The value RDMA2_BKREQSUP_NONE indicates that receipt of 
             backward-direction requests and replies is not supported.         
           </t>
           <t>
 
-            The value BKREQSUP_INLINE indicates that receipt of 
+            The value RDMA2_BKREQSUP_INLINE indicates that receipt of 
             backward-direction requests or replies is 
             only supported using inline messages and that use of
             explicit RDMA operations or other form of Direct Data
@@ -889,7 +888,7 @@ typedef bkreqsup prop_brs;
             or responses is not supported. 
           </t>
           <t>
-            The value BKREQSUP_GENL that receipt of backward-direction 
+            The value RDMA2_BKREQSUP_GENL that receipt of backward-direction 
             requests or replies is supported in the same
             ways that forward-direction requests or replies typically are.
           </t>
@@ -965,17 +964,17 @@ typedef bkreqsup prop_brs;
         <c><xref target="OPS-init" format="counter"/></c>
         <c>Request Property Modification</c>
         <c>2</c>
-        <c>optinfo_reqprop</c>
+        <c>rpcrdma2_reqprop</c>
         <c>No</c>
         <c><xref target="OPS-req" format="counter"/></c>
         <c>Respond to Modification Request</c>
         <c>3</c>
-        <c>optinfo_resprop</c>
+        <c>rpcrdma2_resprop</c>
         <c>No</c>
         <c><xref target="OPS-resp" format="counter"/></c>
         <c>Report Updated Properties</c>
         <c>4</c>
-        <c>optinfo_updprop</c>
+        <c>rpcrdma2_updprop</c>
         <c>No</c>
         <c><xref target="OPS-upd" format="counter"/></c>
       </texttable>
@@ -990,19 +989,19 @@ typedef bkreqsup prop_brs;
         The only operation support requirements are as follows:
         <list style="symbols">
           <t>
-            Implementations which send ROPT_REQPROP messages must support
-            ROPT_RESPROP messages.
+            Implementations which send RDMA2_REQPROP messages must support
+            RDMA2_RESPROP messages.
           </t>
           <t>
-            Implementations which support ROPT_RESPROP or ROPT_UPDPROP messages
-            must also support ROPT_CONNPROP messages.
+            Implementations which support RDMA2_RESPROP or RDMA2_UPDPROP messages
+            must also support RDMA2_CONNPROP messages.
           </t>
         </list>
       </t>
-      <section title="ROPT_CONNPROP: Specify Properties at Connection" 
+      <section title="RDMA2_CONNPROP: Specify Properties at Connection" 
                anchor="OPS-init">
         <t>
-          The ROPT_CONNPROP message type allows an RPC-over-RDMA participant,
+          The RDMA2_CONNPROP message type allows an RPC-over-RDMA participant,
           whether client or server, to indicate to its partner relevant
           transport properties that the partner might need to be 
           aware of.
@@ -1014,11 +1013,9 @@ typedef bkreqsup prop_brs;
 <![CDATA[
 <CODE BEGINS>
 
-const uint32     ROPT_CONNPROP= 1;
-
-struct optinfo_connprop {
-        propvalset      opticonnpr_start;
-        propvalsubset   opticonnpr_nochg;
+struct rpcrdma2_connprop {
+        rpcrdma2_propset rdma_start;
+        rpcrdma2_propsubset rdma_nochg;
 };        
  
 <CODE ENDS>
@@ -1028,7 +1025,7 @@ struct optinfo_connprop {
         </t>
         <t>
           All relevant transport properties that the sender is aware of
-          should be included in opticonnpr_start. Since support of this request 
+          should be included in rdma_start. Since support of this request 
           is OPTIONAL, and since each of the properties is OPTIONAL 
           as well,
           the sender cannot assume that the receiver will necessarily take 
@@ -1039,11 +1036,11 @@ struct optinfo_connprop {
         </t>
         <t> 
           Values of the subset of transport properties 
-          specified by opticonnpr_nochg
+          specified by rdma_nochg
           is not expected to change during the lifetime of the connection.
         </t>
         <t>
-          Generally, a participant will send a ROPT_CONNPR message as the
+          Generally, a participant will send a RDMA2_CONNPROP message as the
           first message after a connection is established.  Given that fact,
           the sender should make sure that the message can be received by
           partners who use the default Receive Buffer Size. The connection's 
@@ -1052,37 +1049,37 @@ struct optinfo_connprop {
           in use.
         </t>
         <t>
-          Properties not included in opticonnpr_start are to be treated by 
+          Properties not included in rdma_start are to be treated by 
           the peer endpoint as having the default value and are not allowed
           to change subsequently.  The peer should not request changes in such
           properties.
         </t>
         <t>
-          Those receiving an ROPT_CONNPR may encounter properties that 
+          Those receiving an RDMA2_CONNPROP may encounter properties that 
           they do not support or are unaware of.  In such cases, these
           properties are simply ignored without any error response 
           being generated.
         </t>
       </section>
-      <section title="ROPT_REQPROP: Request Modification of Properties" 
+      <section title="RDMA2_REQPROP: Request Modification of Properties" 
                anchor="OPS-req">
         <t>
-          The ROPT_REQPROP message type allows an RPC-over-RDMA participant,
+          The RDMA2_REQPROP message type allows an RPC-over-RDMA participant,
           whether client or server, to request of its partner that relevant 
           transport properties be changed.  
         </t>
         <t>
           The rdma_xid field allows the
           request to be tied to a corresponding response of
-          type ROPT_RESPROP (See <xref target="OPS-resp" />.) In assigning
+          type RDMA2_RESPROP (See <xref target="OPS-resp" />.) In assigning
           the value of this field, the sender does not need to avoid
           conflict with xid's associated with RPC messages or with
-          ROPT_REQPROP messages sent by the peer endpoint. 
+          RDMA2_REQPROP messages sent by the peer endpoint. 
         </t>
         <t>
           The partner need not change the properties as requested by the
           sender but if it does support the message type, it will generate
-          a ROPT_RESPROP message, indicating the disposition of the request. 
+          a RDMA2_RESPROP message, indicating the disposition of the request. 
         </t>
         <t>
           The message definition for this operation is as follows: 
@@ -1091,11 +1088,8 @@ struct optinfo_connprop {
 <![CDATA[
 <CODE BEGINS>
 
-const uint32     ROPT_REQPROP = 2;
-
-struct optinfo_reqprop {
-       propvalset      optreqpr_want;
-                       
+struct rpcrdma2_reqprop {
+       rpcrdma2_propset rdma_want;
 };        
  
 <CODE ENDS>
@@ -1104,14 +1098,14 @@ struct optinfo_reqprop {
         </figure> 
         </t>
         <t>
-          The propvalset optreqpr_want is a set of transport properties 
+          The rpcrdma2_propset rdma_want is a set of transport properties 
           together with the desired values requested by the sender.
         </t>
       </section>
-      <section title="ROPT_RESPROP: Respond to Request to Modify Transport Properties" 
+      <section title="RDMA2_RESPROP: Respond to Request to Modify Transport Properties" 
                anchor="OPS-resp">
         <t>
-          The ROPT_RESPROP message type allows an RPC-over-RDMA participant
+          The RDMA2_RESPROP message type allows an RPC-over-RDMA participant
           to respond to a request to change properties by its partner,
           indicating how the request was dealt with. 
         </t>
@@ -1122,12 +1116,10 @@ struct optinfo_reqprop {
 <![CDATA[
 <CODE BEGINS>
 
-const uint32     ROPT_RESPROP = 3;
-
-struct optinfo_resprop {
-        propvalsubset   optrespr_done;
-        propvalsubset   optrespr_rej;
-        propvalset      optrespr_other;                        
+struct rpcrdma2_resprop {
+        rpcrdma2_propsubset rdma_done;
+        rpcrdma2_propsubset rdma_rejected;
+        rpcrdma2_propset rdma_other;                        
 };        
  
 <CODE ENDS>
@@ -1137,36 +1129,36 @@ struct optinfo_resprop {
         </t>
         <t>
           The rdma_xid field of this message must match that used in the 
-          ROPT_REQPROP message to which this message is responding.
+          RDMA2_REQPROP message to which this message is responding.
         </t>
         <t>
-          The optrespr_done field indicates which of the requested transport
+          The rdma_done field indicates which of the requested transport
           property changes have been effected as requested.  For each
           such property, the receiver is entitled to conclude that the 
           requested change has been made and that future transmissions may be 
           made based on the new value.
         </t>
         <t>
-          The optrespr_rej field indicates which of the requested transport
+          The rdma_rejected field indicates which of the requested transport
           property changes have been rejected by the sender.  This may 
           be because of any of the following reasons:
         <list style="symbols">
           <t>
             The particular property specified is not known or supported
-            by the receiver of the ROPT_REQPROP message.
+            by the receiver of the RDMA2_REQPROP message.
           </t>
           <t>
-            The implementation receiving the ROPT_REQPROP message does not
+            The implementation receiving the RDMA2_REQPROP message does not
             support modification of this property.
           </t>
           <t>
-            The implementation receiving the ROPT_REQPROP message has
+            The implementation receiving the RDMA2_REQPROP message has
             chosen to reject the modification for another reason.
           </t>
         </list>
         </t>
         <t>
-          The optrespr_other field contains new values for properties where
+          The rdma_other field contains new values for properties where
           a change is requested.  The new value of the property is included
           and may be a value different from the original value in effect
           when the change was requested and from the requested value.
@@ -1176,26 +1168,26 @@ struct optinfo_resprop {
           request.
         </t>
         <t>
-          The sender MUST NOT include propvals within optrespr_other that
+          The sender MUST NOT include rpcrdma2_propval items within rdma_other that
           are for properties other than the ones for which the corresponding 
           property request has requested a change.  If the receiver finds
-          such a situation, it MUST ignore the erroneous propvals.
+          such a situation, it MUST ignore the erroneous rpcrdma2_propval items.
         </t>
         <t>
-          The subsets of properties specified by optrespr_done,
-          optrespr_rej, and included in optrespr_other MUST NOT overlap, and
+          The subsets of properties specified by rdma_done,
+          rdma_rejected, and included in rdma_other MUST NOT overlap, and
           when ored
           together, should cover the entire set of properties
-          specified by optreqpr_want in the corresponding request. 
+          specified by rdma_want in the corresponding request. 
           If the receiver finds such an overlap or mismatch, it SHOULD 
           treat properties missing or 
           within the overlap as having been rejected.
         </t>
       </section>
-      <section title="ROPT_UPDPROP: Update Transport Properties" 
+      <section title="RDMA2_UPDPROP: Update Transport Properties" 
                anchor="OPS-upd">
         <t>
-          The ROPT_UPDPROP message type allows an RPC-over-RDMA participant
+          The RDMA2_UPDPROP message type allows an RPC-over-RDMA participant
           to notify the other participant that a change to the transport 
           properties has occurred.  This is because the sender
           has decided, independently, to modify one or more transport 
@@ -1208,10 +1200,8 @@ struct optinfo_resprop {
 <![CDATA[
 <CODE BEGINS>
  
-const uint32     ROPT_UPDPROP = 4;
-
-struct optinfo_updprop {
-        propvalset        optupdpr_now;
+struct rpcrdma2_updprop {
+        rpcrdma2_propset rdma_now;
 };        
 
 <CODE ENDS>
@@ -1220,7 +1210,7 @@ struct optinfo_updprop {
         </figure> 
         </t>
         <t>
-          optupdpr_now defines the new property values to be used.
+          rdma_now defines the new property values to be used.
         </t>
       </section>
     </section>
@@ -1241,7 +1231,7 @@ struct optinfo_updprop {
           for the transport properties defined herein.
         <list style="symbols">
           <t>
-            The propid value used to identify this property.
+            The rpcrdma2_propid value used to identify this property.
           </t>
           <t>
             The XDR typedef specifying the form in which the property
@@ -1249,8 +1239,8 @@ struct optinfo_updprop {
           </t>
           <t>
             A description of the transport property that is communicated
-            by the sender of ROPT_INITXCH and ROPT_UPDXCH and requested by
-            the sender of ROP_REQXCH. 
+            by the sender of RDMA2_CONNPROP and RDMA2_UPDPROP and requested
+            by the sender of RDMA2_REQPROP.
           </t>
           <t>
             An explanation of how this knowledge could be used by the
@@ -1275,12 +1265,12 @@ struct optinfo_updprop {
           document working group should insure that: 
         <list style="symbols">
           <t>
-            The propids specified in the document do not conflict with
+            rpcrdma2_propid values specified in the document do not conflict with
             those currently assigned or in use by other pending working group
             documents defining transport properties.
           </t>
           <t>
-            The propids specified in the document do not conflict with the
+            rpcrdma2_propid values specified in the document do not conflict with the
             range reserved for experimental use, as defined in 
             <xref target="EXT-exp"/>.
           </t>
@@ -1318,8 +1308,8 @@ struct optinfo_updprop {
           experimental, possibly unpublished, transport properties.
         </t>
         <t>
-          propids in the range from 4,294,967,040 to 4,294,967,295 are
-          reserved for experimental use and these values should not be
+          rpcrdma2_propid values in the range from 4,294,967,040 to 4,294,967,295
+          are reserved for experimental use and these values should not be
           assigned to new properties in standards track documents.
         </t>
         <t>
@@ -1545,11 +1535,44 @@ are defined in Section 4 of
 ///         opaque rdma_optinfo<>;
 /// };
 ///
+/// typedef rpcrdma2_propid uint32;
+///
+/// struct rpcrdma2_propval {
+///         rpcrdma2_propid rdma_which;
+///         opaque          rdma_data<>;
+/// };
+///
+/// typedef rpcrdma2_propval rpcrdma2_propset<>;
+/// typedef uint32 rpcrdma2_propsubset<>;
+///
+/// struct rpcrdma2_connprop {
+///         rpcrdma2_propset rdma_start;
+///         rpcrdma2_propsubset rdma_nochg;
+/// };        
+///
+/// struct rpcrdma2_reqprop {
+///        rpcrdma2_propset rdma_want;
+/// };                
+///
+/// struct rpcrdma2_resprop {
+///        rpcrdma2_propsubset rdma_done;
+///        rpcrdma2_propsubset rdma_rejected;
+///        rpcrdma2_propset rdma_other;                        
+/// };                
+///
+/// struct rpcrdma2_updprop {
+///        rpcrdma2_propset rdma_now;
+/// };        
+
 /// enum rpcrdma2_proc {
 ///         RDMA2_MSG = 0,
 ///         RDMA2_NOMSG = 1,
 ///         RDMA2_ERROR = 4,
-///         RDMA2_OPTIONAL = 5
+///         RDMA2_OPTIONAL = 5,
+///         RDMA2_CONNPROP = 6,
+///         RDMA2_REQPROP = 7,
+///         RDMA2_RESPROP = 8,
+///         RDMA2_UPDPROP = 9
 /// };
 ///
 /// union rpcrdma2_body switch (rpcrdma2_proc rdma_proc) {
@@ -1561,81 +1584,40 @@ are defined in Section 4 of
 ///           rpcrdma2_error rdma_error;
 ///         case RDMA2_OPTIONAL:
 ///           rpcrdma2_optional rdma_optional;
+///         case RDMA2_CONNPROP:
+///           rpcrdma2_connprop rdma_connprop;
+///         case RDMA2_REQPROP:
+///           rpcrdma2_reqprop rdma_reqprop;
+///         case RDMA2_RESPROP:
+///           rpcrdma2_resprop rdma_resprop;
+///         case RDMA2_UPDPROP:
+///           rpcrdma2_updprop rdma_updprop;
 /// };
 ///
 /// struct rpcrdma2_xprt_hdr {
-///         uint32        rdma_xid;
-///         uint32        rdma_vers;
-///         uint32        rdma_credit;
-///         rpcrdma2_body rdma_body;
+///           uint32 rdma_xid;
+///           uint32 rdma_vers;
+///           uint32 rdma_credit;
+///           rpcrdma2_body rdma_body;
 /// };
-
-////*
-/// * Core transport property types
-/// */ 
-///typedef propid          uint32;
 ///
-///struct propval {
-///        propid          pv_which;
-///        opaque          pv_data<>;
-///};
+/// /*
+///  * Transport propid values for basic properties
+///  */
+/// const uint32 RDMA2_PROPID_RBSIZ = 1;
+/// const uint32 RDMA2_PROPID_BRS = 2;
 ///
-///typedef propval         propvalset<>;
+/// /*
+///  * Transport property typedefs
+///  */
+/// typedef uint32 rpcrdma2_prop_rbsiz;
+/// typedef rpcrdma2_bkreqsup rpcrdma2_prop_brs;                
 ///
-///typedef uint32          propvalsubset<>;
-///
-////*
-/// * Transport property codes for basic properties
-/// */
-///const uint32    PROP_RBSIZ = 1;
-///const uint32    PROP_BRS = 2;
-///
-////*
-/// * Other transport property types
-/// */
-///enum bkreqsup {
-///        BKREQSUP_NONE    = 0,
-///        BKREQSUP_INLINE  = 1,
-///        BKREQSUP_GENL    = 2
-///};
-///
-////*
-/// * Transport property typedefs
-/// */
-///typedef uint32   prop_bsiz;
-///typedef bool     prop_reqreminv;
-///typedef bkreqsup prop_brs;                
-///
-////*
-/// * Optional operation codes
-/// */
-///const uint32     ROPT_CONNPROP = 1;
-///const uint32     ROPT_REQPROP = 2;
-///const uint32     ROPT_RESPRO = 3;
-///const uint32     ROPT_UPDPROP = 4;
-///
-////*
-/// * Optional operation message structures
-/// */
-///struct optinfo_connprop {
-///        propvalset      opticonnpr_start;
-///        propvalsubset   opticonnpr_nochg;
-///};        
-///
-///struct optinfo_reqprop {
-///       propvalset      optreqpr_want;
-///                       
-///};                
-///
-///struct optinfo_resprop {
-///        propvalsubset   optrespr_done;
-///        propvalsubset   optrespr_rej;
-///        propvalset      optrespr_other;                        
-///};                
-///
-///struct optinfo_updprop {
-///        propvalset      optupdpr_now;
-///};        
+/// enum rpcrdma2_bkreqsup {
+///         RDMA2_BKREQSUP_NONE = 0,
+///         RDMA2_BKREQSUP_INLINE = 1,
+///         RDMA2_BKREQSUP_GENL = 2
+/// };
 
 <CODE ENDS>
 ]]>
