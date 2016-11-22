@@ -1751,27 +1751,26 @@ for the direction of the message.
 
 <section title="Remote Invalidation">
 <t>
-Among the set of handles in the RPC Call's transport header,
-the requester selects one handle that may be invalidated remotedly.
-The requester sets the rdma_inv_handle field to that value.
-If none of the rdma_handle
-values in the Call may be invalidated by the responder,
-the requester MUST set the rdma_inv_handle field to the value zero.
-The requester MUST NOT set the value of the rdma_inv_handle
-field to any other value.
+To request Remote Invalidation,
+a requester MUST set the value of the rdma_inv_handle field in
+an RPC Call's transport header to a non-zero value that matches
+one of the rdma_handle fields in that header.
+If none of the rdma_handle values in the Call may be invalidated by the responder,
+the requester MUST set the RPC Call's rdma_inv_handle field to the value zero.
 </t>
 <t>
-The responder copies the value of the rdma_inv_handle field
-set by the requester to the rdma_inv_handle field in the
-matching reply.
-If the rdma_inv_handle field contains zero,
-the responder MUST NOT use RDMA Send With Invalidate to
-transmit the matching RPC reply.
-Otherwise, the responder SHOULD use RDMA Send With Invalidate
-to transmit the reply,
-specifying the value in the rdma_inv_handle field
-as the handle to be invalidated remotely.
-The responder MUST NOT specify any other handle for this operation.
+If the responder chooses not to use Remote Invalidation
+for this particular RPC Reply,
+or the RPC Call's rdma_inv_handle field contains the value zero,
+the responder MUST use RDMA Send to transmit the matching RPC reply.
+</t>
+<t>
+If a requester has provided a non-zero value in the RPC Call's
+rdma_inv_handle field and
+the responder chooses to use Remote Invalidation for the matching RPC Reply,
+the responder MUST use RDMA Send With Invalidate to transmit
+that RPC reply, and MUST use the value in the RPC Call's
+rdma_inv_handle field to construct the Send With Invalidate Work Request.
 </t>
 </section>
 
