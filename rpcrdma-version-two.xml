@@ -466,6 +466,914 @@ an adequate human-readable description of the extended protocol.
 
 </section>
 
+
+<section title="Inserted from rpcrdma-xcharext">
+
+    <section title="Transport Properties" anchor="CHAR">
+      <section title="Property Model" anchor="CHAR-model">
+        <t>
+          A basic set of receiver and sender properties is
+          specified in this document. An extensible approach is used, 
+          allowing new properties to be defined in future standards 
+          track documents.
+        </t>
+        <t> 
+          Such properties are specified using:
+        <list style="symbols">
+          <t>
+            A code identifying the particular transport property being
+            specified.  
+          </t>
+          <t>
+            A nominally opaque array which contains within it the XDR 
+            encoding of
+            the specific property indicated by the associated code.
+          </t>
+        </list>
+        </t>
+        <t>
+          The following XDR types are used by operations that deal with 
+          transport properties:
+        <figure align="left">
+          <artwork xml:space="preserve" align="left">
+<![CDATA[
+<CODE BEGINS>
+ 
+typedef propid          uint32;
+
+struct propval {
+        propid          pv_which;
+        opaque          pv_data<>;
+};
+
+typedef propval         propvalset<>;
+
+typedef uint32          propvalsubset<>;
+
+<CODE ENDS>
+]]>
+          </artwork>
+        </figure> 
+        </t>
+        <t>
+          A propid specifies a particular transport property.
+          In order to allow easier XDR extension of the set 
+          of properties by concatenating XDR files, 
+          specific properties
+          are defined as const values rather than as elements in an enum.
+        </t>
+        <t>
+          A propval specifies a value of a particular transport 
+          property
+          with the particular property identified by pv_which, while
+          the associated value of that property is contained within
+          pv_data.
+        </t>
+        <t>
+          A pv_data which is of zero length is interpreted as indicating
+          the default value or the property indicated by pv_which.
+        </t>
+        <t>
+          While pv_data is defined as opaque within the XDR, the contents
+          are interpreted (except when of length zero)
+          using the XDR typedef associated with the
+          property specified by pv_which.  The receiver of a message
+          containing a propval MUST report an XDR error
+ [ cel: which error? BAD_XDR, or do we want to add a new one? ]
+          if the length of pv_data is such that it extends beyond the 
+          bounds of the message transferred.
+        </t>
+        <t>
+          In cases in which the propid specified by pv_which is understood
+          by the receiver, the receiver also MUST report an XDR error
+          if either of
+          the following occur:  
+        <list style="symbols">
+          <t>
+            The nominally opaque data within pv_data is not valid
+            when interpreted using the property-associated typedef.
+          </t>
+          <t>
+            The length of pv_data is insufficient to contain the data
+            represented by the property-associated typedef.
+          </t>
+        </list>
+        </t>
+        <t>
+          Note that no error is to be reported if pv_which is unknown
+          to the receiver.
+          In that case, that propval is not processed and processing 
+          continues using the next propval, if any.
+        </t>
+        <t>
+          A propvalset specifies a set of transport properties.  No
+          particular ordering of the propvals within it is imposed. 
+        </t>
+        <t>
+          A propvalsubset identifies a subset of the properties in a 
+          previously specified propvalset.  Each bit in the mask denotes
+          a particular element in a previously specified propvalset.  If
+          a particular propval is at position N in the array, then bit
+          number N mod 32 in word N div 32 specifies whether that particular
+          propval is included in the defined subset.  Words beyond the last
+          one specified are treated as containing zero.    
+        </t>
+        <t>
+          Propvalsubsets are useful in a number of contexts:
+        <list style="symbols">
+          <t>
+            In the specification of transport properties at connection,
+            they allow the sender to specify what subset of those are 
+            subject to later change.
+          </t>
+          <t>
+            In responding to a request to modify a set of transport 
+            properties, they allow the responding endpoint to specify the 
+            subsets of those properties for which the requested change has
+            been performed or been rejected.
+          </t>
+        </list>
+        </t>
+      </section>
+      <section title="Transport Property Groups" anchor="CHAR-groups">
+        <t>
+          Transport properties are divided into a number of groups 
+        <list style="symbols">
+          <t>
+            A basic set of transport properties defined in this
+            document.  See <xref target="INIT" /> for the complete list.
+          </t>
+          <t>
+            Additional transport properties defined in future standards
+            track documents as specified in <xref target="EXT-addl" />. 
+          </t>
+          <t>
+            Experimental transport properties being explored preparatory 
+            to being considered for standards track definition.  See the 
+            description in 
+            <xref target="EXT-exp" />. 
+          </t>
+        </list>
+        </t>
+      </section>
+      <section title="Operations Related to Transport Properties " 
+               anchor="CHAR-ops">
+        <t>
+          There are a number of operations defined in <xref target="OPS" />
+          which are used to communicate and manage transport 
+          properties.
+        </t>
+        <t>
+           Prime among these is ROPT_CONNPROP (defined in 
+           <xref target="OPS-init" /> which serves as a means by which 
+           an endpoint's transport properties may be presented to 
+           its peer, typically upon establishing a connection. 
+        </t>
+        <t>
+           In addition, there are a set of related operations concerned with
+           requesting, effecting and reporting changes in transport 
+           properties:
+        <list style="symbols">
+          <t>
+            ROPT_REQPROP (defined in <xref target="OPS-req" /> which serves 
+            as a way for an endpoint to request that a peer change
+            the values for a set of transport properties.
+          </t>
+          <t>
+            ROPT_RESPROP (defined in <xref target="OPS-resp" /> is used to
+            report on the disposition of each of the individual transport
+            property changes requested in a previous 
+            ROPT_REQPROP.
+          </t>
+          <t>
+            ROPT_UPDPROP (defined in <xref target="OPS-upd" /> is used to
+            report an unsolicited change in a transport property. 
+          </t>
+        </list>
+        </t>
+        <t>
+          Unlike many other operation types, the above are not used to
+          effect transfer of RPC requests but are internal one-way 
+          information transfers.  However, a ROPT_REQPROP and the corresponding
+          ROPT_RESPROP do constitute an RPC-like remote call.  The other 
+          operations are not part of a remote call transaction.
+        </t>
+      </section>
+    </section>
+    <section title="Basic Transport Properties" anchor="INIT">
+      <t>
+        Although the set of transport properties is subject to later 
+        extension, a basic set of transport properties is  defined
+        below in <xref target="chtab"/>.
+      </t>
+      <t>
+        In that table, the columns contain the following information:
+        <list style="symbols">
+          <t>
+            The column labeled "property" identifies the transport 
+            property described by the current row.
+          </t>
+          <t>
+            The column labeled "code" specifies the propid value
+            used to identify this property.
+          </t>
+          <t>
+            The column labeled "XDR type" gives the XDR type of the data used 
+            to communicate the value of this property.  This data 
+            type overlays the data portion of the nominally opaque field 
+            pv_data in a
+            propval. 
+          </t>
+          <t>
+            The column labeled "default" gives the default value for the
+            property which is to be assumed by those who do not
+            receive, or are unable to interpret, information about the
+            actual value of the property.
+          </t>
+          <t>
+            The column labeled "section" indicates the section (within this
+            document) that explains the semantics and use of this transport 
+            property.
+          </t>
+        </list>
+      </t>
+      <texttable align="left" style="full" anchor="chtab">
+        <ttcol>
+          property
+        </ttcol>
+        <ttcol>
+          code
+        </ttcol>
+        <ttcol>
+          XDR type
+        </ttcol>
+        <ttcol>
+          default
+        </ttcol>
+        <ttcol>
+          section
+        </ttcol>
+        <c>Receive Buffer Size</c>
+        <c>1</c>
+        <c>uint32</c>
+        <c>4096</c>
+        <c><xref target="INIT-rbs" format="counter"/></c>
+        <c>Requester Remote Invalidation</c>
+        <c>2</c>
+        <c>bool</c>
+        <c>false</c>
+        <c><xref target="INIT-rqri" format="counter"/></c>
+        <c>Backward Request Support</c>
+        <c>3</c>
+        <c>enum bkreqsup</c>
+        <c>BKREQSUP_INLINE</c>
+        <c><xref target="INIT-brs" format="counter"/></c>
+      </texttable>
+      <t>
+        Note that this table does not provide any indication regarding whether 
+        a particular property can change or whether a change
+        in the value may be requested (see <xref target="OPS-req"/>).
+        Such matters are not addressed by the protocol definition. 
+        An implementation may provide information about its readiness to
+        make changed in a particular property using the opticonnpr_nochg
+        field in the ROPT_CONNPROP message.
+      </t>
+      <t>
+        A partner  implementation
+        can always request a change but peers MAY reject a request to 
+        change a property for any reason. 
+        Implementations are always free
+        to reject such requests if they cannot or do not wish to effect
+        the requested change.  
+      </t>
+      <t>
+        Either of the following will result in effective rejection 
+        requests to change specific properties:
+      <list style="symbols">
+        <t>
+          If an endpoint does not wish to accept request to 
+          change particular properties, it may reject such requests
+          as described in <xref target="OPS-resp" />. 
+        </t>
+        <t>
+          If an endpoint does not support the ROPT_REQPROP operation, the 
+          effect would be the same as if every request to change a 
+          set of property were rejected.
+        </t>
+      </list>
+      </t>
+      <t>
+        With regard to unrequested changes in
+        transport properties, it is the responsibility 
+        of the implementation
+        making the change to do so in a fashion that which does not 
+        interfere with
+        the other partner's continued correct operation (see 
+        <xref target="INIT-rbs"/>). 
+      </t>
+      <section title="Receive Buffer Size" 
+               anchor="INIT-rbs">
+        <t>
+          The Receive Buffer Size specifies the minimum size, in octets, 
+          of pre-posted
+          receive buffers.  It is the responsibility of the participant 
+          sending this value to ensure that its pre-posted receives are 
+          at least
+          the size specified, allowing the participant receiving this value 
+          to send messages that are of this size.
+        </t>
+        <t>
+        <figure align="left">
+          <artwork xml:space="preserve" align="left">
+<![CDATA[
+<CODE BEGINS>
+
+const uint32    PROP_RBSIZ = 1;
+typedef uint32  prop_rbsiz;
+
+<CODE ENDS>
+]]>
+          </artwork>
+        </figure> 
+        </t>
+        <t>
+          The sender may use his knowledge of the receiver's buffer size 
+          to determine
+          when the message to be sent will fit in the preposted receive
+          buffers that the receiver has set up.  In particular, 
+        <list style="symbols">
+          <t>
+            Requesters may use the value to determine when it is necessary
+            to provide a Position-Zero read chunk when sending a request.
+          </t>
+          <t>
+            Requesters may use the value to determine when it is necessary
+            to provide a Reply chunk when sending a request, based on the
+            maximum possible size of the reply.
+          </t>
+          <t>
+            Responders may use the value to determine when it is necessary,
+            given the actual size of the reply, to actually use a Reply chunk
+            provided by the requester.
+          </t>
+        </list>
+        </t>
+        <t>
+          Because there may be pre-posted receives with buffer sizes that
+          reflect earlier values of the buffer size property, changing
+          this property poses special difficulties:
+        <list style="symbols">
+          <t>
+            When the size is being raised, the partner should not be informed
+            of the change until all pending receives using the older value 
+            have been eliminated.
+          </t>
+          <t>
+            The size should not be reduced until the partner is aware of the
+            need to reduce the size of future sends to conform to this
+            reduced value.  To ensure this, such a change should only 
+            occur in response to an explicit request by the other endpoint
+            (See <xref target="OPS-req"/>).  The participant making the 
+            request should use that
+            lower size as the send size limit until the request is rejected
+            (See <xref target="OPS-resp"/>) or an update to a size
+            larger than the requested value becomes
+            effective and the requested change is no longer pending
+            (See <xref target="OPS-upd"/>).            
+          </t>
+        </list>
+        </t>
+      </section>
+      <section title="Requester Remote Invalidation" anchor="INIT-rqri"> 
+        <t>
+          The Requester Remote Invalidation property indicates that 
+          the current endpoint, when in the role of a requester, is 
+          prepared for the responder to use RDMA Send With Invalidate 
+          when replying to an RPC-over-RDMA request containing non-empty 
+          chuck lists.
+        </t>
+        <t>
+          As RPC-over-RDMA is currently used, memory registrations exposed 
+          to peers are not established by the server and explicit RDMA 
+          operations are not done to satisfy backward direction requests.  
+          This makes it unlikely that servers will present non-default 
+          values of the PROP_REQREMINV property or that clients will 
+          take note of that value when presented by servers.
+        </t>
+        <figure align="left">
+          <artwork xml:space="preserve" align="left">
+<![CDATA[
+<CODE BEGINS>
+
+const uint32    PROP_REQREMINV = 2;
+typedef bool    prop_reqreminv;
+
+<CODE ENDS>
+]]>
+          </artwork>
+        </figure> 
+      
+        <t>
+          When the Requester Remote Invalidate property is set 
+          to false, a responder MUST use Send to convey RPC reply 
+          messages to the requester. When the Requester Remote Invalidate 
+          property is set to true, a responder MAY use Send With 
+          Invalidate instead of Send to convey RPC replies to the requester.
+        </t>
+        <t>
+          The value of the Requester Remote Invalidate property 
+          is not likely to change from the value reported by ROPT_INITPROP 
+          (see <xref target="OPS-req" />).
+        </t>
+      </section>
+      <section title="Backward Request Support" 
+               anchor="INIT-brs">
+        <t>
+          The value of this property is used to indicate a client
+          implementation's readiness to accept and process messages that are 
+          part of backward-direction RPC requests.
+           
+        </t>
+        <t>
+        <figure align="left">
+          <artwork xml:space="preserve" align="left">
+<![CDATA[
+<CODE BEGINS>
+
+enum bkreqsup {
+        BKREQSUP_NONE    = 0,
+        BKREQSUP_INLINE  = 1,
+        BKREQSUP_GENL    = 2
+};
+
+const uint32    PROP_BRS = 3;
+typedef bkreqsup prop_brs;                
+
+<CODE ENDS>
+]]>
+          </artwork>
+        </figure> 
+        </t>
+        <t>
+          Multiple levels of support are distinguished:
+        <list style="symbols">
+          <t>
+            The value BKREQSUP_NONE indicates that receipt of 
+            backward-direction requests and replies is not supported.         
+          </t>
+          <t>
+
+            The value BKREQSUP_INLINE indicates that receipt of 
+            backward-direction requests or replies is 
+            only supported using inline messages and that use of
+            explicit RDMA operations or other form of Direct Data
+            Placement for backward direction requests
+            or responses is not supported. 
+          </t>
+          <t>
+            The value BKREQSUP_GENL that receipt of backward-direction 
+            requests or replies is supported in the same
+            ways that forward-direction requests or replies typically are.
+          </t>
+        </list>
+        </t>
+        <t>
+          When information about this property is not provided,
+          the support level of servers can be inferred from the backward-
+          direction requests that they issue, assuming that issuing a 
+          request implicitly indicates support for receiving the 
+          corresponding reply.  On this basis, support for receiving
+          inline replies can be assumed when requests without read
+          chunks, write chunks, or Reply chunks are issued, while 
+          requests with any of these elements allow the client to assume
+          that general support for backward-direction replies is 
+          present on the server.
+        </t>
+      </section>
+    </section>
+    <section title="New Operations" anchor="OPS">
+      <t>
+        The proposed new operations are set forth in <xref target="optab"/>
+        below. In that table, the columns contain the following
+        information:
+      <list style="symbols">
+        <t>
+          The column labeled "operation" specifies the particular operation. 
+        </t>
+        <t>
+          The column labeled "code" specifies the value of opttype for this
+          operation.
+        </t>
+        <t>
+          The column labeled "XDR type" gives the XDR type of the data 
+          structure 
+          used to describe the information in this new message type.  
+          This data overlays the data portion of the nominally opaque 
+          field optinfo in an
+          RDMA_OPTIONAL message.
+        </t>
+        <t>
+          The column labeled "msg" indicates whether this operation is
+          followed (or not) by an RPC message payload.
+        </t>
+        <t>
+          The column labeled "section" indicates the section (within this
+          document) that explains the semantics and use of this optional 
+          operation.
+ 
+        </t>
+      </list>
+      </t>
+      <texttable align="left" style="full" anchor="optab">
+        <ttcol>
+          operation
+        </ttcol>
+        <ttcol>
+          code
+        </ttcol>
+        <ttcol>
+          XDR type
+        </ttcol>
+        <ttcol>
+          msg
+        </ttcol>
+        <ttcol>
+          section
+        </ttcol>
+        <c>Specify Properties at Connection</c>
+        <c>1</c>
+        <c>optinfo_connprop</c>
+        <c>No</c>
+        <c><xref target="OPS-init" format="counter"/></c>
+        <c>Request Property Modification</c>
+        <c>2</c>
+        <c>optinfo_reqprop</c>
+        <c>No</c>
+        <c><xref target="OPS-req" format="counter"/></c>
+        <c>Respond to Modification Request</c>
+        <c>3</c>
+        <c>optinfo_resprop</c>
+        <c>No</c>
+        <c><xref target="OPS-resp" format="counter"/></c>
+        <c>Report Updated Properties</c>
+        <c>4</c>
+        <c>optinfo_updprop</c>
+        <c>No</c>
+        <c><xref target="OPS-upd" format="counter"/></c>
+      </texttable>
+      <t>
+        Support for all of the operations above is OPTIONAL.  RPC-over-RDMA 
+        Version Two implementations that receive an operation that is not
+        supported MUST
+        respond with RDMA_ERROR message with an error code of
+        RDMA_ERR_INVAL_OPTION.
+      </t>
+      <t>
+        The only operation support requirements are as follows:
+        <list style="symbols">
+          <t>
+            Implementations which send ROPT_REQPROP messages must support
+            ROPT_RESPROP messages.
+          </t>
+          <t>
+            Implementations which support ROPT_RESPROP or ROPT_UPDPROP messages
+            must also support ROPT_CONNPROP messages.
+          </t>
+        </list>
+      </t>
+      <section title="ROPT_CONNPROP: Specify Properties at Connection" 
+               anchor="OPS-init">
+        <t>
+          The ROPT_CONNPROP message type allows an RPC-over-RDMA participant,
+          whether client or server, to indicate to its partner relevant
+          transport properties that the partner might need to be 
+          aware of.
+        </t>
+        <t>
+          The message definition for this operation is as follows: 
+        <figure align="left">
+          <artwork xml:space="preserve" align="left">
+<![CDATA[
+<CODE BEGINS>
+
+const uint32     ROPT_CONNPROP= 1;
+
+struct optinfo_connprop {
+        propvalset      opticonnpr_start;
+        propvalsubset   opticonnpr_nochg;
+};        
+ 
+<CODE ENDS>
+]]>
+          </artwork>
+        </figure> 
+        </t>
+        <t>
+          All relevant transport properties that the sender is aware of
+          should be included in opticonnpr_start. Since support of this request 
+          is OPTIONAL, and since each of the properties is OPTIONAL 
+          as well,
+          the sender cannot assume that the receiver will necessarily take 
+          note of these properties and so the sender 
+          should be prepared for cases in
+          which the partner continues to assume that the default value for a 
+          particular property is still in effect.   
+        </t>
+        <t> 
+          Values of the subset of transport properties 
+          specified by opticonnpr_nochg
+          is not expected to change during the lifetime of the connection.
+        </t>
+        <t>
+          Generally, a participant will send a ROPT_CONNPR message as the
+          first message after a connection is established.  Given that fact,
+          the sender should make sure that the message can be received by
+          partners who use the default Receive Buffer Size. The connection's 
+          initial receive buffer size is typically 1KB, but it depends 
+          on the initial connection state of the RPC-over-RDMA version 
+          in use.
+        </t>
+        <t>
+          Properties not included in opticonnpr_start are to be treated by 
+          the peer endpoint as having the default value and are not allowed
+          to change subsequently.  The peer should not request changes in such
+          properties.
+        </t>
+        <t>
+          Those receiving an ROPT_CONNPR may encounter properties that 
+          they do not support or are unaware of.  In such cases, these
+          properties are simply ignored without any error response 
+          being generated.
+        </t>
+      </section>
+      <section title="ROPT_REQPROP: Request Modification of Properties" 
+               anchor="OPS-req">
+        <t>
+          The ROPT_REQPROP message type allows an RPC-over-RDMA participant,
+          whether client or server, to request of its partner that relevant 
+          transport properties be changed.  
+        </t>
+        <t>
+          The rdma_xid field allows the
+          request to be tied to a corresponding response of
+          type ROPT_RESPROP (See <xref target="OPS-resp" />.) In assigning
+          the value of this field, the sender does not need to avoid
+          conflict with xid's associated with RPC messages or with
+          ROPT_REQPROP messages sent by the peer endpoint. 
+        </t>
+        <t>
+          The partner need not change the properties as requested by the
+          sender but if it does support the message type, it will generate
+          a ROPT_RESPROP message, indicating the disposition of the request. 
+        </t>
+        <t>
+          The message definition for this operation is as follows: 
+        <figure align="left">
+          <artwork xml:space="preserve" align="left">
+<![CDATA[
+<CODE BEGINS>
+
+const uint32     ROPT_REQPROP = 2;
+
+struct optinfo_reqprop {
+       propvalset      optreqpr_want;
+                       
+};        
+ 
+<CODE ENDS>
+]]>
+          </artwork>
+        </figure> 
+        </t>
+        <t>
+          The propvalset optreqpr_want is a set of transport properties 
+          together with the desired values requested by the sender.
+        </t>
+      </section>
+      <section title="ROPT_RESPROP: Respond to Request to Modify Transport Properties" 
+               anchor="OPS-resp">
+        <t>
+          The ROPT_RESPROP message type allows an RPC-over-RDMA participant
+          to respond to a request to change properties by its partner,
+          indicating how the request was dealt with. 
+        </t>
+        <t>
+          The message definition for this operation is as follows: 
+        <figure align="left">
+          <artwork xml:space="preserve" align="left">
+<![CDATA[
+<CODE BEGINS>
+
+const uint32     ROPT_RESPROP = 3;
+
+struct optinfo_resprop {
+        propvalsubset   optrespr_done;
+        propvalsubset   optrespr_rej;
+        propvalset      optrespr_other;                        
+};        
+ 
+<CODE ENDS>
+]]>
+          </artwork>
+        </figure> 
+        </t>
+        <t>
+          The rdma_xid field of this message must match that used in the 
+          ROPT_REQPROP message to which this message is responding.
+        </t>
+        <t>
+          The optrespr_done field indicates which of the requested transport
+          property changes have been effected as requested.  For each
+          such property, the receiver is entitled to conclude that the 
+          requested change has been made and that future transmissions may be 
+          made based on the new value.
+        </t>
+        <t>
+          The optrespr_rej field indicates which of the requested transport
+          property changes have been rejected by the sender.  This may 
+          be because of any of the following reasons:
+        <list style="symbols">
+          <t>
+            The particular property specified is not known or supported
+            by the receiver of the ROPT_REQPROP message.
+          </t>
+          <t>
+            The implementation receiving the ROPT_REQPROP message does not
+            support modification of this property.
+          </t>
+          <t>
+            The implementation receiving the ROPT_REQPROP message has
+            chosen to reject the modification for another reason.
+          </t>
+        </list>
+        </t>
+        <t>
+          The optrespr_other field contains new values for properties where
+          a change is requested.  The new value of the property is included
+          and may be a value different from the original value in effect
+          when the change was requested and from the requested value.
+          This is useful when the new value of some property is not as 
+          large as requested but still different from the original value,
+          indicating a partial satisfaction of the peer's property change 
+          request.
+        </t>
+        <t>
+          The sender MUST NOT include propvals within optrespr_other that
+          are for properties other than the ones for which the corresponding 
+          property request has requested a change.  If the receiver finds
+          such a situation, it MUST ignore the erroneous propvals.
+        </t>
+        <t>
+          The subsets of properties specified by optrespr_done,
+          optrespr_rej, and included in optrespr_other MUST NOT overlap, and
+          when ored
+          together, should cover the entire set of properties
+          specified by optreqpr_want in the corresponding request. 
+          If the receiver finds such an overlap or mismatch, it SHOULD 
+          treat properties missing or 
+          within the overlap as having been rejected.
+        </t>
+      </section>
+      <section title="ROPT_UPDPROP: Update Transport Properties" 
+               anchor="OPS-upd">
+        <t>
+          The ROPT_UPDPROP message type allows an RPC-over-RDMA participant
+          to notify the other participant that a change to the transport 
+          properties has occurred.  This is because the sender
+          has decided, independently, to modify one or more transport 
+          properties and is notifying the receiver of these changes.
+        </t>
+        <t>
+          The message definition for this operation is as follows: 
+        <figure align="left">
+          <artwork xml:space="preserve" align="left">
+<![CDATA[
+<CODE BEGINS>
+ 
+const uint32     ROPT_UPDPROP = 4;
+
+struct optinfo_updprop {
+        propvalset        optupdpr_now;
+};        
+
+<CODE ENDS>
+]]>
+          </artwork>
+        </figure> 
+        </t>
+        <t>
+          optupdpr_now defines the new property values to be used.
+        </t>
+      </section>
+    </section>
+
+    <section title="Extensibility" anchor="EXT">
+      <section title="Additional Properties" anchor="EXT-addl">
+        <t>
+          The set of transport properties is designed to be
+          extensible.  As a result, once new properties are defined in 
+          standards track documents, the operations defined in this
+          document may reference these new transport properties,
+          as well as the ones described in this document.
+        </t>
+        <t>
+          A standards track document defining a new transport property 
+          should include
+          the following information paralleling that provided in this document
+          for the transport properties defined herein.
+        <list style="symbols">
+          <t>
+            The propid value used to identify this property.
+          </t>
+          <t>
+            The XDR typedef specifying the form in which the property
+            value is communicated. 
+          </t>
+          <t>
+            A description of the transport property that is communicated
+            by the sender of ROPT_INITXCH and ROPT_UPDXCH and requested by
+            the sender of ROP_REQXCH. 
+          </t>
+          <t>
+            An explanation of how this knowledge could be used by the
+            participant receiving this information.
+          </t>
+          <t>
+            Information giving rules governing possible changes of values 
+            of this
+            property. 
+          </t>
+        </list>
+        </t>
+        <t>
+          The definition of transport property structures is such as
+          to make it easy to assign unique values.  There is no requirement 
+          that a continuous set of values be used and 
+          implementations should not 
+          rely on all
+          such values being small integers.  A unique value should
+          be selected when the defining document is first published as an
+          internet draft.  When the document becomes a standards track 
+          document working group should insure that: 
+        <list style="symbols">
+          <t>
+            The propids specified in the document do not conflict with
+            those currently assigned or in use by other pending working group
+            documents defining transport properties.
+          </t>
+          <t>
+            The propids specified in the document do not conflict with the
+            range reserved for experimental use, as defined in 
+            <xref target="EXT-exp"/>.
+          </t>
+        </list>
+        </t>
+        <t>
+          Documents defining new properties fall into a number of 
+          categories.
+        <list style="symbols">
+          <t>
+            Those defining new properties and explaining (only) how they 
+            affect use of existing message types.
+          </t>
+          <t>
+            Those defining new OPTIONAL message types and new properties
+            applicable to the operation of those new message types.
+          </t>
+          <t>
+            Those defining new OPTIONAL message types and new properties
+            applicable both to new and existing message types.
+          </t>
+        </list>
+        </t>
+        <t>
+          When additional transport properties are proposed,
+          the review of the associated standards track document should deal 
+          with possible security issues raised by those new transport 
+          properties. 
+        </t>
+      </section>
+      <section title="Experimental Properties" anchor="EXT-exp">
+        <t>
+          Given the design of the transport properties data 
+          structure, it possible to use the operations to implement
+          experimental, possibly unpublished, transport properties.
+        </t>
+        <t>
+          propids in the range from 4,294,967,040 to 4,294,967,295 are
+          reserved for experimental use and these values should not be
+          assigned to new properties in standards track documents.
+        </t>
+        <t>
+          When values in this range are used there is no guarantee if
+          successful interoperation among independent implementations. 
+        </t>
+      </section>
+    </section>
+
+</section>
+
+
 <section
  title="XDR Protocol Definition"
  anchor="xdr-protocol-definition">
@@ -703,6 +1611,74 @@ are defined in Section 4 of
 ///         uint32        rdma_credit;
 ///         rpcrdma2_body rdma_body;
 /// };
+
+////*
+/// * Core transport property types
+/// */ 
+///typedef propid          uint32;
+///
+///struct propval {
+///        propid          pv_which;
+///        opaque          pv_data<>;
+///};
+///
+///typedef propval         propvalset<>;
+///
+///typedef uint32          propvalsubset<>;
+///
+////*
+/// * Transport property codes for basic properties
+/// */
+///const uint32    PROP_RBSIZ = 1;
+///const uint32    PROP_REQREMINV = 2;
+///const uint32    PROP_BRS = 3;
+///
+////*
+/// * Other transport property types
+/// */
+///enum bkreqsup {
+///        BKREQSUP_NONE    = 0,
+///        BKREQSUP_INLINE  = 1,
+///        BKREQSUP_GENL    = 2
+///};
+///
+////*
+/// * Transport property typedefs
+/// */
+///typedef uint32   prop_bsiz;
+///typedef bool     prop_reqreminv;
+///typedef bkreqsup prop_brs;                
+///
+////*
+/// * Optional operation codes
+/// */
+///const uint32     ROPT_CONNPROP = 1;
+///const uint32     ROPT_REQPROP = 2;
+///const uint32     ROPT_RESPRO = 3;
+///const uint32     ROPT_UPDPROP = 4;
+///
+////*
+/// * Optional operation message structures
+/// */
+///struct optinfo_connprop {
+///        propvalset      opticonnpr_start;
+///        propvalsubset   opticonnpr_nochg;
+///};        
+///
+///struct optinfo_reqprop {
+///       propvalset      optreqpr_want;
+///                       
+///};                
+///
+///struct optinfo_resprop {
+///        propvalsubset   optrespr_done;
+///        propvalsubset   optrespr_rej;
+///        propvalset      optrespr_other;                        
+///};                
+///
+///struct optinfo_updprop {
+///        propvalset      optupdpr_now;
+///};        
 
 <CODE ENDS>
 ]]>
@@ -969,8 +1945,6 @@ send its Calls.
 
 </section>
 
-</section>
-
 <section
  title="Security Considerations"
  anchor="security-considerations">
@@ -979,6 +1953,25 @@ send its Calls.
 The security considerations for RPC-over-RDMA Version Two
 are the same as those for RPC-over-RDMA Version One.
 </t>
+
+    <section title="Security Considerations (Transport Properties)" anchor="SEC">
+      <t>
+        Like other fields that appear in each RPC-over-RDMA header, 
+        property information is sent in the clear on the fabric 
+        with no integrity protection, making it vulnerable to 
+        man-in-the-middle attacks.
+      </t>
+      <t>
+        For example, if a man-in-the-middle were to change the value of 
+        the Receive buffer size or the Requester Remote Invalidation boolean, 
+        it could reduce connection performance or trigger loss of connection. 
+        Repeated connection loss can impact performance or even prevent a 
+        new connection from being established. Recourse is to deploy on a 
+        private network or use link-layer encryption.
+      </t>
+    </section>
+
+</section>
 
 </section>
 
