@@ -134,24 +134,9 @@ utilized by responders.
 </t>
 <t>
 RPC-over-RDMA Version Two expands the repertoire of
-error codes, to enable extensibility, support debugging,
+error codes to enable extensibility, support debugging,
 and to prevent requester retries when an error is
 permanent.
-</t>
-<t>
-Lastly, RPC-over-RDMA Version Two makes unidirectional
-messages a primary and natural part of the transport
-protocol.
-RPC-over-RDMA Version One cleaved closely to a model
-where one RPC was represented by one message in one
-direction followed by a response in the other direction.
-With RPC-over-RDMA Version Two, a broader array of
-operations are possible at the transport level (under
-the RPC protocol).
-It is also possible that more than one transport-level
-message can be used to convey one RPC message, or that
-more than one RPC message can be conveyed in one
-transport-level message.
 </t>
 
 </section>
