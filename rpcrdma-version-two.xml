@@ -467,10 +467,11 @@ an adequate human-readable description of the extended protocol.
 </section>
 
 
-<section title="Inserted from rpcrdma-xcharext">
+<section title="Transport Properties">
 
-    <section title="Transport Properties" anchor="CHAR">
-      <section title="Property Model" anchor="CHAR-model">
+    <section title="Introduction To Transport Properties">
+
+      <section title="Property Model">
         <t>
           A basic set of receiver and sender properties is
           specified in this document. An extensible approach is used, 
@@ -595,7 +596,8 @@ typedef uint32          propvalsubset<>;
         </list>
         </t>
       </section>
-      <section title="Transport Property Groups" anchor="CHAR-groups">
+
+      <section title="Transport Property Groups">
         <t>
           Transport properties are divided into a number of groups 
         <list style="symbols">
@@ -616,8 +618,8 @@ typedef uint32          propvalsubset<>;
         </list>
         </t>
       </section>
-      <section title="Operations Related to Transport Properties " 
-               anchor="CHAR-ops">
+
+      <section title="Operations Related to Transport Properties">
         <t>
           There are a number of operations defined in <xref target="OPS" />
           which are used to communicate and manage transport 
@@ -659,7 +661,9 @@ typedef uint32          propvalsubset<>;
           operations are not part of a remote call transaction.
         </t>
       </section>
+
     </section>
+
     <section title="Basic Transport Properties" anchor="INIT">
       <t>
         Although the set of transport properties is subject to later 
@@ -718,13 +722,8 @@ typedef uint32          propvalsubset<>;
         <c>uint32</c>
         <c>4096</c>
         <c><xref target="INIT-rbs" format="counter"/></c>
-        <c>Requester Remote Invalidation</c>
-        <c>2</c>
-        <c>bool</c>
-        <c>false</c>
-        <c><xref target="INIT-rqri" format="counter"/></c>
         <c>Backward Request Support</c>
-        <c>3</c>
+        <c>2</c>
         <c>enum bkreqsup</c>
         <c>BKREQSUP_INLINE</c>
         <c><xref target="INIT-brs" format="counter"/></c>
@@ -844,48 +843,7 @@ typedef uint32  prop_rbsiz;
         </list>
         </t>
       </section>
-      <section title="Requester Remote Invalidation" anchor="INIT-rqri"> 
-        <t>
-          The Requester Remote Invalidation property indicates that 
-          the current endpoint, when in the role of a requester, is 
-          prepared for the responder to use RDMA Send With Invalidate 
-          when replying to an RPC-over-RDMA request containing non-empty 
-          chuck lists.
-        </t>
-        <t>
-          As RPC-over-RDMA is currently used, memory registrations exposed 
-          to peers are not established by the server and explicit RDMA 
-          operations are not done to satisfy backward direction requests.  
-          This makes it unlikely that servers will present non-default 
-          values of the PROP_REQREMINV property or that clients will 
-          take note of that value when presented by servers.
-        </t>
-        <figure align="left">
-          <artwork xml:space="preserve" align="left">
-<![CDATA[
-<CODE BEGINS>
 
-const uint32    PROP_REQREMINV = 2;
-typedef bool    prop_reqreminv;
-
-<CODE ENDS>
-]]>
-          </artwork>
-        </figure> 
-      
-        <t>
-          When the Requester Remote Invalidate property is set 
-          to false, a responder MUST use Send to convey RPC reply 
-          messages to the requester. When the Requester Remote Invalidate 
-          property is set to true, a responder MAY use Send With 
-          Invalidate instead of Send to convey RPC replies to the requester.
-        </t>
-        <t>
-          The value of the Requester Remote Invalidate property 
-          is not likely to change from the value reported by ROPT_INITPROP 
-          (see <xref target="OPS-req" />).
-        </t>
-      </section>
       <section title="Backward Request Support" 
                anchor="INIT-brs">
         <t>
@@ -906,8 +864,8 @@ enum bkreqsup {
         BKREQSUP_GENL    = 2
 };
 
-const uint32    PROP_BRS = 3;
-typedef bkreqsup prop_brs;                
+const uint32    PROP_BRS = 2;
+typedef bkreqsup prop_brs;
 
 <CODE ENDS>
 ]]>
@@ -1630,8 +1588,7 @@ are defined in Section 4 of
 /// * Transport property codes for basic properties
 /// */
 ///const uint32    PROP_RBSIZ = 1;
-///const uint32    PROP_REQREMINV = 2;
-///const uint32    PROP_BRS = 3;
+///const uint32    PROP_BRS = 2;
 ///
 ////*
 /// * Other transport property types
