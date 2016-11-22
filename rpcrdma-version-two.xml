@@ -103,12 +103,23 @@ Version Two so that new optional capabilities can be
 introduced without a protocol version change and
 while maintaining interoperability with existing
 implementations.
+</t>
+<t>
 New capabilities can be proposed and developed
 independently of each other, and implementaters
-can choose among them.
-It should be straightforward to create and document
-experimental features and then bring them through
-the standards process.
+can choose among them, making it straightforward
+to create and document experimental features and
+then bring them through the standards process.
+</t>
+<t>
+As part of this new extensibility feature set,
+a mechanism for exchanging transport properties is
+introduced.
+This mechanism allows RPC-over-RDMA Version Two
+connection endpoints to communicate properties
+of their implementations, to request changes in properties
+of the other endpoint, and to notify peer endpoints
+of changes to properties that occur during operation.
 </t>
 <t>
 In addition to extensibility, the default inline
