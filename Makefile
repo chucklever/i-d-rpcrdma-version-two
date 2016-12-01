@@ -8,7 +8,7 @@ ENSCRIPT := enscript -f Courier@10 --margins 76::76: -B -q -p
 PS2PDF := pstopdf
 RM := rm -f
 XML2RFC := xml2rfc
-IDNITS := ../idnits-2.14.01/idnits
+IDNITS := ../../idnits-2.14.01/idnits
 
 # docName
 AUTHOR := cel
