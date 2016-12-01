@@ -1929,7 +1929,7 @@ There are no IANA considerations at this time.
 </references>
 
 <references title="Informative References">
-<?rfc include="references/reference.I-D.draft-ietf-nfsv4-rfc5666bis-07.xml"?>
+<?rfc include="references/reference.I-D.draft-ietf-nfsv4-rfc5666bis-08.xml"?>
 <?rfc include="references/reference.I-D.draft-ietf-nfsv4-rpcrdma-bidirection-05.xml"?>
 <?rfc include="references/reference.IBTA.spec.xml"?>
 <?rfc include="references/reference.RFC.5040.xml"?>
