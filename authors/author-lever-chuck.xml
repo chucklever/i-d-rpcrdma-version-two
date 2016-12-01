@@ -1,4 +1,6 @@
-<!-- Copyright (C) The IETF Trust (2015) -->
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Copyright (C) The IETF Trust (2016) -->
 
 <author
   initials="C.L."
@@ -18,7 +20,7 @@
       <code>48104</code>
       <country>USA</country>
     </postal>
-    <phone>+1 734 274 2396</phone>
+    <phone>+1 248 816 6463</phone>
     <email>chuck.lever@oracle.com</email>
   </address>
 
