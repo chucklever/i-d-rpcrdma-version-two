@@ -1647,6 +1647,25 @@ Transport header Stream in the Send buffer.
 Implementations of RPC-over-RDMA Version Two are REQUIRED
 to support backwards direction operation as described in
 <xref target="I-D.ietf-nfsv4-rpcrdma-bidirection"/>.
+RPC-over-RDMA Version Two introduces the rdma_direction field
+in its transport header to optimize the process of distinguishing
+between forward- and backwards-direction messages.
+</t>
+<t>
+The rdma_direction field qualifies the value
+contained in the transport header's rdma_xid field.
+This enables a receiver to reliably avoid performing an XID lookup
+on incoming backwards-direction Call messages.
+</t>
+<t>
+In general, when a message carries an XID that was generated
+by the message's receiver (that is, the receiver is acting as
+a requester), the message's sender sets the rdma_direction
+field to REPLY (1).
+Otherwise the rdma_direction field is set to CALL (0).
+For example:
+</t>
+<t>
 <list style="symbols">
 <t>
 When the rdma_proc field has the value RDMA2_MSG
@@ -1654,11 +1673,6 @@ or RDMA2_NOMSG,
 the value of the rdma_direction field MUST be the
 same as the value of the associated RPC message's
 msg_type field.
-</t>
-<t>
-When the rdma_proc field has the value RDMA2_ERROR,
-the direction of the message is always
-Responder-to-Requester (REPLY).
 </t>
 <t>
 When the rdma_proc field has the value RDMA2_OPTIONAL
@@ -1679,6 +1693,11 @@ from the XID space that matches the message's direction.
 Requesters and Responders set the rdma_credit field
 in a similar fashion: a value is set that is appropriate
 for the direction of the message.
+</t>
+<t>
+When the rdma_proc field has the value RDMA2_ERROR,
+the direction of the message is always
+Responder-to-Requester (REPLY).
 </t>
 </list>
 </t>
