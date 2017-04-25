@@ -14,7 +14,7 @@ IDNITS := ../../idnits-2.14.01/idnits
 AUTHOR := cel
 GROUP := nfsv4
 NAME := rpcrdma-version-two
-VERSION := 03
+VERSION := 04
 DOCNAME := draft-$(AUTHOR)-$(GROUP)-$(NAME)-$(VERSION)
 
 # Source
