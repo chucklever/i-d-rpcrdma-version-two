@@ -462,7 +462,6 @@ an adequate human-readable description of the extended protocol.
 
 </section>
 
-
 <section title="Transport Properties">
 
     <section title="Introduction To Transport Properties">
@@ -1494,10 +1493,14 @@ are defined in Section 4 of
 /// enum rpcrdma2_errcode {
 ///         RDMA2_ERR_VERS = 1,
 ///         RDMA2_ERR_BAD_XDR = 2,
-///         RDMA2_ERR_REPLY_RESOURCE = 3,
-///         RDMA2_ERR_INVAL_PROC = 4,
-///         RDMA2_ERR_INVAL_OPTION = 5
-///         RDMA2_ERR_SYSTEM = 6,
+///         RDMA2_ERR_INVAL_PROC = 3,
+///         RDMA2_ERR_READ_CHUNKS = 4,
+///         RDMA2_ERR_WRITE_CHUNKS = 5,
+///         RDMA2_ERR_SEGMENTS = 6,
+///         RDMA2_ERR_WRITE_RESOURCE = 7,
+///         RDMA2_ERR_REPLY_RESOURCE = 8,
+///         RDMA2_ERR_INVAL_OPTION = 9,
+///         RDMA2_ERR_SYSTEM = 10,
 /// };
 ///
 /// struct rpcrdma2_err_vers {
@@ -1505,8 +1508,8 @@ are defined in Section 4 of
 ///         uint32 rdma_vers_high;
 /// };
 ///
-/// struct rpcrdma2_err_reply {
-///         uint32 rdma_segment_index;
+/// struct rpcrdma2_err_write {
+///         uint32 rdma_chunk_index;
 ///         uint32 rdma_length_needed;
 /// };
 ///
@@ -1515,10 +1518,18 @@ are defined in Section 4 of
 ///           rpcrdma2_err_vers rdma_vrange;
 ///         case RDMA2_ERR_BAD_XDR:
 ///           void;
-///         case RDMA2_ERR_REPLY_RESOURCE:
-///           rpcrdma2_err_reply rdma_reply;
 ///         case RDMA2_ERR_INVAL_PROC:
 ///           void;
+///         case RDMA2_ERR_READ_CHUNKS:
+///           uint32 rdma_max_chunks;
+///         case RDMA2_ERR_WRITE_CHUNKS:
+///           uint32 rdma_max_chunks;
+///         case RDMA2_ERR_SEGMENTS:
+///           uint32 rdma_max_segments;
+///         case RDMA2_ERR_WRITE_RESOURCE:
+///           rpcrdma2_err_write rdma_writeres;
+///         case RDMA2_ERR_REPLY_RESOURCE:
+///           uint32 rdma_length_needed;
 ///         case RDMA2_ERR_INVAL_OPTION:
 ///           void;
 ///         case RDMA2_ERR_SYSTEM:
@@ -1732,19 +1743,22 @@ rdma_inv_handle field to construct the Send With Invalidate Work Request.
  title="Transport Errors"
  anchor="transport-errors">
 <t>
-Error handling works the same way in RPC-over-RDMA Version
-Two as it does in RPC-over-RDMA Version One,
-with the addition of several new error codes.
+Error handling works the same way in RPC-over-RDMA Version Two
+as it does in RPC-over-RDMA Version One,
+with the addition of several new error codes, and
+error messages never flow from requester to responder.
 Version One error handling is described in Section 5 of
 <xref target="I-D.ietf-nfsv4-rfc5666bis"/>.
 </t>
 <t>
-In all cases below, the sender copies the values of the
+In all cases below, the responder copies the values of the
 rdma_xid and rdma_vers fields
 from the incoming transport
 header that generated the error to 
 transport header of the error response.
-The rdma_proc field is set to RDMA2_ERROR.
+The responder sets the rdma_proc field to RDMA2_ERROR,
+and the rdma_credit field is set to the credit grant
+value for this connection.
 <list style="hanging">
 <t hangText="RDMA2_ERR_VERS">
 <vspace/>
@@ -1753,39 +1767,74 @@ The error code value, semantics, and utilization are the same.
 </t>
 <t hangText="RDMA2_ERR_INVAL_PROC">
 <vspace/>
-This is a new error code in RPC-over-RDMA Version Two.
-If a receiver recognizes the value in the rdma_vers field, but
+If a responder recognizes the value in the rdma_vers field, but
 it does not recognize the value in the rdma_proc field,
-it MUST send RDMA2_ERR_INVAL_PROC.
+it MUST set the rdma_err field to RDMA2_ERR_INVAL_PROC.
 </t>
 <t hangText="RDMA2_ERR_BAD_XDR">
 <vspace/>
-This is the equivalent of ERR_CHUNK in RPC-over-RDMA Version One,
-with a few extra restrictions. The error code value is the same.
-<vspace/>
-<vspace/>
-If a receiver recognizes the values in the rdma_vers and rdma_proc
+If a responder recognizes the values in the rdma_vers and rdma_proc
 fields, but the incoming RPC-over-RDMA transport header cannot be
-parsed, the receiver MUST send RDMA2_ERR_BAD_XDR
-before Upper Layer Protocol processing starts.
+parsed, it MUST set the rdma_err field to RDMA2_ERR_BAD_XDR.
+The error code value of RDMA2_ERR_BAD_XDR is the same as
+the error code value of ERR_CHUNK in RPC-over-RDMA Version One.
+The responder MUST NOT process the request in any way
+except to send an error message.
+</t>
+<t hangText="RDMA2_ERR_READ_CHUNKS">
+<vspace/>
+If a requester presents more DDP-eligible arguments than the responder
+is prepared to Read,
+the responder MUST set the rdma_err field to RDMA2_ERR_READ_CHUNKS,
+and set the rdma_max_chunks field to the maximum number of
+Read chunks the responder can receive and process.
+</t>
+<t hangText="RDMA2_ERR_WRITE_CHUNKS">
+<vspace/>
+If a requester has constructed an RPC Call message with
+more DDP-eligible results than the server is prepared to Write,
+the responder MUST set the rdma_err field to RDMA2_ERR_WRITE_CHUNKS,
+and set the rdma_max_chunks field to the maximum number of
+Write chunks the responder can process and return.
+</t>
+<t hangText="RDMA2_ERR_SEGMENTS">
+<vspace/>
+If a requester has constructed an RPC Call message with a
+chunk that contains more segments than the responder supports,
+the responder MUST set the rdma_err field to RDMA2_ERR_SEGMENTS,
+and set the rdma_max_segments field to the maximum number of
+segments the responder can process.
+</t>
+<t hangText="RDMA2_ERR_WRITE_RESOURCE">
+<vspace/>
+If a requester has provided a Write chunk that is not large enough
+to convey a DDP-eligible result,
+the responder MUST set the rdma_err field to RDMA2_ERR_WRITE_RESOURCE.
+<vspace/>
+<vspace/>
+The responder MUST set the rdma_chunk_index field to point to the
+first Write chunk in the transport header that is too short, or to
+zero to indicate that it was not possible to determine which chunk
+is too small.
+Indexing starts at one (1), which represents the first Write chunk.
+The responder MUST set the rdma_length_needed to the number of bytes
+needed in that chunk in order to convey the result data item.
+<vspace/>
+<vspace/>
+Upon receipt of this error code,
+a responder MAY choose to terminate the operation
+(for instance, if the responder set the index and length fields to zero),
+or it MAY send the request again using the same XID and more
+reply resources.
 </t>
 <t hangText="RDMA2_ERR_REPLY_RESOURCE">
 <vspace/>
-This is a new error code in RPC-over-RDMA Version Two.
-If the RPC-over-RDMA transport header is otherwise correct, but
-the requester has not provided enough Write or Reply chunk
-resources to transmit the reply,
-the responder MUST send RDMA2_ERR_REPLY_RESOURCE.
-<vspace/>
-<vspace/>
-The responder MUST set the rdma_segment_index field to point to the
-first segment in the transport header that is too short, or to
-zero to indicate that it was not possible to determine which segment
-was too small.
-Indexing starts at one (1), which represents the first segment in
-the first Write chunk (in either the Write list or Reply chunk).
-The responder MUST set the rdma_length_needed to the number of bytes
-needed in that segment in order to convey the reply.
+If an RPC Reply's Payload stream does not fit inline
+and the requester has not provided a large enough Reply chunk
+to convey the stream,
+the responder MUST set the rdma_err field to RDMA2_ERR_REPLY_RESOURCE.
+The responder MUST set the rdma_length_needed to the number of
+Reply chunk bytes needed to convey the reply.
 <vspace/>
 <vspace/>
 Upon receipt of this error code,
@@ -1796,18 +1845,19 @@ reply resources.
 </t>
 <t hangText="RDMA2_ERR_INVAL_OPTION">
 <vspace/>
-This is a new error code in RPC-over-RDMA Version Two.
-A receiver MUST send RDMA2_ERR_INVAL_OPTION
+A responder MUST set the rdma_err field to RDMA2_ERR_INVAL_OPTION
 when an RDMA2_OPTIONAL message is received
-and the receiver does not recognize the value in the
+and the responder does not recognize the value in the
 rdma_opttype field.
 </t>
 <t hangText="RDMA2_ERR_SYSTEM">
 <vspace/>
-This is a new error code in RPC-over-RDMA Version Two.
-If some problem occurs on a receiver that does not fit into the above
-categories, the receiver MAY report it to the sender using
-the error code RDMA2_ERR_SYSTEM.
+If some problem occurs on a responder that does not fit
+into the above categories,
+the responder MAY report it to the sender by setting
+the rdma_err field to RDMA2_ERR_SYSTEM.
+<vspace/>
+<vspace/>
 This is a permanent error: a requester that receives this error MUST
 terminate the RPC transaction associated with the XID value in the
 rdma_xid field.
@@ -1933,7 +1983,7 @@ are the same as those for RPC-over-RDMA Version One.
  anchor="iana-considerations">
 
 <t>
-There are no IANA considerations at this time.
+This document does not require actions by IANA.
 </t>
 </section>
 
