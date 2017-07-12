@@ -1788,6 +1788,10 @@ is prepared to Read,
 the responder MUST set the rdma_err field to RDMA2_ERR_READ_CHUNKS,
 and set the rdma_max_chunks field to the maximum number of
 Read chunks the responder can receive and process.
+<vspace/>
+If the responder implementation cannot handle any Read chunks
+for a request, it MUST set the rdma_max_chunks to zero in this response.
+The requester SHOULD resend the request using a Position-Zero Read chunk.
 </t>
 <t hangText="RDMA2_ERR_WRITE_CHUNKS">
 <vspace/>
@@ -1796,6 +1800,11 @@ more DDP-eligible results than the server is prepared to Write,
 the responder MUST set the rdma_err field to RDMA2_ERR_WRITE_CHUNKS,
 and set the rdma_max_chunks field to the maximum number of
 Write chunks the responder can process and return.
+<vspace/>
+If the responder implementation cannot handle any Write chunks for a
+request, it MUST return a response of RDMA2_ERR_REPLY_RESOURCE (below).
+The requester SHOULD resend the request with no Write chunks and
+a Reply chunk of appropriate size.
 </t>
 <t hangText="RDMA2_ERR_SEGMENTS">
 <vspace/>
