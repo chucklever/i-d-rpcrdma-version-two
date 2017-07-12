@@ -1792,6 +1792,8 @@ Read chunks the responder can receive and process.
 If the responder implementation cannot handle any Read chunks
 for a request, it MUST set the rdma_max_chunks to zero in this response.
 The requester SHOULD resend the request using a Position-Zero Read chunk.
+If this was a request using a Position-Zero Read chunk,
+the requester MUST terminate the transaction with an error.
 </t>
 <t hangText="RDMA2_ERR_WRITE_CHUNKS">
 <vspace/>
