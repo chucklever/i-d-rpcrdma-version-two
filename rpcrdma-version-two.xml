@@ -145,7 +145,7 @@ to avoid requester retries when an error is permanent.
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL",
 "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY",
 and "OPTIONAL" in this document are to be interpreted as
-described in <xref target="RFC2119"/> <xref target="RFC8174"/>
+described in BCP 14 <xref target="RFC2119"/> <xref target="RFC8174"/>
 when, and only when, they appear in all capitals, as shown here.
 </t>
 </section>
@@ -2035,7 +2035,7 @@ XDR specification <xref target="RFC5662" />.
 <t>
 Special thanks go to
 Transport Area Director Spencer Dawkins,
-NFSV4 Working Group Chair and Document Shepherd Spencer Shepler,
+NFSV4 Working Group Chair Spencer Shepler,
 and
 NFSV4 Working Group Secretary Thomas Haynes
 for their support.
