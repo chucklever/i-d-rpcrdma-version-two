@@ -1,14 +1,9 @@
-<!-- Copyright (C) The IETF Trust (2017) -->
+<?xml version='1.0' encoding='US-ASCII'?>
 
-<author
-  initials="D."
-  surname="Noveck"
-  fullname="David Noveck">
-
+<author initials="D.N." surname="Noveck" fullname="David Noveck">
   <organization>
     NetApp
   </organization>
-
   <address>
     <postal>
       <street>1601 Trapelo Road</street>
@@ -20,5 +15,4 @@
     <phone>+1 781 572 8038</phone>
     <email>davenoveck@gmail.com</email>
   </address>
-
 </author> 
