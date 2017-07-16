@@ -132,9 +132,10 @@ utilized by responders.
 </t>
 <t>
 RPC-over-RDMA version 2 expands the repertoire of
-error codes to enable extensibility, support debugging,
-and to prevent requester retries when an error is
-permanent.
+error codes to enable extensibility,
+to report overruns of specific resources,
+and
+to avoid requester retries when an error is permanent.
 </t>
 
 </section>
