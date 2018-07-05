@@ -62,14 +62,14 @@ though there are some shortcomings to this protocol,
 such as:
 <list style="symbols">
 <t>
-The use of small Receive buffers force the use of RDMA
-Read and Write transfers for small payloads, and limit
-the size of backchannel messages.
+The default size of Receive buffers forces the use of RDMA
+Read and Write transfers for small payloads, and limits
+the size of reverse-direction messages.
 </t>
 <t>
-Lack of support for potential optimizations, such as
-remote invalidation, that require changes to on-the-wire
-behavior.
+Support for optimizations
+that require changes to on-the-wire behavior
+is very limited.
 </t>
 </list>
 </t>
