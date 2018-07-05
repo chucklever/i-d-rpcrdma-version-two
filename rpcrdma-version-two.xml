@@ -1327,9 +1327,9 @@ language <xref target="RFC4506" />.
 <t>
 This description is provided in a way that makes it simple
 to extract into ready-to-compile form.
-The reader can apply the following shell script to this
+The reader can apply the following sed script to this
 document to produce a machine-readable XDR description of
-the RPC-over-RDMA version 1 protocol without any OPTIONAL
+the RPC-over-RDMA version 2 protocol without any OPTIONAL
 extensions.
 </t>
 <figure>
@@ -1337,16 +1337,14 @@ extensions.
 <![CDATA[
 <CODE BEGINS>
 
-#!/bin/sh
-grep '^ *///' | sed 's?^ /// ??' | sed 's?^ *///$??'
+sed -n -e 's:^ */// ::p' -e 's:^ *///$::p'
 
 <CODE ENDS>
 ]]>
 </artwork>
 </figure>
 <t>
-That is, if the above script is stored in a file called
-"extract.sh" and this document is in a file called
+That is, if this document is in a file called
 "spec.txt" then the reader can do the following to extract
 an XDR description file:
 </t>
@@ -1355,7 +1353,8 @@ an XDR description file:
 <![CDATA[
 <CODE BEGINS>
 
-sh extract.sh < spec.txt > rpcrdma_corev2.x
+sed -n -e 's:^ */// ::p' -e 's:^ *///$::p' \
+     < spec.txt > rpcrdma-v2.x
 
 <CODE ENDS>
 ]]>
@@ -2029,9 +2028,11 @@ Bill Baker, Greg Marsden, and Matt Benjamin
 for their support of this work.
 </t>
 <t>
-The extract.sh shell script and formatting conventions were
+The XDR extraction conventions were
 first described by the authors of the NFS version 4.1
 XDR specification <xref target="RFC5662" />.
+Herbert van den Bergh suggested the replacement sed
+script used in this document.
 </t>
 <t>
 Special thanks go to
