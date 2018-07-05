@@ -14,7 +14,7 @@ IDNITS := ../../idnits-2.14.01/idnits
 AUTHOR := $(shell cat authors/initials)
 GROUP := nfsv4
 NAME := $(shell basename $(PWD))
-VERSION := $(shell cat revision)
+REVISION := $(shell cat revision)
 DOCNAME := draft-$(AUTHOR)-$(GROUP)-$(NAME)-$(REVISION)
 
 # Source
