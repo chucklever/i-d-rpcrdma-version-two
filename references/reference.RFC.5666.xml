@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
-<reference  anchor='RFC5666' target='http://www.rfc-editor.org/info/rfc5666'>
+<reference  anchor='RFC5666' target='https://www.rfc-editor.org/info/rfc5666'>
 <front>
 <title>Remote Direct Memory Access Transport for Remote Procedure Call</title>
 <author initials='T.' surname='Talpey' fullname='T. Talpey'><organization /></author>

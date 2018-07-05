@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
-<reference  anchor='RFC8166' target='http://www.rfc-editor.org/info/rfc8166'>
+<reference  anchor='RFC8166' target='https://www.rfc-editor.org/info/rfc8166'>
 <front>
 <title>Remote Direct Memory Access Transport for Remote Procedure Call Version 1</title>
 <author initials='C.' surname='Lever' fullname='C. Lever' role='editor'><organization /></author>

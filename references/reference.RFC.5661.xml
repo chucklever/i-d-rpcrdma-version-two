@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
-<reference  anchor='RFC5661' target='http://www.rfc-editor.org/info/rfc5661'>
+<reference  anchor='RFC5661' target='https://www.rfc-editor.org/info/rfc5661'>
 <front>
 <title>Network File System (NFS) Version 4 Minor Version 1 Protocol</title>
 <author initials='S.' surname='Shepler' fullname='S. Shepler' role='editor'><organization /></author>

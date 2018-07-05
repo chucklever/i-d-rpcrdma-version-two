@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
-<reference  anchor='RFC5041' target='http://www.rfc-editor.org/info/rfc5041'>
+<reference  anchor='RFC5041' target='https://www.rfc-editor.org/info/rfc5041'>
 <front>
 <title>Direct Data Placement over Reliable Transports</title>
 <author initials='H.' surname='Shah' fullname='H. Shah'><organization /></author>

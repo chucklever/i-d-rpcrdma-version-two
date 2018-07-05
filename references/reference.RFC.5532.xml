@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
-<reference  anchor='RFC5532' target='http://www.rfc-editor.org/info/rfc5532'>
+<reference  anchor='RFC5532' target='https://www.rfc-editor.org/info/rfc5532'>
 <front>
 <title>Network File System (NFS) Remote Direct Memory Access (RDMA) Problem Statement</title>
 <author initials='T.' surname='Talpey' fullname='T. Talpey'><organization /></author>

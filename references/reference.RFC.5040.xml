@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
-<reference  anchor='RFC5040' target='http://www.rfc-editor.org/info/rfc5040'>
+<reference  anchor='RFC5040' target='https://www.rfc-editor.org/info/rfc5040'>
 <front>
 <title>A Remote Direct Memory Access Protocol Specification</title>
 <author initials='R.' surname='Recio' fullname='R. Recio'><organization /></author>

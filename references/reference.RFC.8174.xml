@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
-<reference  anchor='RFC8174' target='http://www.rfc-editor.org/info/rfc8174'>
+<reference  anchor='RFC8174' target='https://www.rfc-editor.org/info/rfc8174'>
 <front>
 <title>Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words</title>
 <author initials='B.' surname='Leiba' fullname='B. Leiba'><organization /></author>

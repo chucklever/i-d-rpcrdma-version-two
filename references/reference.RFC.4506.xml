@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
-<reference  anchor='RFC4506' target='http://www.rfc-editor.org/info/rfc4506'>
+<reference  anchor='RFC4506' target='https://www.rfc-editor.org/info/rfc4506'>
 <front>
 <title>XDR: External Data Representation Standard</title>
 <author initials='M.' surname='Eisler' fullname='M. Eisler' role='editor'><organization /></author>

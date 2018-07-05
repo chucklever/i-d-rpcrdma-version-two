@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
-<reference  anchor='RFC5531' target='http://www.rfc-editor.org/info/rfc5531'>
+<reference  anchor='RFC5531' target='https://www.rfc-editor.org/info/rfc5531'>
 <front>
 <title>RPC: Remote Procedure Call Protocol Specification Version 2</title>
 <author initials='R.' surname='Thurlow' fullname='R. Thurlow'><organization /></author>
