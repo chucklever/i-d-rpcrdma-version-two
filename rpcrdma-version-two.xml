@@ -64,7 +64,7 @@ such as:
 <t>
 The default size of Receive buffers forces the use of RDMA
 Read and Write transfers for small payloads, and limits
-the size of reverse-direction messages.
+the size of reverse direction messages.
 </t>
 <t>
 Support for optimizations
@@ -215,7 +215,7 @@ transport.
 <t>
 To reduce the need to use Long Calls and Replies, RPC-over-RDMA
 version 2 increases the default inline threshold size.
-This also increases the maximum size of backward direction
+This also increases the maximum size of reverse direction
 RPC messages.
 </t>
 </section>
@@ -287,23 +287,23 @@ and must be utilized only when a requester's RNIC supports MEM_MGT_EXTENSIONS
 (can receive and recognize an IETH).
 </t>
 
-<section title="Backward-Direction Remote Invalidation">
+<section title="Reverse Direction Remote Invalidation">
 <t>
 Existing RPC-over-RDMA protocol specifications
 <xref target="RFC8166" />
 <xref target="RFC8167" />
 do not forbid
-direct data placement in the backward-direction,
+direct data placement in the reverse direction,
 even though there is currently no Upper Layer Protocol that may use it.
 </t>
 <t>
-When chunks are present in a backward-direction RPC request,
+When chunks are present in a reverse direction RPC request,
 Remote Invalidation allows the responder
 to trigger invalidation of a requester's STags as part of sending a reply,
 the same as in the forward direction.
 </t>
 <t>
-However, in the backward direction,
+However, in the reverse direction,
 the server acts as the requester,
 and the client is the responder.
 The server's RNIC, therefore, must support receiving an IETH,
@@ -368,9 +368,9 @@ RDMA2_ERR_INVAL_OPTION.
 
 <section title="Message Direction">
 <t>
-Backward direction operation depends on the ability
+Reverse direction operation depends on the ability
 of the receiver to distinguish between incoming
-forward and backward direction calls and replies.
+forward and reverse direction calls and replies.
 This needs to be done because both the XID field and
 the flow control value (RPC-over-RDMA credits) in the
 RPC-over-RDMA header are interpreted in the context
@@ -714,10 +714,10 @@ typedef uint32 rpcrdma2_propsubset<>;
         <c>uint32</c>
         <c>4096</c>
         <c><xref target="INIT-rbs" format="counter"/></c>
-        <c>Backward Request Support</c>
+        <c>Reverse Request Support</c>
         <c>2</c>
-        <c>enum rpcrdma2_bkreqsup</c>
-        <c>RDMA2_BKREQSUP_INLINE</c>
+        <c>enum rpcrdma2_rvreqsup</c>
+        <c>RDMA2_RVREQSUP_INLINE</c>
         <c><xref target="INIT-brs" format="counter"/></c>
       </texttable>
       <t>
@@ -836,12 +836,12 @@ typedef uint32 rpcrdma2_prop_rbsiz;
         </t>
       </section>
 
-      <section title="Backward Request Support"
+      <section title="Reverse Request Support"
                anchor="INIT-brs">
         <t>
           The value of this property is used to indicate a client
           implementation's readiness to accept and process messages that are
-          part of backward-direction RPC requests.
+          part of reverse direction RPC requests.
 
         </t>
         <t>
@@ -850,14 +850,14 @@ typedef uint32 rpcrdma2_prop_rbsiz;
 <![CDATA[
 <CODE BEGINS>
 
-enum rpcrdma2_bkreqsup {
-        RDMA2_BKREQSUP_NONE    = 0,
-        RDMA2_BKREQSUP_INLINE  = 1,
-        RDMA2_BKREQSUP_GENL    = 2
+enum rpcrdma2_rvreqsup {
+        RDMA2_RVREQSUP_NONE    = 0,
+        RDMA2_RVREQSUP_INLINE  = 1,
+        RDMA2_RVREQSUP_GENL    = 2
 };
 
 const uint32 RDMA2_PROPID_BRS = 2;
-typedef rpcrdma2_bkreqsup rpcrdma2_prop_brs;
+typedef rpcrdma2_rvreqsup rpcrdma2_prop_brs;
 
 <CODE ENDS>
 ]]>
@@ -868,35 +868,35 @@ typedef rpcrdma2_bkreqsup rpcrdma2_prop_brs;
           Multiple levels of support are distinguished:
         <list style="symbols">
           <t>
-            The value RDMA2_BKREQSUP_NONE indicates that receipt of
-            backward-direction requests and replies is not supported.
+            The value RDMA2_RVREQSUP_NONE indicates that receipt of
+            reverse direction requests and replies is not supported.
           </t>
           <t>
 
-            The value RDMA2_BKREQSUP_INLINE indicates that receipt of
-            backward-direction requests or replies is
+            The value RDMA2_RVREQSUP_INLINE indicates that receipt of
+            reverse direction requests or replies is
             only supported using inline messages and that use of
             explicit RDMA operations or other form of Direct Data
-            Placement for backward direction requests
+            Placement for reverse direction requests
             or responses is not supported.
           </t>
           <t>
-            The value RDMA2_BKREQSUP_GENL that receipt of backward-direction
+            The value RDMA2_RVREQSUP_GENL that receipt of reverse direction
             requests or replies is supported in the same
-            ways that forward-direction requests or replies typically are.
+            ways that forward direction requests or replies typically are.
           </t>
         </list>
         </t>
         <t>
           When information about this property is not provided,
-          the support level of servers can be inferred from the backward-
+          the support level of servers can be inferred from the reverse
           direction requests that they issue, assuming that issuing a
           request implicitly indicates support for receiving the
           corresponding reply.  On this basis, support for receiving
           inline replies can be assumed when requests without read
           chunks, write chunks, or Reply chunks are issued, while
           requests with any of these elements allow the client to assume
-          that general support for backward-direction replies is
+          that general support for reverse direction replies is
           present on the server.
         </t>
       </section>
@@ -1616,12 +1616,12 @@ are defined in Section 4 of
 ///  * Transport property typedefs
 ///  */
 /// typedef uint32 rpcrdma2_prop_rbsiz;
-/// typedef rpcrdma2_bkreqsup rpcrdma2_prop_brs;
+/// typedef rpcrdma2_rvreqsup rpcrdma2_prop_brs;
 ///
-/// enum rpcrdma2_bkreqsup {
-///         RDMA2_BKREQSUP_NONE = 0,
-///         RDMA2_BKREQSUP_INLINE = 1,
-///         RDMA2_BKREQSUP_GENL = 2
+/// enum rpcrdma2_rvreqsup {
+///         RDMA2_RVREQSUP_NONE = 0,
+///         RDMA2_RVREQSUP_INLINE = 1,
+///         RDMA2_RVREQSUP_GENL = 2
 /// };
 
 <CODE ENDS>
@@ -1654,17 +1654,17 @@ Transport header Stream in the Send buffer.
 <section title="Message Direction">
 <t>
 Implementations of RPC-over-RDMA version 2 are REQUIRED
-to support backwards direction operation as described in
+to support reverse direction operation as described in
 <xref target="RFC8167"/>.
 RPC-over-RDMA version 2 introduces the rdma_direction field
 in its transport header to optimize the process of distinguishing
-between forward- and backwards-direction messages.
+between forward and reverse direction messages.
 </t>
 <t>
 The rdma_direction field qualifies the value
 contained in the transport header's rdma_xid field.
 This enables a receiver to reliably avoid performing an XID lookup
-on incoming backwards-direction Call messages.
+on incoming reverse direction Call messages.
 </t>
 <t>
 In general, when a message carries an XID that was generated
