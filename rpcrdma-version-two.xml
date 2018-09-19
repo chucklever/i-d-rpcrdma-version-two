@@ -17,8 +17,35 @@
 RPC-over-RDMA Version 2 Protocol
 </title>
 
-<?rfc include="authors/author-lever-chuck.xml"?>
-<?rfc include="authors/author-noveck-david.xml"?>
+<author initials="C.L." surname="Lever" fullname="Charles Lever" role="editor">
+<organization abbrev="Oracle">Oracle Corporation</organization>
+<address>
+<postal>
+<street>1015 Granger Avenue</street>
+<city>Ann Arbor</city>
+<region>MI</region>
+<code>48104</code>
+<country>United States of America</country>
+</postal>
+<phone>+1 248 816 6463</phone>
+<email>chuck.lever@oracle.com</email>
+</address>
+</author>
+
+<author initials="D.N." surname="Noveck" fullname="David Noveck">
+<organization>NetApp</organization>
+<address>
+<postal>
+<street>1601 Trapelo Road</street>
+<city>Waltham</city>   
+<region>MA</region>
+<code>02451</code>
+<country>United States of America</country>
+</postal>
+<phone>+1 781 572 8038</phone>
+<email>davenoveck@gmail.com</email>
+</address>
+</author> 
 
 <date />
 
