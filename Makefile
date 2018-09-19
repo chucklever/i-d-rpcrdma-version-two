@@ -29,7 +29,7 @@ XML := $(DOCNAME).xml
 
 all: $(TXT) $(PS) $(PDF) $(HTML) $(XML)
 
-autogen.xml: $(SOURCE) references/reference.*.xml initials revision
+autogen.xml: $(SOURCE) initials revision
 	$(SED) -e s/DOCNAMEVAR/$(DOCNAME)/g < $(SOURCE) > $@
 
 $(XML): autogen.xml

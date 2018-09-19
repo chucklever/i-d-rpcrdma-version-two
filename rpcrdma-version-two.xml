@@ -2274,22 +2274,35 @@ This document does not require actions by IANA.
 <back>
 
 <references title="Normative References">
-<?rfc include="references/reference.RFC.2119.xml"?>
-<?rfc include="references/reference.RFC.4506.xml"?>
-<?rfc include="references/reference.RFC.5531.xml"?>
-<?rfc include="references/reference.RFC.8166.xml"?>
-<?rfc include="references/reference.RFC.8174.xml"?>
+<?rfc include="reference.RFC.2119.xml"?>
+<?rfc include="reference.RFC.4506.xml"?>
+<?rfc include="reference.RFC.5531.xml"?>
+<?rfc include="reference.RFC.8166.xml"?>
+<?rfc include="reference.RFC.8174.xml"?>
 </references>
 
 <references title="Informative References">
-<?rfc include="references/reference.IBTA.spec.xml"?>
-<?rfc include="references/reference.RFC.5040.xml"?>
-<?rfc include="references/reference.RFC.5041.xml"?>
-<?rfc include="references/reference.RFC.5661.xml"?>
-<?rfc include="references/reference.RFC.5662.xml"?>
-<?rfc include="references/reference.RFC.5666.xml"?>
-<?rfc include="references/reference.RFC.7530.xml"?>
-<?rfc include="references/reference.RFC.8167.xml"?>
+
+<reference
+ anchor="IBARCH"
+ target="http://www.infinibandta.org/content/pages.php?pg=technology_download">
+<front>
+<title>InfiniBand Architecture Specification Volume 1</title>
+<author>
+<organization>InfiniBand Trade Association</organization>
+</author>
+<date month='March' year='2015'/>
+</front>
+<seriesInfo name='Release' value='1.3'/>
+</reference>
+
+<?rfc include="reference.RFC.5040.xml"?>
+<?rfc include="reference.RFC.5041.xml"?>
+<?rfc include="reference.RFC.5661.xml"?>
+<?rfc include="reference.RFC.5662.xml"?>
+<?rfc include="reference.RFC.5666.xml"?>
+<?rfc include="reference.RFC.7530.xml"?>
+<?rfc include="reference.RFC.8167.xml"?>
 </references>
 
 <section title="Acknowledgments" numbered="no">
