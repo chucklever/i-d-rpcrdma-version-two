@@ -117,6 +117,10 @@ The exchange of transport properties as described in
 <xref target="section:331BC463-9118-46D6-9593-B9567A7529CA"/>.
 </t>
 <t>
+A more flexible credit account mechanism, detailed in
+Section TBD.
+</t>
+<t>
 Larger default inline thresholds as described in
 <xref target="section:F7FB5108-58EA-4718-84BE-5119A302F5F5"/>.
 </t>
@@ -145,6 +149,7 @@ as described in <xref target="RFC8166"/>, is assumed in this document.
 <t>
 As in that document, the terms
 "RPC Payload Stream" and "Transport Header Stream"
+(defined in Section 3.2 of that document)
 are used to distinguish between
 an RPC message as defined by <xref target="RFC5531"/>
 and the header whose job it is to describe the RPC message
@@ -404,7 +409,60 @@ through
  title="Credit Management Changes"
  anchor="section:5A2E5FF8-0F0B-454D-B9B3-C6773CD77780">
 <t>
-TBD
+RPC-over-RDMA transports employ credit-based flow control
+to ensure that a requester does not send more RPC Calls
+than the responder is prepared to receive.
+Section 3.3.1 of <xref target="RFC8166"/> explains
+the purpose and operation of RPC-over-RDMA version 1 credits.
+</t>
+<t>
+A ramification of the RPC-over-RDMA version 1 design is that
+one granted credit is the capability to handle one RPC transaction,
+and that RPC transaction consumes
+one Receive buffer on the responder for the RPC Call message and
+one Receive buffer on the requester for the corresponding RPC Reply message.
+There are basic (but rare) cases where this is inadequate:
+<list style="symbols">
+<t>
+When a requester retransmits an RPC Call on the same connection
+as an earlier RPC Call for the same transaction.
+</t>
+<t>
+When a requester transmits an RPC operation that requires no reply.
+</t>
+<t>
+When more than one RPC-over-RDMA message is needed to complete the
+transaction (e.g., RDMA_DONE).
+</t>
+<t>
+When an RPC transaction is terminated on the requester before
+the responder has replied.
+</t>
+</list>
+Typically, the connection must be replaced in these cases.
+This resets the credit accounting mechanism but has undesirable impacts
+on other ongoing RPC transactions on that connection.
+</t>
+<t>
+There are additional interesting cases that might be enabled if the credit
+management mechanism were more flexible:
+<list style="symbols">
+<t>
+RPC-over-RDMA "control plane" operations which do not carry an RPC message.
+</t>
+<t>
+A single RDMA Send that conveys multiple small RPC messages.
+</t>
+<t>
+One RPC message that is conveyed via several sequential RDMA Sends.
+</t>
+<t>
+One RPC transaction that needs multiple exchanges to complete.
+</t>
+</list>
+A more sophisticated credit accounting mechanism is provided in
+RPC-over-RDMA version 2.
+This mechanism is detailed in Section TBD.
 </t>
 </section>
 
@@ -412,7 +470,7 @@ TBD
  title="Inline Threshold Changes"
  anchor="section:F7FB5108-58EA-4718-84BE-5119A302F5F5">
 <t>
-The term "inline threshold" is defined in Section 4 of
+The term "inline threshold" is defined in Section 3.3.2 of
 <xref target="RFC8166"/>.
 An "inline threshold" value is the largest message size (in octets)
 that can be conveyed in one direction on an RDMA connection
