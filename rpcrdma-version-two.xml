@@ -410,18 +410,31 @@ through
  anchor="section:5A2E5FF8-0F0B-454D-B9B3-C6773CD77780">
 <t>
 RPC-over-RDMA transports employ credit-based flow control
-to ensure that a requester does not send more RPC Calls
+to ensure that a requester does not emit more RDMA Sends
 than the responder is prepared to receive.
 Section 3.3.1 of <xref target="RFC8166"/> explains
-the purpose and operation of RPC-over-RDMA version 1 credits.
+the purpose and operation
+of RPC-over-RDMA version 1 credit management in detail.
 </t>
 <t>
-A ramification of the RPC-over-RDMA version 1 design is that
-one granted credit is the capability to handle one RPC transaction,
-and that RPC transaction consumes
-one Receive buffer on the responder for the RPC Call message and
-one Receive buffer on the requester for the corresponding RPC Reply message.
-There are basic (but rare) cases where this is inadequate:
+In the RPC-over-RDMA version 1 design,
+each RDMA Send from a requester contains an RPC Call with a credit request,
+and each RDMA Send from a responder contains an RPC Reply with a credit grant.
+The credit grant implies that enough Receives have been posted on
+the responder to handle the credit grant minus the number of pending
+RPC transactions (the number of remaining Receive buffers might be zero).
+</t>
+<t>
+In other words, each RPC Reply acts as an implicit ACK
+for a previous RPC Call from the requester,
+indicating that the responder has posted a Receive to replace
+the Receive consumed by the requester's RDMA Send.
+Without an RPC Reply message, the requester has no way to know
+that the responder is properly prepared for subsequent RPC Calls.
+</t>
+<t>
+Aside from being a bit of a layering violation,
+there are basic (but rare) cases where this arrangement is inadequate:
 <list style="symbols">
 <t>
 When a requester retransmits an RPC Call on the same connection
@@ -434,35 +447,45 @@ When a requester transmits an RPC operation that requires no reply.
 When more than one RPC-over-RDMA message is needed to complete the
 transaction (e.g., RDMA_DONE).
 </t>
-<t>
-When an RPC transaction is terminated on the requester before
-the responder has replied.
-</t>
 </list>
 Typically, the connection must be replaced in these cases.
-This resets the credit accounting mechanism but has undesirable impacts
+This resets the credit accounting mechanism but has an undesirable impact
 on other ongoing RPC transactions on that connection.
 </t>
 <t>
-There are additional interesting cases that might be enabled if the credit
-management mechanism were more flexible:
+Because credit management accompanies each RPC message,
+there is a strict one-to-one ratio between RDMA Send and RPC message.
+There are interesting use cases that might be enabled if this relationship
+were more flexible:
 <list style="symbols">
 <t>
-RPC-over-RDMA "control plane" operations which do not carry an RPC message.
+RPC-over-RDMA operations which do not carry an RPC message;
+e.g., control plane operations.
 </t>
 <t>
-A single RDMA Send that conveys multiple small RPC messages.
+A single RDMA Send that conveys more than one RPC message
+for the purpose of interrupt mitigation.
 </t>
 <t>
-One RPC message that is conveyed via several sequential RDMA Sends.
+An RPC message that is conveyed via several sequential RDMA Sends
+to reduce the use of explicit RDMA operations for moderate-sized RPC messages.
 </t>
 <t>
-One RPC transaction that needs multiple exchanges to complete.
+An RPC transaction that needs multiple exchanges
+or an odd number of RPC-over-RDMA operations
+to complete.
 </t>
 </list>
+Bi-directional RPC operation also introduces an ambiguity.
+If the RPC-over-RDMA message does not carry an RPC message, then
+it is not possible to determine whether the sender is a requester
+or a responder, and thus whether the rdma_credit field contains
+a credit request or a credit grant.
+</t>
+<t>
 A more sophisticated credit accounting mechanism is provided in
-RPC-over-RDMA version 2.
-This mechanism is detailed in Section TBD.
+RPC-over-RDMA version 2 in an attempt to address some of these shortcomings.
+This new mechanism is detailed in Section TBD.
 </t>
 </section>
 
