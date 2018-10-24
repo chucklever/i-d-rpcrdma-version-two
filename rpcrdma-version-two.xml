@@ -2056,16 +2056,23 @@ The term "inline threshold" is defined in Section 3.3.2 of
  pageno="false"
  format="default"/>.
 An "inline threshold" value is the largest message size (in octets)
-that can be conveyed in one direction on an RDMA connection
-using only RDMA Send and Receive.
+that can be conveyed on an RDMA connection using only RDMA Send and Receive.
 Each connection has two inline threshold values: one for messages
-flowing from requester-to-responder (referred to as the
-"call inline threshold"),
-and one for messages flowing from responder-to-requester
-(referred to as the "reply inline threshold").
+flowing from
+client-to-server (referred to as the "client-to-server inline threshold")
+and one for messages flowing from server-to-client
+(referred to as the "server-to-client inline threshold").
+Note that
+<xref
+ target="RFC8166"
+ pageno="false"
+ format="default"/>
+uses somewhat different terminology.
+This is because it was written
+with only forward-direction RPC transactions in mind.
 </t>
 <t>
-A connection's inline threshold determines when RDMA Read or
+A connection's inline thresholds determine when RDMA Read or
 Write operations are required because the RPC message to be
 sent cannot be conveyed via a single RDMA Send and Receive pair.
 When an RPC message does not contain DDP-eligible data items,
@@ -2099,17 +2106,18 @@ With NFS version 4.1
  target="RFC5661"
  pageno="false"
  format="default"/>,
-NFS COMPOUND resulted in RPC messages that are on average larger
+the increased size of NFS COMPOUND operations
+resulted in RPC messages that are on average larger
 and more complex than previous versions of NFS.
-With a 1024-byte inline threshold, RDMA Read or Write operations
+With 1024-byte inline thresholds, RDMA Read or Write operations
 are needed for frequent operations that do not bear a data payload,
-such as GETATTR and LOOKUP, reducing the efficiency of the
-transport.
+such as GETATTR and LOOKUP,
+reducing the efficiency of the transport.
 </t>
 <t>
 To reduce the need to use Long Calls and Replies, RPC-over-RDMA
-version 2 increases the default inline threshold size.
-This also increases the maximum size of reverse direction
+version 2 increases the default size of inline thresholds.
+This also increases the maximum size of reverse-direction
 RPC messages.
 </t>
 </section>
