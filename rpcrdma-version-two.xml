@@ -71,18 +71,9 @@ The new version of this protocol is extensible.
  anchor="section:CA463591-5371-4E31-81BC-48A2B50602DB">
 <t>
 Remote Direct Memory Access (RDMA)
-<xref
- target="RFC5040"
- pageno="false"
- format="default"/>
-<xref
- target="RFC5041"
- pageno="false"
- format="default"/>
-<xref
- target="IBARCH"
- pageno="false"
- format="default"/>
+<xref target="RFC5040"/>
+<xref target="RFC5041"/>
+<xref target="IBARCH"/>
 is a technique for moving data efficiently between end nodes.
 By directing data into destination buffers as it is sent
 on a network and placing it using direct memory access
@@ -95,16 +86,10 @@ are obtained.
 </t>
 <t>
 RPC-over-RDMA version 1 enables ONC RPC
-<xref
- target="RFC5531"
- pageno="false"
- format="default"/>
+<xref target="RFC5531"/>
 messages to be conveyed on RDMA transports.
 That protocol is specified in
-<xref
- target="RFC8166"
- pageno="false"
- format="default"/>.
+<xref target="RFC8166"/>.
 RPC-over-RDMA version 1 is deployed and in use,
 although there are known shortcomings to this protocol:
 <list style="symbols">
@@ -133,10 +118,7 @@ To enable protocol extension,
 the XDR definition for RPC-over-RDMA version 2 is
 organized differently than the definition version 1.
 These changes, which are discussed in
-<xref
- target="section:7D8B8593-F42E-4DC0-8226-BA539B709827"
- pageno="false"
- format="default"/>,
+<xref target="section:7D8B8593-F42E-4DC0-8226-BA539B709827"/>,
 do not affect the on-the-wire format.
 </t>
 <t>
@@ -148,10 +130,7 @@ These changes include:
 <list style="symbols">
 <t>
 The exchange of transport properties as described in
-<xref
- target="section:331BC463-9118-46D6-9593-B9567A7529CA"
- pageno="false"
- format="default"/>.
+<xref target="section:331BC463-9118-46D6-9593-B9567A7529CA"/>.
 </t>
 <t>
 A more flexible credit account mechanism, detailed in
@@ -159,47 +138,26 @@ Section TBD.
 </t>
 <t>
 Larger default inline thresholds as described in
-<xref
- target="section:F7FB5108-58EA-4718-84BE-5119A302F5F5"
- pageno="false"
- format="default"/>.
+<xref target="section:F7FB5108-58EA-4718-84BE-5119A302F5F5"/>.
 </t>
 <t>
 Support for remote invalidation as explained in
-<xref
- target="section:57C034D6-7129-4F7B-B8DF-31E8BC691964"
- pageno="false"
- format="default"/>.
+<xref target="section:57C034D6-7129-4F7B-B8DF-31E8BC691964"/>.
 </t>
 <t>
 Support for reverse direction operation, as described in
-<xref
- target="RFC8167"
- pageno="false"
- format="default"/>,
+<xref target="RFC8167"/>,
 is now REQUIRED.
 Details are in
-<xref
- target="section:F5CB1EE2-292B-48D3-8DDB-7F13A1FF41AF"
- pageno="false"
- format="default"/>.
+<xref target="section:F5CB1EE2-292B-48D3-8DDB-7F13A1FF41AF"/>.
 </t>
 <t>
 An expansion of error reporting capabilities, described in
-<xref
- target="section:9708EE05-F5EE-417E-86FA-09C276BE56FA"
- pageno="false"
- format="default"/>.
+<xref target="section:9708EE05-F5EE-417E-86FA-09C276BE56FA"/>.
 A summary of the reasons for this expansion appears in
-<xref
- target="section:E554DF42-6E82-4E28-96A0-8F9872EB476C"
- pageno="false"
- format="default"/>.
+<xref target="section:E554DF42-6E82-4E28-96A0-8F9872EB476C"/>.
 This expansion supports the addition of new error codes as described in
-<xref
- target="section:C2F5E937-D612-4E3A-A380-E0B15261F6A0"
- pageno="false"
- format="default"/>.
+<xref target="section:C2F5E937-D612-4E3A-A380-E0B15261F6A0"/>.
 </t>
 </list>
 </t>
@@ -208,10 +166,7 @@ Because of the way in which RPC-over-RDMA version 2
 builds upon the facilities present in RPC-over-RDMA version 1,
 a knowledge of the basic structure of RPC-over-RDMA version 1,
 as described in
-<xref
- target="RFC8166"
- pageno="false"
- format="default"/>,
+<xref target="RFC8166"/>,
 is assumed in this document.
 </t>
 <t>
@@ -222,9 +177,7 @@ and
 (defined in Section 3.2 of that document)
 are used to distinguish between an RPC message as defined by
 <xref
- target="RFC5531"
- pageno="false"
- format="default"/>
+ target="RFC5531"/>
 and the header whose job it is to describe the RPC message
 and its associated memory resources.
 In that regard, the reader is assumed to understand
@@ -244,14 +197,8 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL",
 "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY",
 and "OPTIONAL" in this document are to be interpreted as
 described in BCP 14
-<xref
- target="RFC2119"
- pageno="false"
- format="default"/>
-<xref
- target="RFC8174"
- pageno="false"
- format="default"/>
+<xref target="RFC2119"/>
+<xref target="RFC8174"/>
 when, and only when, they appear in all capitals, as shown here.
 </t>
 </section>
@@ -295,10 +242,7 @@ struct rpcrdma_common {
 <t>
 RPC-over-RDMA version 2's use of these first four words
 matches that of version 1 as required by
-<xref
- target="RFC8166"
- pageno="false"
- format="default"/>.
+<xref target="RFC8166"/>.
 However, there are important structural differences
 in the way that these words are described
 by the respective XDR descriptions:
@@ -317,10 +261,7 @@ that includes the body of each transport header type.
 <t>
 There is now a prefix structure
 (see
-<xref
- target="section:F5CB1EE2-292B-48D3-8DDB-7F13A1FF41AF"
- pageno="false"
- format="default"/>)
+<xref target="section:F5CB1EE2-292B-48D3-8DDB-7F13A1FF41AF"/>)
 of which the rpcrdma_common structure is the initial segment.
 This is a newly defined XDR object within the protocol description,
 in contrast with RPC-over-RDMA version 1, which limits the common
@@ -331,15 +272,9 @@ These changes are part of a larger structural change
 in the XDR description of RPC-over-RDMA version 2
 that enables a cleaner treatment of protocol extension.
 The XDR appearing in
-<xref
- target="section:49CF0D80-6BE4-4103-B5B1-B37344991E2D"
- pageno="false"
- format="default"/>
+<xref target="section:49CF0D80-6BE4-4103-B5B1-B37344991E2D"/>
 reflects these changes, which are discussed in further detail in
-<xref
- target="section:7D8B8593-F42E-4DC0-8226-BA539B709827"
- pageno="false"
- format="default"/>.
+<xref target="section:7D8B8593-F42E-4DC0-8226-BA539B709827"/>.
 </t>
 </section>
 
@@ -369,10 +304,7 @@ The rdma_flags is new to RPC-over-RDMA version 2.
 Currently, the only flag defined within this word is the
 RPCRDMA2_F_RESPONSE flag.
 The other bits are reserved for future use as described in
-<xref
- target="section:15C76685-A24D-4799-BC8A-311D03AC3510"
- pageno="false"
- format="default"/>.
+<xref target="section:15C76685-A24D-4799-BC8A-311D03AC3510"/>.
 The sender MUST set these to zero.
 </t>
 <t>
@@ -491,10 +423,7 @@ enabling compatible endpoints to optimize data transfer.
 Initially only a small set of transport properties are defined
 and a single operation is provided to exchange transport properties
 (see
-<xref
- target="section:49CB5805-E206-4EF3-AEAC-7FF82C2F4F86"
- pageno="false"
- format="default"/>).
+<xref target="section:49CB5805-E206-4EF3-AEAC-7FF82C2F4F86"/>).
 </t>
 <t>
 Both the set of transport properties and the operations used to
@@ -503,18 +432,15 @@ Within RPC-over-RDMA version 2, all such extensions are OPTIONAL.
 For information about existing transport properties, see Sections
 <xref
  target="section:1759FE4A-C740-4BC9-952A-38EF64734B8C"
- format="counter"
- pageno="false"/>
+ pageno="false"
+ format="counter"/>
 through
 <xref
  target="section:06A2CD00-F8D9-4C22-B5D8-404F68B5FC70"
- format="counter"
- pageno="false"/>.
-For discussion of extensions to the set of transport properties, see
-<xref
- target="section:A355ADAD-F03B-41A6-94A8-4128B10301BB"
  pageno="false"
- format="default"/>.
+ format="counter"/>.
+For discussion of extensions to the set of transport properties, see
+<xref target="section:A355ADAD-F03B-41A6-94A8-4128B10301BB"/>.
 </t>
 
 <section
@@ -582,10 +508,7 @@ using the XDR typedef associated with the property specified by rdma_which.
 As a result, when rpcrdma2_propval does not conform to that typedef,
 the receiver is REQUIRED to return the error RDMA2_ERR_BAD_XDR
 using the header type RDMA2_ERROR as described in
-<xref
- target="section:9708EE05-F5EE-417E-86FA-09C276BE56FA"
- pageno="false"
- format="default"/>.
+<xref target="section:9708EE05-F5EE-417E-86FA-09C276BE56FA"/>.
 For example, the receiver of a message
 containing a valid rpcrdma2_propval returns this error
 if the length of rdma_data is such that it extends beyond
@@ -631,10 +554,7 @@ Words beyond the last one specified are treated as containing zero.
 <t>
 Although the set of transport properties may be extended,
 a basic set of transport properties is defined in
-<xref
- target="table:81309FE4-A924-4CE6-A5A7-DD6ACEFB72EE"
- pageno="false"
- format="default"/>.
+<xref target="table:81309FE4-A924-4CE6-A5A7-DD6ACEFB72EE"/>.
 </t>
 <t>
 In that table, the columns contain the following information:
@@ -680,20 +600,14 @@ property.
 <c>uint32</c>
 <c>4096</c>
 <c>
-<xref
- target="section:D1323C3B-F719-4B06-B7D3-FFF9FF1D6C7F"
- format="counter"
- pageno="false"/>
+<xref target="section:D1323C3B-F719-4B06-B7D3-FFF9FF1D6C7F"/>
 </c>
 <c>Reverse Request Support</c>
 <c>2</c>
 <c>enum rpcrdma2_rvreqsup</c>
 <c>RDMA2_RVREQSUP_INLINE</c>
 <c>
-<xref
- target="section:B27C507D-F351-418B-BF0A-76983D0B3300"
- format="counter"
- pageno="false"/>
+<xref target="section:B27C507D-F351-418B-BF0A-76983D0B3300"/>
 </c>
 </texttable>
 
@@ -817,19 +731,13 @@ Each transport message consists of multiple sections:
 <list style="symbols">
 <t>
 A transport header prefix, as defined in
-<xref
- target="section:F5CB1EE2-292B-48D3-8DDB-7F13A1FF41AF"
- pageno="false"
- format="default"/>.
+<xref target="section:F5CB1EE2-292B-48D3-8DDB-7F13A1FF41AF"/>.
 Among other things, this structure indicates the header type.
 </t>
 <t>
 The transport header proper, as defined by one of the sub-sections below.
 See
-<xref
- target="section:DF5A4B03-DF1E-4D22-8157-1AAAC541D986"
- pageno="false"
- format="default"/>
+<xref target="section:DF5A4B03-DF1E-4D22-8157-1AAAC541D986"/>
 for the mapping between header types and the corresponding header structure.
 </t>
 <t>
@@ -840,10 +748,7 @@ Potentially, an RPC message being conveyed as an addendum to the header.
 <t>
 This organization differs from that presented in the definition of
 RPC-over-RDMA version 1
-<xref
- target="RFC8166"
- pageno="false"
- format="default"/>,
+<xref target="RFC8166"/>,
 which presented the first and second of the items above as a single XDR item.
 The new organization is more in keeping with RPC-over-RDMA version 2's
 extensibility model in that new header types can be defined without
@@ -857,10 +762,7 @@ modifying the existing set of header types.
 <t>
 The new header types within RPC-over-RDMA version 2
 are set forth in
-<xref
- target="table:7A17DE91-36B7-4664-B863-CE0BF1F817F4"
- pageno="false"
- format="default"/>.
+<xref target="table:7A17DE91-36B7-4664-B863-CE0BF1F817F4"/>.
 In that table, the columns contain the following information:
 <list style="symbols">
 <t>
@@ -907,10 +809,7 @@ document) that explains the semantics and use of this operation.
 <c>Yes</c>
 <c>REQ</c>
 <c>
-<xref
- target="section:22BDF040-68EC-4A58-A1AF-F8777C842819"
- pageno="false"
- format="counter"/>
+<xref target="section:22BDF040-68EC-4A58-A1AF-F8777C842819"/>
 </c>
 <c>Convey External RPC Message</c>
 <c>1</c>
@@ -918,10 +817,7 @@ document) that explains the semantics and use of this operation.
 <c>No</c>
 <c>REQ</c>
 <c>
-<xref
- target="section:F5C1CF00-AB6E-469A-A79D-103C33B65C50"
- pageno="false"
- format="counter"/>
+<xref target="section:F5C1CF00-AB6E-469A-A79D-103C33B65C50"/>
 </c>
 <c>Report Transport Error</c>
 <c>4</c>
@@ -929,10 +825,7 @@ document) that explains the semantics and use of this operation.
 <c>No</c>
 <c>REQ</c>
 <c>
-<xref
- target="section:9708EE05-F5EE-417E-86FA-09C276BE56FA"
- pageno="false"
- format="counter"/>
+<xref target="section:9708EE05-F5EE-417E-86FA-09C276BE56FA"/>
 </c>
 <c>Specify Properties at Connection</c>
 <c>5</c>
@@ -940,17 +833,14 @@ document) that explains the semantics and use of this operation.
 <c>No</c>
 <c>REQ</c>
 <c>
-<xref
- target="section:49CB5805-E206-4EF3-AEAC-7FF82C2F4F86"
- pageno="false"
- format="counter"/>
+<xref target="section:49CB5805-E206-4EF3-AEAC-7FF82C2F4F86"/>
 </c>
 </texttable>
 <t>
 Support for additional operations will be OPTIONAL.
 RPC-over-RDMA version 2 implementations that receive an OPTIONAL operation
 that is not supported MUST respond with an RDMA2_ERROR message
-with an error code of RDMA2_ERR_INVAL_OPTION.
+with an error code of RDMA2_ERR_INVAL_HTYPE.
 </t>
 </section>
 
@@ -970,25 +860,16 @@ the changes can be summarized as follows:
 <t>
 To simplify interoperability with RPC-over-RDMA version 1,
 only the RDMA2_ERROR header (defined in
-<xref
- target="section:9708EE05-F5EE-417E-86FA-09C276BE56FA"
- pageno="false"
- format="default"/>)
+<xref target="section:9708EE05-F5EE-417E-86FA-09C276BE56FA"/>)
 has an XDR definition that differs from that in RPC-over-RDMA version 1,
 and its modifications are all compatible extensions.
 </t>
 <t>
 RDMA2_MSG and RDMA2_NOMSG
 (defined in Sections
-<xref
- target="section:22BDF040-68EC-4A58-A1AF-F8777C842819"
- pageno="false"
- format="counter"/>
+<xref target="section:22BDF040-68EC-4A58-A1AF-F8777C842819"/>
 and
-<xref
- target="section:F5C1CF00-AB6E-469A-A79D-103C33B65C50"
- pageno="false"
- format="counter"/>)
+<xref target="section:F5C1CF00-AB6E-469A-A79D-103C33B65C50"/>)
 have XDR definitions that match the corresponding
 RPC-over-RDMA version 1 header types.
 However, because of the changes to the header prefix,
@@ -998,10 +879,7 @@ differ in on-the-wire format.
 <t>
 RDMA2_CONNPROP
 (defined in
-<xref
- target="section:49CB5805-E206-4EF3-AEAC-7FF82C2F4F86"
- pageno="false"
- format="default"/>)
+<xref target="section:49CB5805-E206-4EF3-AEAC-7FF82C2F4F86"/>)
 is a completely new header type devoted to enabling
 connection peers to exchange information about their transport properties.
 </t>
@@ -1119,10 +997,7 @@ Several new error codes, and error messages
 never flow from requester to responder.
 RPC-over-RDMA version 1 error reporting
 is described in Section 5 of
-<xref
- target="RFC8166"
- pageno="false"
- format="default"/>.
+<xref target="RFC8166"/>.
 </t>
 <t>
 In all cases below, the responder copies the values of the
@@ -1145,7 +1020,8 @@ The error code value, semantics, and utilization are the same.
 <t hangText="RDMA2_ERR_INVAL_HTYPE">
 <vspace/>
 If a responder recognizes the value in the rdma_start.rdma_vers field,
-but it does not recognize the value in the rdma_start.rdma_htype field,
+but it does not recognize the value in the rdma_start.rdma_htype field
+or does not support that header type,
 it MUST set the rdma_err field to RDMA2_ERR_INVAL_HTYPE.
 </t>
 <t hangText="RDMA2_ERR_BAD_XDR">
@@ -1238,13 +1114,6 @@ a responder MAY choose to terminate the operation
 or it MAY send the request again using the same XID and larger
 reply resources.
 </t>
-<t hangText="RDMA2_ERR_INVAL_OPTION">
-<vspace/>
-A responder MUST set the rdma_err field to RDMA2_ERR_INVAL_OPTION
-when an RDMA2_OPTIONAL message is received
-and the responder does not recognize the value in the
-rdma_opttype field.
-</t>
 <t hangText="RDMA2_ERR_SYSTEM">
 <vspace/>
 If some problem occurs on a responder that does not fit
@@ -1326,10 +1195,7 @@ without any error response being generated.
 <t>
 This section contains a description of the core features of
 the RPC-over-RDMA version 2 protocol expressed in the XDR language
-<xref
- target="RFC4506"
- pageno="false"
- format="default"/>.
+<xref target="RFC4506"/>.
 </t>
 <t>
 Because of the need to provide for protocol extensibility
@@ -1337,20 +1203,14 @@ without modifying an existing XDR definition,
 this description has some important structural differences
 from the corresponding XDR description for RPC-over-RDMA version 1,
 which appears in
-<xref
- target="RFC8166"
- pageno="false"
- format="default"/>.
+<xref target="RFC8166"/>.
 </t>
 <t>
 This description is divided into three parts:
 <list style="symbols">
 <t>
 A code component license which appears in
-<xref
- target="section:828F7C6D-4B91-423E-A9E5-281F2429B36E"
- pageno="false"
- format="default"/>.
+<xref target="section:828F7C6D-4B91-423E-A9E5-281F2429B36E"/>.
 </t>
 <t>
 An XDR description of the structures that are generally available
@@ -1362,20 +1222,14 @@ the transport property model introduced in this document,
 and a definition of the transport header prefixes that precede the
 various transport header types.
 This appears in
-<xref
- target="section:CFB10C65-A962-4039-8781-A3F39C7B6F4C"
- pageno="false"
- format="default"/>.
+<xref target="section:CFB10C65-A962-4039-8781-A3F39C7B6F4C"/>.
 </t>
 <t>
 An XDR description of the transport header types defined in this document,
 including those derived from RPC-over-RDMA version 1
 and those introduced in RPC-over-RDMA version 2.
 This appears in
-<xref
- target="section:84905CED-69F9-47DC-986D-4F37FEC1EFD9"
- pageno="false"
- format="default"/>.
+<xref target="section:84905CED-69F9-47DC-986D-4F37FEC1EFD9"/>.
 </t>
 </list>
 </t>
@@ -1387,10 +1241,7 @@ of subsequent extensions to RPC-over-RDMA version 2,
 the extracted description can be combined with similar descriptions
 published later, or those descriptions can be compiled separately.
 Refer to
-<xref
- target="section:44E280C7-58A4-4EDE-9799-11F1582AD8A6"
- pageno="false"
- format="default"/>
+<xref target="section:44E280C7-58A4-4EDE-9799-11F1582AD8A6"/>
 for details.
 </t>
 
@@ -1704,8 +1555,7 @@ together with the file common.x, obtained from this document.
 /// const uint32 RDMA2_ERR_SEGMENTS = 6;
 /// const uint32 RDMA2_ERR_WRITE_RESOURCE = 7;
 /// const uint32 RDMA2_ERR_REPLY_RESOURCE = 8;
-/// const uint32 RDMA2_ERR_INVAL_OPTION = 9;
-/// const uint32 RDMA2_ERR_SYSTEM = 10;
+/// const uint32 RDMA2_ERR_SYSTEM = 9;
 ///
 /// struct rpcrdma2_err_vers {
 ///         uint32 rdma_vers_low;
@@ -1778,13 +1628,8 @@ which does not possess the facilities necessary for that determination
 to be specified in an extensible way.
 <vspace blankLines="1"/>
 This is similar to the way in which NFSv4 attributes are handled
-<xref
- target="RFC7530"
- pageno="false"
- format="default"/>
-<xref target="RFC5661"
- pageno="false"
- format="default"/>.
+<xref target="RFC7530"/>
+<xref target="RFC5661"/>.
 As in that case, implementations that need to encode and decode
 these nominally opaque entities need to use the protocol description
 to determine the actual XDR representation that underlays the
@@ -1933,10 +1778,7 @@ This section describes the substantive changes made in
 RPC-over-RDMA version 2,
 as opposed to the structural changes to enable extensibility,
 which are discussed in
-<xref
- target="section:7D8B8593-F42E-4DC0-8226-BA539B709827"
- pageno="false"
- format="default"/>.
+<xref target="section:7D8B8593-F42E-4DC0-8226-BA539B709827"/>.
 </t>
 
 <section
@@ -1951,10 +1793,7 @@ The mechanism could be expanded to enable an endpoint to request changes
 in properties of the other endpoint and to notify peer endpoints of
 changes to properties that occur during operation.
 Transport properties are described in
-<xref
- target="section:D8CD3EE6-E4FF-43FC-9611-B075E5A70634"
- pageno="false"
- format="default"/>.
+<xref target="section:D8CD3EE6-E4FF-43FC-9611-B075E5A70634"/>.
 </t>
 </section>
 
@@ -1966,10 +1805,7 @@ RPC-over-RDMA transports employ credit-based flow control
 to ensure that a requester does not emit more RDMA Sends
 than the responder is prepared to receive.
 Section 3.3.1 of
-<xref
- target="RFC8166"
- pageno="false"
- format="default"/>
+<xref target="RFC8166"/>
 explains the purpose and operation
 of RPC-over-RDMA version 1 credit management in detail.
 </t>
@@ -2051,10 +1887,7 @@ This new mechanism is detailed in Section TBD.
  anchor="section:F7FB5108-58EA-4718-84BE-5119A302F5F5">
 <t>
 The term "inline threshold" is defined in Section 3.3.2 of
-<xref
- target="RFC8166"
- pageno="false"
- format="default"/>.
+<xref target="RFC8166"/>.
 An "inline threshold" value is the largest message size (in octets)
 that can be conveyed on an RDMA connection using only RDMA Send and Receive.
 Each connection has two inline threshold values: one for messages
@@ -2063,10 +1896,7 @@ client-to-server (referred to as the "client-to-server inline threshold")
 and one for messages flowing from server-to-client
 (referred to as the "server-to-client inline threshold").
 Note that
-<xref
- target="RFC8166"
- pageno="false"
- format="default"/>
+<xref target="RFC8166"/>
 uses somewhat different terminology.
 This is because it was written
 with only forward-direction RPC transactions in mind.
@@ -2102,10 +1932,7 @@ of inefficient Long Calls and Replies.
 </t>
 <t>
 With NFS version 4.1
-<xref
- target="RFC5661"
- pageno="false"
- format="default"/>,
+<xref target="RFC5661"/>,
 the increased size of NFS COMPOUND operations
 resulted in RPC messages that are on average larger
 and more complex than previous versions of NFS.
@@ -2130,10 +1957,7 @@ An STag that is registered using
 the FRWR mechanism in a privileged execution context
 or is registered via a Memory Window in an unprivileged context
 may be invalidated remotely
-<xref
- target="RFC5040"
- pageno="false"
- format="default"/>.
+<xref target="RFC5040"/>.
 These mechanisms are available when a requester's
 RNIC supports MEM_MGT_EXTENSIONS.
 </t>
@@ -2175,14 +1999,8 @@ and must be utilized only when a requester's RNIC supports MEM_MGT_EXTENSIONS
  anchor="section:750A8D5E-1D5A-4FD7-AFA3-E156561D20E5">
 <t>
 Existing RPC-over-RDMA transport protocol specifications
-<xref
- target="RFC8166"
- pageno="false"
- format="default"/>
-<xref
- target="RFC8167"
- pageno="false"
- format="default"/>
+<xref target="RFC8166"/>
+<xref target="RFC8167"/>
 do not forbid direct data placement in the reverse direction,
 even though there is currently no Upper Layer Protocol that
 makes data items in reverse direction operations elegible
@@ -2231,10 +2049,7 @@ in a future protocol version.
 The protocol may be extended by Standards Track documents
 in a way analogous to that provided for Network File
 System Version 4 as described in
-<xref
- target="RFC8178"
- pageno="false"
- format="default"/>.
+<xref target="RFC8178"/>.
 </t>
 <t>
 This form of extensibility enables limited extensions
@@ -2297,19 +2112,13 @@ RPC-over-RDMA version 2 in two ways:
 New OPTIONAL transport header types may be introduced by later
 Standards Track documents.
 Such transport header types will be documented as described in
-<xref
- target="section:D4650151-40F0-4E85-8755-02C38CF8F444"
- pageno="false"
- format="default"/>.
+<xref target="section:D4650151-40F0-4E85-8755-02C38CF8F444"/>.
 </t>
 <t>
 New OPTIONAL transport properties may be defined in later
 Standards Track documents.
 Such transport properties will be documented as described in
-<xref
- target="section:A355ADAD-F03B-41A6-94A8-4128B10301BB"
- pageno="false"
- format="default"/>.
+<xref target="section:A355ADAD-F03B-41A6-94A8-4128B10301BB"/>.
 </t>
 </list>
 </t>
@@ -2320,17 +2129,11 @@ and header types.
 <list style="symbols">
 <t>
 New error codes may be created as described in
-<xref
- target="section:C2F5E937-D612-4E3A-A380-E0B15261F6A0"
- pageno="false"
- format="default"/>.
+<xref target="section:C2F5E937-D612-4E3A-A380-E0B15261F6A0"/>.
 </t>    
 <t>
 New flags to use within the rdma_flags field may be created as described in
-<xref
- target="section:15C76685-A24D-4799-BC8A-311D03AC3510"
- pageno="false"
- format="default"/>.
+<xref target="section:15C76685-A24D-4799-BC8A-311D03AC3510"/>.
 </t>    
 </list>    
 </t>
@@ -2347,15 +2150,9 @@ and then bring them through the standards process.
 <t>
 New transport header types are to defined in a manner similar to
 the way existing ones are described in Sections
-<xref
- target="section:22BDF040-68EC-4A58-A1AF-F8777C842819"
- pageno="false"
- format="counter"/>
+<xref target="section:22BDF040-68EC-4A58-A1AF-F8777C842819"/>
 through
-<xref
- target="section:49CB5805-E206-4EF3-AEAC-7FF82C2F4F86"
- pageno="false"
- format="counter"/>
+<xref target="section:49CB5805-E206-4EF3-AEAC-7FF82C2F4F86"/>
 Specifically what is needed is:
 <list style="symbols">
 <t>
@@ -2556,10 +2353,7 @@ supporting a particular header type also support a set of additional flags.
  anchor="section:7D8B8593-F42E-4DC0-8226-BA539B709827">
 <t>
 In addition to the substantive protocol changes discussed in
-<xref
- target="section:CCD2CD15-DAAA-497E-99E0-F470E615A30E"
- pageno="false"
- format="default"/>,
+<xref target="section:CCD2CD15-DAAA-497E-99E0-F470E615A30E"/>,
 there are a number of structural XDR changes whose goal
 is to enable within-version protocol extensibility.
 </t>
@@ -2567,50 +2361,29 @@ is to enable within-version protocol extensibility.
 The RPC-over-RDMA version 1 transport header is defined as a single XDR object,
 with an RPC message proper potentially following it.
 In RPC-over-RDMA version 2, as described in
-<xref
- target="section:A45DB8BA-51AB-41FA-AE67-1B9C1A132945"
- pageno="false"
- format="default"/>
+<xref target="section:A45DB8BA-51AB-41FA-AE67-1B9C1A132945"/>
 there are separate XDR definitions of the transport header prefix
 (see
-<xref
- target="section:F5CB1EE2-292B-48D3-8DDB-7F13A1FF41AF"
- pageno="false"
- format="default"/>
+<xref target="section:F5CB1EE2-292B-48D3-8DDB-7F13A1FF41AF"/>
 which specifies the transport header type to be used,
 and the specific transport header, defined within one of the subsections of
-<xref
- target="section:9A92CD43-57D9-43BC-9E5C-430BDD3A055B"
- pageno="false"
- format="default"/>).
+<xref target="section:9A92CD43-57D9-43BC-9E5C-430BDD3A055B"/>).
 This is similar to the way that an RPC message consists of
 an RPC header (defined in
-<xref
- target="RFC5531"
- pageno="false"
- format="default"/>)
+<xref target="RFC5531"/>)
 and an RPC request or reply,
 defined by the Upper Layer protocol being conveyed.
 </t>
 <t>
 As a new version of the RPC-over-RDMA transport protocol,
 RPC-over-RDMA version 2 exists within the versioning rules defined in
-<xref
- target="RFC8166"
- pageno="false"
- format="default"/>.
+<xref target="RFC8166"/>.
 In particular, it maintains the first four words of the protocol header
 as sent and received,
 as specified in Section 4.2 of
-<xref
- target="RFC8166"
- pageno="false"
- format="default"/>,
+<xref target="RFC8166"/>,
 even though, as explained in
-<xref
- target="section:9CC49501-81BA-4313-A391-57C1836D76B7"
- pageno="false"
- format="default"/>
+<xref target="section:9CC49501-81BA-4313-A391-57C1836D76B7"/>
 of this document,
 the XDR definition of those words is structured differently.
 </t>
@@ -2668,19 +2441,13 @@ this word is the rdma_htype field of the structure rdma_start.
 </t>
 <t>
 Beyond conforming to the restrictions specified in
-<xref
- target="RFC8166"
- pageno="false"
- format="default"/>,
+<xref target="RFC8166"/>,
 RPC-over-RDMA version 2 tightly limits the scope
 of the changes made in order to ensure interoperability.
 It makes no major structural changes to the protocol,
 and all existing transport header types used in version 1
 (as defined in
-<xref
- target="RFC8166"
- pageno="false"
- format="default"/>)
+<xref target="RFC8166"/>)
 are retained in version 2.
 Chunks are expressed using the same on-the-wire format and
 are used in the same way in both versions.
@@ -2694,10 +2461,7 @@ are used in the same way in both versions.
 Subsequent RPC-over-RDMA versions are free to change the protocol
 in any way they choose as long as they maintain the first four header words
 as currently specified by
-<xref
- target="RFC8166"
- pageno="false"
- format="default"/>.
+<xref target="RFC8166"/>.
 </t>
 <t>
 Such changes might involve deletion or major re-organization of
@@ -2794,10 +2558,7 @@ This document does not require actions by IANA.
 <t>
 The authors gratefully acknowledge the work of Brent Callaghan
 and Tom Talpey on the original RPC-over-RDMA version 1 specification
-<xref
- target="RFC5666"
- pageno="false"
- format="default"/>.
+<xref target="RFC5666"/>.
 The authors also wish to thank
 Bill Baker, Greg Marsden, and Matt Benjamin
 for their support of this work.
@@ -2806,10 +2567,7 @@ for their support of this work.
 The XDR extraction conventions were
 first described by the authors of the NFS version 4.1
 XDR specification 
-<xref
- target="RFC5662"
- pageno="false"
- format="default"/>.
+<xref target="RFC5662"/>.
 Herbert van den Bergh suggested the replacement sed
 script used in this document.
 </t>
