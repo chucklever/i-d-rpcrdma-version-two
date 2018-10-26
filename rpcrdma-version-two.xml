@@ -9,7 +9,10 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" ipr="pre5378Trust200902" docName="DOCNAMEVAR">
+<rfc
+ category="std"
+ ipr="pre5378Trust200902"
+ docName="DOCNAMEVAR">
 
 <front>
 
@@ -37,7 +40,7 @@ RPC-over-RDMA Version 2 Protocol
 <address>
 <postal>
 <street>1601 Trapelo Road</street>
-<city>Waltham</city>   
+<city>Waltham</city>
 <region>MA</region>
 <code>02451</code>
 <country>United States of America</country>
@@ -45,7 +48,7 @@ RPC-over-RDMA Version 2 Protocol
 <phone>+1 781 572 8038</phone>
 <email>davenoveck@gmail.com</email>
 </address>
-</author> 
+</author>
 
 <date />
 
@@ -783,9 +786,6 @@ The column labeled "Msg" indicates whether this operation is
 followed (or not) by an RPC message payload.
 </t>
 <t>
-[ cel: what does the column labeled "Status" mean? ]
-</t>
-<t>
 The column labeled "Sec" indicates the section (within this
 document) that explains the semantics and use of this operation.
 </t>
@@ -801,13 +801,11 @@ document) that explains the semantics and use of this operation.
 <ttcol align="left">Code</ttcol>
 <ttcol align="left">XDR type</ttcol>
 <ttcol align="left">Msg</ttcol>
-<ttcol align="left">Status</ttcol>
 <ttcol align="left">Sec</ttcol>
 <c>Convey Appended RPC Message</c>
 <c>0</c>
 <c>rpcrdma2_msg</c>
 <c>Yes</c>
-<c>REQ</c>
 <c>
 <xref target="section:22BDF040-68EC-4A58-A1AF-F8777C842819"/>
 </c>
@@ -815,7 +813,6 @@ document) that explains the semantics and use of this operation.
 <c>1</c>
 <c>rpcrdma2_nomsg</c>
 <c>No</c>
-<c>REQ</c>
 <c>
 <xref target="section:F5C1CF00-AB6E-469A-A79D-103C33B65C50"/>
 </c>
@@ -823,20 +820,21 @@ document) that explains the semantics and use of this operation.
 <c>4</c>
 <c>rpcrdma2_err</c>
 <c>No</c>
-<c>REQ</c>
 <c>
 <xref target="section:9708EE05-F5EE-417E-86FA-09C276BE56FA"/>
 </c>
 <c>Specify Properties at Connection</c>
 <c>5</c>
-<c>optinfo_connprop</c>
+<c>rpcrdma2_connprop</c>
 <c>No</c>
-<c>REQ</c>
 <c>
 <xref target="section:49CB5805-E206-4EF3-AEAC-7FF82C2F4F86"/>
 </c>
 </texttable>
 <t>
+Suppport for the operations in
+<xref target="table:7A17DE91-36B7-4664-B863-CE0BF1F817F4"/>
+is REQUIRED.
 Support for additional operations will be OPTIONAL.
 RPC-over-RDMA version 2 implementations that receive an OPTIONAL operation
 that is not supported MUST respond with an RDMA2_ERROR message
@@ -948,11 +946,9 @@ struct rpcrdma2_nomsg {
 <t>
 RDMA2_ERROR provides a way of reporting the occurrence of transport
 errors on a previous transmission.
-It is restricted to reporting problems when RPC requests are transmitted.
-[DN: there is a credit-related issue that needs to be addressed,
-to allow errors in responses to be reported ]
-[ cel: I don't have a problem stating that the receiver MUST ignore
-the rdma_credit value carried by an RDMA2_ERROR header ]
+This header type MUST NOT be transmitted by a requester.
+[ cel: how is the XID field set when sending an error report
+from a requester, or when the error occurred on a non-RPC message? ]
 <figure align="left">
 <artwork xml:space="preserve" align="left">
 &lt;CODE BEGINS&gt;
@@ -1009,6 +1005,8 @@ generated the error to transport header of the error response.
 The responder sets the rdma_start.rdma_htype field of the transport
 header prefix to RDMA2_ERROR, and the rdma_start.rdma_credit field is
 set to the credit grant value for this connection.
+The receiver of this header type MUST ignore the value of the
+rdma_start.rdma_credits field.
 </t>
 <t>
 <list style="hanging">
@@ -2130,12 +2128,12 @@ and header types.
 <t>
 New error codes may be created as described in
 <xref target="section:C2F5E937-D612-4E3A-A380-E0B15261F6A0"/>.
-</t>    
+</t>
 <t>
 New flags to use within the rdma_flags field may be created as described in
 <xref target="section:15C76685-A24D-4799-BC8A-311D03AC3510"/>.
-</t>    
-</list>    
+</t>
+</list>
 </t>
 <t>
 New capabilities can be proposed and developed independently of each other,
@@ -2156,11 +2154,11 @@ through
 Specifically what is needed is:
 <list style="symbols">
 <t>
-A description of the function and use of the new header type.    
+A description of the function and use of the new header type.
 </t>
 <t>
 A complete XDR description of the new header type including a description
-of the use of all fields within the header. 
+of the use of all fields within the header.
 </t>
 <t>
 A description of how errors are reported, including the definition
@@ -2303,7 +2301,7 @@ It should be documented just like any other new header type.
 </t>
 <t>
 When a new header type is sent, the sender needs to be prepared to accept
-header types necessary to report associated errors.  
+header types necessary to report associated errors.
 </t>
 </section>
 
@@ -2316,7 +2314,7 @@ One possible use for such flags would be in a later protocol version,
 should that version retain the same general header structure as version 2.
 </t>
 <t>
-In addition, it is possible to assign unused flags within 
+In addition, it is possible to assign unused flags within
 extensions made to version 2, as long as the following practices are adhered to:
 <list style="symbols">
 <t>
@@ -2566,7 +2564,7 @@ for their support of this work.
 <t>
 The XDR extraction conventions were
 first described by the authors of the NFS version 4.1
-XDR specification 
+XDR specification
 <xref target="RFC5662"/>.
 Herbert van den Bergh suggested the replacement sed
 script used in this document.
