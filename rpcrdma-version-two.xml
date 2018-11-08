@@ -2546,7 +2546,6 @@ This document does not require actions by IANA.
 <?rfc include="reference.RFC.5041.xml"?>
 <?rfc include="reference.RFC.5661.xml"?>
 <?rfc include="reference.RFC.5662.xml"?>
-<?rfc include="reference.RFC.5666.xml"?>
 <?rfc include="reference.RFC.7530.xml"?>
 <?rfc include="reference.RFC.8167.xml"?>
 <?rfc include="reference.RFC.8178.xml"?>
@@ -2559,7 +2558,7 @@ This document does not require actions by IANA.
 <t>
 The authors gratefully acknowledge the work of Brent Callaghan
 and Tom Talpey on the original RPC-over-RDMA version 1 specification
-<xref target="RFC5666"/>.
+(RFC 5666).
 The authors also wish to thank
 Bill Baker, Greg Marsden, and Matt Benjamin
 for their support of this work.
