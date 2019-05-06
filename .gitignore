@@ -1,27 +1,17 @@
-# osx noise
-.DS_Store
-profile
-
-# xcode noise
-build/*
-*.mode1
-*.mode1v3
-*.mode2v3
-*.perspective
-*.perspectivev3
-*.pbxuser
-*.xcworkspace
-xcuserdata
-
-# svn & cvs
-.svn
-CVS
-
-# vim noise
+*.html
+*.pdf
+*.redxml
 *.swp
-
-# intermediate build steps
-autogen.xml
-
-# genned output files
-draft-*
+*.txt
+*.upload
+*~
+.refcache
+.tags
+.targets.mk
+/*-[0-9][0-9].xml
+issues.json
+pulls.json
+report.xml
+venv/
+lib
+draft-cel-nfsv4-rpcrdma-version-two.xml
