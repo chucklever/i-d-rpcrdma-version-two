@@ -127,41 +127,9 @@ do not affect the on-the-wire format.
 In addition, RPC-over-RDMA version 2 contains
 a set of incremental changes that relieve certain
 performance constraints and enable recovery from
-certain abnormal corner cases.
-These changes include:
-<list style="symbols">
-<t>
-The exchange of transport properties as described in
-<xref target="section:630314a8-1cf5-40f7-a5ad-5bc12c719233"/>.
-</t>
-<t>
-A more flexible credit account mechanism, detailed in
-Section TBD.
-</t>
-<t>
-Larger default inline thresholds as described in
-<xref target="section:F7FB5108-58EA-4718-84BE-5119A302F5F5"/>.
-</t>
-<t>
-Support for remote invalidation as explained in
-<xref target="section:57C034D6-7129-4F7B-B8DF-31E8BC691964"/>.
-</t>
-<t>
-Support for reverse direction operation, as described in
-<xref target="RFC8167"/>,
-is now REQUIRED.
-Details are in
-<xref target="section:2d1735f0-c465-43c6-9c18-3da6b7979862"/>.
-</t>
-<t>
-An expansion of error reporting capabilities, described in
-<xref target="section:b1d23e5c-31df-483f-adb7-25430b5de38d"/>.
-A summary of the reasons for this expansion appears in
-<xref target="section:E554DF42-6E82-4E28-96A0-8F9872EB476C"/>.
-This expansion supports the addition of new error codes as described in
-<xref target="section:C2F5E937-D612-4E3A-A380-E0B15261F6A0"/>.
-</t>
-</list>
+abnormal corner cases.
+These changes are outlined in
+<xref target="section:c2574344-5aec-427d-a5ed-048d7fcc0d95"/>.
 </t>
 <t>
 Because of the way in which RPC-over-RDMA version 2
@@ -172,7 +140,9 @@ as described in
 is assumed in this document.
 </t>
 <t>
-As in that document, the terms
+As in
+<xref target="RFC8166"/>,
+the terms
 "RPC Payload Stream"
 and
 "Transport Header Stream"
@@ -183,11 +153,11 @@ are used to distinguish between an RPC message as defined by
 and the header whose job it is to describe the RPC message
 and its associated memory resources.
 In that regard, the reader is assumed to understand
-how RDMA is used to transfer chunks between client and server,
-the use of Position-Zero Read chunks and Reply chunks
-to convey Long RPC messages,
+how RDMA is used to transfer chunks between client and server
 and
 the role of DDP-eligibility in constraining how data payloads are to be conveyed.
+Please see the discussion of terminology in Sections 2 and 3 of
+<xref target="RFC8166"/>.
 </t>
 </section>
 
@@ -206,109 +176,8 @@ when, and only when, they appear in all capitals, as shown here.
 </section>
 
 <section
- title="Relationship to RPC-over-RDMA Version 1"
- anchor="section:d945b9f0-0666-4db7-9126-be57cf7b5f4f">
-<t>
-In addition to the substantive protocol changes discussed in
-<xref target="section:c2574344-5aec-427d-a5ed-048d7fcc0d95"/>,
-there are a number of structural XDR changes whose goal
-is to enable within-version protocol extensibility.
-</t>
-<t>
-The RPC-over-RDMA version 1 transport header is defined as a single XDR object,
-with an RPC message proper potentially following it.
-In RPC-over-RDMA version 2, as described in
-<xref target="section:417e749e-efec-455f-aae7-12535b9ee8dc"/>
-there are separate XDR definitions of the transport header prefix
-(see
-<xref target="section:2d1735f0-c465-43c6-9c18-3da6b7979862"/>
-which specifies the transport header type to be used,
-and the specific transport header, defined within one of the subsections of
-<xref target="section:eef6a22e-2633-44a2-a8f0-821fec8bf824"/>).
-This is similar to the way that an RPC message consists of
-an RPC header (defined in
-<xref target="RFC5531"/>)
-and an RPC request or reply,
-defined by the Upper Layer protocol being conveyed.
-</t>
-<t>
-As a new version of the RPC-over-RDMA transport protocol,
-RPC-over-RDMA version 2 exists within the versioning rules defined in
-<xref target="RFC8166"/>.
-In particular, it maintains the first four words of the protocol header
-as sent and received,
-as specified in Section 4.2 of
-<xref target="RFC8166"/>,
-even though, as explained in
-<xref target="section:e21d4f74-b536-47f2-9d07-c03a27a20de4"/>
-of this document,
-the XDR definition of those words is structured differently.
-</t>
-<t>
-Although each of the first four words retains its semantic function,
-there are important differences of field interpretation, besides the fact
-that the words have different names and different roles with the XDR
-constrict of they are parts.
-<list style="symbols">
-<t>
-The first word of the header, previously the rdma_xid field,
-retains the format and function that in had in
-RPC-over-RDMA version 1.
-Within RPC-over-RDMA version 2,
-this word is the rdma_xid field of the structure rdma_start.
-However, to accommodate the use of request-response
-pairing of non-RPC messages and the potential use of message continuation,
-it cannot be assumed that it will always have the same value
-it would have had in RPC-over-RDMA version 1.
-As a result, the contents of this field should not be used
-without consideration of the associated protocol version identification.
-</t>
-<t>
-The second word of the header, previously the rdma_vers field,
-retains the format and function that it had in RPC-over-RDMA version 1.
-Within RPC-over-RDMA version 2,
-this word is the rdma_vers field of the structure rdma_start.
-To clearly distinguish version 1 and version 2 messages,
-senders MUST fill in the correct version (fixed after version negotiation)
-and receivers MUST check that the content of the rdma_vers is correct
-before using referencing any other header field.
-</t>
-<t>
-The third word of the header, previously the rdma_credit field,
-retains the size and general purpose that it had in RPC-over-RDMA version 1.
-Within RPC-over-RDMA version 2,
-this word is the rdma_credit field of the structure rdma_start.
-</t>
-<t>
-The fourth word of the header,
-previously the union discriminator field rdma_proc,
-retains its format and general function even though
-the set of valid values has changed.
-The value of this field is now considered an unsigned 32-bit integer
-rather than an enum.
-Within RPC-over-RDMA version 2,
-this word is the rdma_htype field of the structure rdma_start.
-</t>
-</list>
-</t>
-<t>
-Beyond conforming to the restrictions specified in
-<xref target="RFC8166"/>,
-RPC-over-RDMA version 2 tightly limits the scope
-of the changes made in order to ensure interoperability.
-It makes no major structural changes to the protocol,
-and all existing transport header types used in version 1
-(as defined in
-<xref target="RFC8166"/>)
-are retained in version 2.
-Chunks are expressed using the same on-the-wire format and
-are used in the same way in both versions.
-</t>
-</section>
-
-<section
  title="RPC-over-RDMA Version 2 Flow Control"
- anchor="section:88B2FC9E-5FEA-4195-BC6E-00A37BA116EF">
+ anchor="section:88b2fc9e-5fea-4195-bc6e-00a37ba116ef">
 <t>
 RPC-over-RDMA transports are built on top of the RDMA RC QP type
 <xref target="RFC8166"/>.
@@ -320,8 +189,12 @@ from overwhelming receiver resources.
 RPC-over-RDMA transports employ
 an end-to-end credit-based flow control mechanism
 for this purpose.
-[citation needed].
+[cel: citation needed].
 </t>
+
+<section
+ title="Granting Credits"
+ anchor="section:278fca6a-f2a8-42f3-a4e9-a8d4b217567e">
 <t>
 RPC-over-RDMA version 2 can support fully asymmetrical operation,
 where a message in one direction might be matched by zero, one, or multiple
@@ -348,211 +221,26 @@ sent in messages from the requester to the responder;
 and responder credits,
 sent in messages from the responder to the requester.
 </t>
-
 </section>
 
 <section
- title="RPC-over-RDMA Version 2 Headers and Chunks"
- anchor="section:2e577c75-4e43-4e13-8b17-75afa849f0b6">
+ title="Out-of-Band Credit Grant"
+ anchor="section:f6348562-97f8-4413-96d7-bde3ff57b375">
 <t>
-Most RPC-over-RDMA version 2 data structures are derived
-from corresponding structures in RPC-over-RDMA version 1.
-As is typical for new versions of an existing protocol,
-the XDR data structures have new names and there are a
-few small changes in content.
-In some cases,
-there have been structural re-organizations to enabled
-protocol extensibility.
-</t>
-
-<section
- title="rpcrdma_common: Common Transport Header Prefix"
- anchor="section:e21d4f74-b536-47f2-9d07-c03a27a20de4">
-<t>
-The rpcrdma_common prefix describes the first part
-of each RDMA-over-RPC transport header for version 2
-and subsequent versions.
-<figure align="left">
-<artwork xml:space="preserve" align="left">
-&lt;CODE BEGINS&gt;
-
-struct rpcrdma_common {
-             uint32         rdma_xid;
-             uint32         rdma_vers;
-             uint32         rdma_credit;
-             uint32         rdma_htype;
-};
-
-&lt;CODE ENDS&gt;
-</artwork>
-</figure>
+In addition to this, a new protocol convention is provided
+to enable one peer to refresh its credit grant to the other peer
+without sending a data payload.
+Messages of this type can also act as a keep-alive ping.
+See
+<xref target="section:1c401555-4b7d-4e35-a9a3-8aa14228170e"/>
+for information about this convention.
 </t>
 <t>
-RPC-over-RDMA version 2's use of these first four words
-matches that of version 1 as required by
-<xref target="RFC8166"/>.
-However, there are important structural differences
-in the way that these words are described
-by the respective XDR descriptions:
-<list style="symbols">
-<t>
-The header type is represented as a uint32 rather than as an enum
-that would need to be modified to reflect additions to the set of
-header types made by later extensions.
-</t>
-<t>
-The header type field is part of an XDR structure devoted to
-representing the transport header prefix,
-rather than being part of a discriminated union,
-that includes the body of each transport header type.
-</t>
-<t>
-There is now a prefix structure
-(see
-<xref target="section:2d1735f0-c465-43c6-9c18-3da6b7979862"/>)
-of which the rpcrdma_common structure is the initial segment.
-This is a newly defined XDR object within the protocol description,
-in contrast with RPC-over-RDMA version 1, which limits the common
-portion of all header types to the four words in rpcrdma_common.
-</t>
-</list>
-These changes are part of a larger structural change
-in the XDR description of RPC-over-RDMA version 2
-that enables a cleaner treatment of protocol extension.
-The XDR appearing in
-<xref target="section:bf53e759-d97f-487d-a5e2-9b8153db1803"/>
-reflects these changes, which are discussed in further detail in
-<xref target="section:d945b9f0-0666-4db7-9126-be57cf7b5f4f"/>.
-</t>
-</section>
-
-<section
- title="rpcrdma2_hdr_prefix: Version 2 Transport Header Prefix"
- anchor="section:2d1735f0-c465-43c6-9c18-3da6b7979862">
-<t>
-The following prefix structure appears at the start of any
-RPC-over-RDMA version 2 transport header.
-<figure align="left">
-<artwork xml:space="preserve" align="left">
-&lt;CODE BEGINS&gt;
-
-const RPCRDMA2_F_RESPONSE           0x00000001;
-
-struct rpcrdma2_hdr_prefix
-        struct rpcrdma_common       rdma_start;
-        uint32                      rdma_flags;
-};
-
-&lt;CODE ENDS&gt;
-</artwork>
-</figure>
-</t>
-<t>
-The rdma_flags is new to RPC-over-RDMA version 2.
-Currently, the only flag defined within this word is the
-RPCRDMA2_F_RESPONSE flag.
-The other bits are reserved for future use as described in
-<xref target="section:15C76685-A24D-4799-BC8A-311D03AC3510"/>.
-The sender MUST set these to zero.
-</t>
-<t>
-The RPCRDMA2_F_RESPONSE flag qualifies the values contained in the
-transport header's rdma_start.rdma_xid field.
-The RPCRDMA2_F_RESPONSE flag enables a receiver to reliably avoid
-performing an XID lookup on incoming reverse direction Call messages.
-</t>
-<t>
-In general, when a message carries an XID that was generated
-by the message's receiver
-(that is, the receiver is acting as a requester),
-the message's sender sets the RPCRDMA2_F_RESPONSE flag.
-Otherwise that flag is clear.
-For example:
-<list style="symbols">
-<t>
-When the rdma_start.rdma_htype field has the value RDMA2_MSG or
-RDMA2_NOMSG, the value of the RPCRDMA2_F_RESPONSE flag MUST be the
-same as the value of the associated RPC message's msg_type field.
-</t>
-<t>
-When the header type is anything else
-and
-a whole or partial RPC message payload is present,
-the value of the RPCRDMA2_F_RESPONSE flag MUST be the same
-as the value of the associated RPC message's msg_type field.
-</t>
-<t>
-When no RPC message payload is present,
-a Requester MUST set the value of RPCRDMA2_F_RESPONSE
-to reflect how the receiver is to interpret the
-rdma_start.rdma_xid field.
-</t>
-<t>
-When the rdma_start.rdma_htype field has the value RDMA2_ERROR,
-the RPCRDMA2_F_RESPONSE flag MUST be set.
-</t>
-</list>
-</t>
-</section>
-
-<section
- title="rpcrdma2_chunk_lists: Describe External Data Payload"
- anchor="section:af116198-1815-4308-99ab-0197b2c5ea0b">
-<t>
-The rpcrdma2_chunk_lists structure specifies how an RPC message
-is conveyed using explicit RDMA operations.
-<figure align="left">
-<artwork xml:space="preserve" align="left">
-&lt;CODE BEGINS&gt;
-
-struct rpcrdma2_chunk_lists {
-        uint32                      rdma_inv_handle;
-        struct rpcrdma2_read_list   *rdma_reads;
-        struct rpcrdma2_write_list  *rdma_writes;
-        struct rpcrdma2_write_chunk *rdma_reply;
-};
-
-&lt;CODE ENDS&gt;
-</artwork>
-</figure>
-</t>
-<t>
-For the most part this structure parallels
-its RPC-over-RDMA version 1 equivalent.
-That is, rdma_reads, rdma_writes, rdma_reply provide, respectively,
-descriptions of the chunks used to read a Long request or directly
-placed data from the requester, to write directly placed response
-data into the requester's memory, and to write a long reply into the
-requester's memory.
-</t>
-<t>
-An important addition relative to the corresponding RPC-over-RDMA version 1
-rdma_header structures is the rdma_inv_handle field.
-This field supports remote invalidation
-of requester memory registrations
-via the RDMA Send With Invalidate operation.
-</t>
-<t>
-To request Remote Invalidation, a requester sets the value of the
-rdma_inv_handle field in an RPC Call's transport header to a non-zero
-value that matches one of the rdma_handle fields in that header.  If
-none of the rdma_handle values in the header conveying the Call may
-be invalidated by the responder, the requester sets the RPC Call's
-rdma_inv_handle field to the value zero.
-</t>
-<t>
-If the responder chooses not to use remote invalidation for this
-particular RPC Reply, or the RPC Call's rdma_inv_handle field
-contains the value zero, the responder uses RDMA Send to transmit the
-matching RPC reply.
-</t>
-<t>
-If a requester has provided a non-zero value in the RPC Call's
-rdma_inv_handle field and the responder chooses to use Remote
-Invalidation for the matching RPC Reply, the responder uses RDMA Send
-With Invalidate to transmit that RPC reply, and uses the value in the
-corresponding Call's rdma_inv_handle field to construct the Send With
-Invalidate Work Request.
+To prevent transport deadlock,
+receivers MUST always be in a position to receive one such
+credit grant update message.
+To do this, receivers might post one extra Receive more than they
+have granted credits.
 </t>
 </section>
 
@@ -586,7 +274,7 @@ through
  pageno="false"
  format="counter"/>.
 For discussion of extensions to the set of transport properties, see
-<xref target="section:A355ADAD-F03B-41A6-94A8-4128B10301BB"/>.
+<xref target="section:a355adad-f03b-41a6-94a8-4128b10301bb"/>.
 </t>
 
 <section
@@ -726,7 +414,7 @@ or are unable to interpret,
 information about the actual value of the property.
 </t>
 <t>
-The column labeled "Details" indicates the section within this
+The column labeled "Sec" indicates the section within this
 document that explains the semantics and use of this transport
 property.
 </t>
@@ -740,75 +428,62 @@ property.
 <ttcol align="left">Code</ttcol>
 <ttcol align="left">XDR type</ttcol>
 <ttcol align="left">Default</ttcol>
-<ttcol align="left">Details</ttcol>
-<c>Credit Probe</c>
-<c>0</c>
-<c>N/A</c>
-<c>N/A</c>
-<c>
-<xref target="section:8a8a3c22-850d-4735-9f75-c2cd9d611a16"/>
-</c>
+<ttcol align="left">Sec</ttcol>
 <c>Maximum Send Size</c>
 <c>1</c>
 <c>uint32</c>
 <c>4096</c>
 <c>
-<xref target="section:0a985ff5-a5c1-477f-8932-517be34ccf65"/>
+<xref target="section:0a985ff5-a5c1-477f-8932-517be34ccf65"
+ pageno="false"
+ format="counter"/>
 </c>
 <c>Receive Buffer Size</c>
 <c>2</c>
 <c>uint32</c>
 <c>4096</c>
 <c>
-<xref target="section:5101b1f1-b1ad-4b6b-9fa4-d6fa324ffc0d"/>
+<xref target="section:5101b1f1-b1ad-4b6b-9fa4-d6fa324ffc0d"
+ pageno="false"
+ format="counter"/>
 </c>
 <c>Maximum RDMA Segment Size</c>
 <c>3</c>
 <c>uint32</c>
 <c>1048576</c>
 <c>
-<xref target="section:14ed280d-521c-410c-a190-cf891be53900"/>
+<xref target="section:14ed280d-521c-410c-a190-cf891be53900"
+ pageno="false"
+ format="counter"/>
 </c>
 <c>Maximum RDMA Segment Count</c>
 <c>4</c>
 <c>uint32</c>
 <c>16</c>
 <c>
-<xref target="section:98fc720d-6263-4a52-ae89-d2469b982512"/>
+<xref target="section:98fc720d-6263-4a52-ae89-d2469b982512"
+ pageno="false"
+ format="counter"/>
 </c>
 <c>Reverse Request Support</c>
 <c>5</c>
 <c>uint32</c>
-<c>RDMA2_RVREQSUP_INLINE</c>
+<c>1</c>
 <c>
-<xref target="section:6ace2d7f-044b-491f-97ea-5760345a2e8f"/>
+<xref target="section:6ace2d7f-044b-491f-97ea-5760345a2e8f"
+ pageno="false"
+ format="counter"/>
 </c>
-<c>X.509 PKIX Certificate</c>
+<c>Host Auth Message</c>
 <c>6</c>
 <c>opaque</c>
 <c>N/A</c>
 <c>
-<xref target="section:b7b5c9a4-f507-479c-832f-8972d1c35043"/>
+<xref target="section:5f63e1b6-8d24-453b-b18b-b98ad66f3671"
+ pageno="false"
+ format="counter"/>
 </c>
 </texttable>
-
-<section
- title="Credit Probe"
- anchor="section:8a8a3c22-850d-4735-9f75-c2cd9d611a16">
-<t>
-This property conveys no data, but can be used to update
-the credit grant or as a keep-alive probe.
-<figure align="left">
-<artwork xml:space="preserve" align="left">
-&lt;CODE BEGINS&gt;
-
-const uint32 RDMA2_PROPID_CREDIT = 0;
-
-&lt;CODE ENDS&gt;
-</artwork>
-</figure>
-</t>
-</section>
 
 <section
  title="Maximum Send Size"
@@ -862,7 +537,7 @@ In particular,
 <list style="symbols">
 <t>
 Requesters may use the value to determine when it is necessary to
-provide a Position-Zero Read chunk when sending a request.
+provide a Position Zero Read chunk when sending a request.
 </t>
 <t>
 Requesters may use the value to determine when it is necessary to
@@ -974,90 +649,30 @@ that general support for reverse direction replies is present on the server.
 </section>
 
 <section
- title="X.509 PKIX Certificate"
- anchor="section:b7b5c9a4-f507-479c-832f-8972d1c35043">
+ title="Host Authentication Message"
+ anchor="section:5f63e1b6-8d24-453b-b18b-b98ad66f3671">
 <t>
-The value of this property is a single X.509v3 PKIX certificate
-that uniquely identifies the sending peer by the tuple
-(serial number of presented certificate; Issuer).
-A client with a large certificate can use a Position-Zero Read chunk
-to send this transport property.
-A server cannot send a certificate larger than the negotiated inline
-threshold.
-[ cel: to do ]
+The value of this property is used to carry an exchange of
+host authentication material.
+The exchange can accommodate authentication handshakes that
+require multiple challenge-response interactions, and
+potentially large amounts of material.
 <figure align="left">
 <artwork xml:space="preserve" align="left">
 &lt;CODE BEGINS&gt;
 
-const uint32 RDMA2_PROPID_XPC = 6;
+const uint32 RDMA2_PROPID_HOSTAUTH = 6;
+typedef opaque rpcrdma2_prop_hostauth;
 
 &lt;CODE ENDS&gt;
 </artwork>
 </figure>
 </t>
 <t>
-<list style="symbols">
-<t>
-Certificate validation MUST include the verification rules as per
-<xref target="RFC5280"/>.
+When this property is not provided, the peer(s) remain unauthenticated.
+Local security policy on the peers determines whether
+the connection is permitted to continue.
 </t>
-<t>
-Implementations SHOULD indicate their trusted Certification Authorities (CAs).
-</t>
-<t>
-Peer validation always includes a check on whether the locally configured expected DNS name or IP address of the server that is contacted matches its presented certificate.
-DNS names and IP addresses can be contained in the Common Name (CN) or subjectAltName entries.
-For verification, only one of these entries is to be considered.
-The following precedence applies:
-for DNS name validation, subjectAltName:DNS has precedence over CN;
-for IP address validation, subjectAltName:iPAddr has precedence over CN.
-Implementors of this specification are advised to read Section 6 of
-<xref target="RFC6125"/>
-for more details on DNS name validation.
-</t>
-<t>
-Implementations MAY allow the configuration of a set of additional properties of the certificate
-to check for a peer's authorization to communicate
-(e.g., a set of allowed values in subjectAltName:URI or a set of allowed X509v3 Certificate Policies).
-</t>
-<t>
-When the configured trust base changes
-(e.g., removal of a CA from the list of trusted CAs;
-issuance of a new CRL for a given CA),
-implementations MAY renegotiate the TLS session to reassess the connecting peer's continued authorization.
-</t>
-</list>
-</t>
-<t>
-Authenticating a connecting entity does not mean the RPC server necessarily wants to communicate with that client.
-For example, if the Issuer is not in a trusted set of Issuers, the RPC server may decline to perform RPC transactions with this client.
-Implementations that want to support a wide variety of trust models should expose as many details of the presented certificate to the administrator as possible so that the trust model can be implemented by the administrator.
-As a suggestion, at least the following parameters of the X.509 client certificate should be exposed:
-<list style="symbols">
-<t>
-Originating IP address
-</t>
-<t>
-Certificate Fingerprint
-</t>
-<t>
-Issuer
-</t>
-<t>
-Subject
-</t>
-<t>
-all X509v3 Extended Key Usage
-</t>
-<t>
-all X509v3 Subject Alternative Name
-</t>
-<t>
-all X509v3 Certificate Policies
-</t>
-</list>
-</t>
-
 </section>
 
 </section>
@@ -1128,7 +743,7 @@ The column labeled "Msg" indicates whether this operation is
 followed (or not) by an RPC message payload.
 </t>
 <t>
-The column labeled "Details" indicates the section (within this
+The column labeled "Sec" indicates the section (within this
 document) that explains the semantics and use of this operation.
 </t>
 </list>
@@ -1143,34 +758,42 @@ document) that explains the semantics and use of this operation.
 <ttcol align="left">Code</ttcol>
 <ttcol align="left">XDR type</ttcol>
 <ttcol align="left">Msg</ttcol>
-<ttcol align="left">Details</ttcol>
+<ttcol align="left">Sec</ttcol>
 <c>Convey Appended RPC Message</c>
 <c>0</c>
 <c>rpcrdma2_msg</c>
 <c>Yes</c>
 <c>
-<xref target="section:9af0d451-2ef3-454f-adb9-827664ccc39c"/>
+<xref target="section:9af0d451-2ef3-454f-adb9-827664ccc39c"
+ pageno="false"
+ format="counter"/>
 </c>
 <c>Convey External RPC Message</c>
 <c>1</c>
 <c>rpcrdma2_nomsg</c>
 <c>No</c>
 <c>
-<xref target="section:1c401555-4b7d-4e35-a9a3-8aa14228170e"/>
+<xref target="section:1c401555-4b7d-4e35-a9a3-8aa14228170e"
+ pageno="false"
+ format="counter"/>
 </c>
 <c>Report Transport Error</c>
 <c>4</c>
 <c>rpcrdma2_err</c>
 <c>No</c>
 <c>
-<xref target="section:b1d23e5c-31df-483f-adb7-25430b5de38d"/>
+<xref target="section:b1d23e5c-31df-483f-adb7-25430b5de38d"
+ pageno="false"
+ format="counter"/>
 </c>
 <c>Specify Properties at Connection</c>
 <c>5</c>
 <c>rpcrdma2_connprop</c>
 <c>No</c>
 <c>
-<xref target="section:07e8c178-62df-46a7-a57e-dcf107821d93"/>
+<xref target="section:07e8c178-62df-46a7-a57e-dcf107821d93"
+ pageno="false"
+ format="counter"/>
 </c>
 </texttable>
 <t>
@@ -1182,6 +805,316 @@ RPC-over-RDMA version 2 implementations that receive an OPTIONAL operation
 that is not supported MUST respond with an RDMA2_ERROR message
 with an error code of RDMA2_ERR_INVAL_HTYPE.
 </t>
+</section>
+
+<section
+ title="RPC-over-RDMA Version 2 Headers and Chunks"
+ anchor="section:2e577c75-4e43-4e13-8b17-75afa849f0b6">
+<t>
+Most RPC-over-RDMA version 2 data structures are derived
+from corresponding structures in RPC-over-RDMA version 1.
+As is typical for new versions of an existing protocol,
+the XDR data structures have new names and there are a
+few small changes in content.
+In some cases,
+there have been structural re-organizations to enabled
+protocol extensibility.
+</t>
+
+<section
+ title="Common Transport Header Prefix"
+ anchor="section:e21d4f74-b536-47f2-9d07-c03a27a20de4">
+<t>
+The rpcrdma_common prefix describes the first part
+of each RDMA-over-RPC transport header for version 2
+and subsequent versions.
+<figure align="left">
+<artwork xml:space="preserve" align="left">
+&lt;CODE BEGINS&gt;
+
+struct rpcrdma_common {
+             uint32         rdma_xid;
+             uint32         rdma_vers;
+             uint32         rdma_credit;
+             uint32         rdma_htype;
+};
+
+&lt;CODE ENDS&gt;
+</artwork>
+</figure>
+</t>
+<t>
+RPC-over-RDMA version 2's use of these first four words
+matches that of version 1 as required by
+<xref target="RFC8166"/>.
+However, there are important structural differences
+in the way that these words are described
+by the respective XDR descriptions:
+<list style="symbols">
+<t>
+The header type is represented as a uint32 rather than as an enum
+that would need to be modified to reflect additions to the set of
+header types made by later extensions.
+</t>
+<t>
+The header type field is part of an XDR structure devoted to
+representing the transport header prefix,
+rather than being part of a discriminated union,
+that includes the body of each transport header type.
+</t>
+<t>
+There is now a prefix structure
+(see
+<xref target="section:2d1735f0-c465-43c6-9c18-3da6b7979862"/>)
+of which the rpcrdma_common structure is the initial segment.
+This is a newly defined XDR object within the protocol description,
+in contrast with RPC-over-RDMA version 1, which limits the common
+portion of all header types to the four words in rpcrdma_common.
+</t>
+</list>
+These changes are part of a larger structural change
+in the XDR description of RPC-over-RDMA version 2
+that enables a cleaner treatment of protocol extension.
+The XDR appearing in
+<xref target="section:bf53e759-d97f-487d-a5e2-9b8153db1803"/>
+reflects these changes, which are discussed in further detail in
+<xref target="section:d945b9f0-0666-4db7-9126-be57cf7b5f4f"/>.
+</t>
+</section>
+
+<section
+ title="RPC-over-RDMA Version 2 Transport Header Prefix"
+ anchor="section:2d1735f0-c465-43c6-9c18-3da6b7979862">
+<t>
+The following prefix structure appears at the start of any
+RPC-over-RDMA version 2 transport header.
+<figure align="left">
+<artwork xml:space="preserve" align="left">
+&lt;CODE BEGINS&gt;
+
+const RPCRDMA2_F_RESPONSE           0x00000001;
+const RPCRDMA2_F_MORE               0x00000002;
+
+struct rpcrdma2_hdr_prefix
+        struct rpcrdma_common       rdma_start;
+        uint32                      rdma_flags;
+};
+
+&lt;CODE ENDS&gt;
+</artwork>
+</figure>
+</t>
+<t>
+The rdma_flags is new to RPC-over-RDMA version 2.
+Currently, the only flags defined within this word are the
+RPCRDMA2_F_RESPONSE flag
+and the
+RPCRDMA2_F_MORE flag.
+The other bits are reserved for future use as described in
+<xref target="section:15c76685-a24d-4799-bc8a-311d03ac3510"/>.
+The sender MUST set these flags to zero.
+</t>
+
+<section
+ title="RPCRDMA2_F_RESPONSE Flag"
+ anchor="section:4e23391c-b6a8-46b1-a399-c86f754b51bc">
+<t>
+The RPCRDMA2_F_RESPONSE flag qualifies the value contained in the
+transport header's rdma_start.rdma_xid field.
+The RPCRDMA2_F_RESPONSE flag enables a receiver to reliably avoid
+performing an XID lookup on incoming reverse direction Call messages.
+</t>
+<t>
+In general, when a message carries an XID that was generated
+by the message's receiver
+(that is, the receiver is acting as a requester),
+the message's sender sets the RPCRDMA2_F_RESPONSE flag.
+Otherwise that flag is clear.
+For example:
+<list style="symbols">
+<t>
+When the rdma_start.rdma_htype field has the value RDMA2_MSG or
+RDMA2_NOMSG, the value of the RPCRDMA2_F_RESPONSE flag MUST be the
+same as the value of the associated RPC message's msg_type field.
+</t>
+<t>
+When the header type is anything else
+and
+a whole or partial RPC message payload is present,
+the value of the RPCRDMA2_F_RESPONSE flag MUST be the same
+as the value of the associated RPC message's msg_type field.
+</t>
+<t>
+When no RPC message payload is present,
+a Requester MUST set the value of RPCRDMA2_F_RESPONSE
+to reflect how the receiver is to interpret the
+rdma_start.rdma_xid field.
+</t>
+<t>
+When the rdma_start.rdma_htype field has the value RDMA2_ERROR,
+the RPCRDMA2_F_RESPONSE flag MUST be set.
+</t>
+</list>
+</t>
+</section>
+
+<section
+ title="RPCRDMA2_F_MORE Flag"
+ anchor="section:fb299673-74f3-4f01-adb5-26a02ccd679f">
+<t>
+The RPCRDMA2_F_MORE flag signifies that
+the RPC-over-RDMA message payload continues in the next message.
+This is referred to as Message Continuation, or Send chaining.
+</t>
+<t>
+When the RPCRDMA2_F_MORE flag is asserted,
+the receiver is to concatenate the data payload of the next
+received message to the end of the data payload of the
+current received message.
+The sender clears the RPCRDMA2_F_MORE flag in the final
+message means in the sequence.
+</t>
+<t>
+If a peer receives an RPC-over-RDMA message
+where the RPCRDMA2_F_MORE flag is set
+and
+the rdma_start.rdma_htype field does not contain
+RDMA2_MSG or RDMA2_CONNPROP,
+the receiver MUST respond with
+an RDMA2_ERROR message with the rdma_err field set to RDMA2_ERR_INVAL_FLAG.
+</t>
+<t>
+When the RPCRDMA2_F_MORE flag is set in an individual message,
+that message's chunk lists MUST be empty.
+Chunks for a chained message may be conveyed in the final
+message in the sequence,
+whose RPCRDMA2_F_MORE flag is clear.
+</t>
+<t>
+There is no protocol-defined limit
+on the number of concatenated messages in a sequence.
+If the sender exhausts the receiver's credit grant before
+the final message is sent,
+the sender MUST wait for a further credit grant from
+the receiver before continuing to send messages.
+</t>
+<t>
+Credit exhaustion can occur at the receiver
+in the middle of a sequence of continued messages.
+To enable the sender to continue sending
+the remaining messages in the sequence,
+the receiver can grant more credits by
+sending an RPC message payload
+or
+an out-of-band credit grant
+(see
+<xref target="section:f6348562-97f8-4413-96d7-bde3ff57b375"/>).
+</t>
+</section>
+
+</section>
+
+<section
+ title="Describing External Data Payloads"
+ anchor="section:af116198-1815-4308-99ab-0197b2c5ea0b">
+<t>
+The rpcrdma2_chunk_lists structure specifies how an RPC message
+is conveyed using explicit RDMA operations.
+<figure align="left">
+<artwork xml:space="preserve" align="left">
+&lt;CODE BEGINS&gt;
+
+struct rpcrdma2_chunk_lists {
+        uint32                      rdma_inv_handle;
+        struct rpcrdma2_read_list   *rdma_reads;
+        struct rpcrdma2_write_list  *rdma_writes;
+        struct rpcrdma2_write_chunk *rdma_reply;
+};
+
+&lt;CODE ENDS&gt;
+</artwork>
+</figure>
+</t>
+<t>
+For the most part this structure parallels
+its RPC-over-RDMA version 1 equivalent.
+That is, the rdma_reads, rdma_writes, rdma_reply fields provide,
+respectively,
+descriptions of the chunks used to read a Long message or directly
+placed data from the requester, to write directly placed response
+data into the requester's memory, and to write a long reply into the
+requester's memory.
+</t>
+
+<section
+ title="Chunks and Chunk Lists"
+ anchor="section:ac98f12c-4662-48f5-a18d-48e652f0d4d7">
+<t>
+The chunks and chunk list structures follow the same rules as in
+Section 3.4 of
+<xref target="RFC8166"/>,
+with these exceptions:
+<list style="symbols">
+<t>
+In RPC-over-RDMA version 1,
+there were cases where XDR padding was allowed to appear in
+a reduced XDR data item.
+However, in RPC-over-RDMA version 2,
+requesters and responders MUST NOT
+include XDR padding in reduced Read and Write chunks, but
+chunks that make up Position Zero Read chunks and Reply chunks
+MUST include all XDR padding.
+</t>
+<t>
+A responder MUST use Message Continuation
+if the requester does not provide a Reply chunk and the
+actual size of the reply is larger than the connection's
+inline threshold.
+A responder MAY use Message Continuation even if the
+requester has provided adequate Reply resources.
+This makes it unnecessary for
+RPC-over-RDMA version 2 requesters to have perfect reply size estimation.
+</t>
+</list>
+</t>
+</section>
+
+<section
+ title="Remote Invalidation"
+ anchor="section:a957db67-a8fd-4886-b7a7-57382cfe3190">
+<t>
+An important addition relative to the corresponding RPC-over-RDMA version 1
+rdma_header structures is the rdma_inv_handle field.
+This field supports remote invalidation
+of requester memory registrations
+via the RDMA Send With Invalidate operation.
+</t>
+<t>
+To request Remote Invalidation, a requester sets the value of the
+rdma_inv_handle field in an RPC Call's transport header to a non-zero
+value that matches one of the rdma_handle fields in that header.  If
+none of the rdma_handle values in the header conveying the Call may
+be invalidated by the responder, the requester sets the RPC Call's
+rdma_inv_handle field to the value zero.
+</t>
+<t>
+If the responder chooses not to use remote invalidation for this
+particular RPC Reply, or the RPC Call's rdma_inv_handle field
+contains the value zero, the responder uses RDMA Send to transmit the
+matching RPC reply.
+</t>
+<t>
+If a requester has provided a non-zero value in the RPC Call's
+rdma_inv_handle field and the responder chooses to use Remote
+Invalidation for the matching RPC Reply, the responder uses RDMA Send
+With Invalidate to transmit that RPC reply, and uses the value in the
+corresponding Call's rdma_inv_handle field to construct the Send With
+Invalidate Work Request.
+</t>
+</section>
+
+</section>
+
 </section>
 
 <section
@@ -1232,7 +1165,7 @@ connection peers to exchange information about their transport properties.
 <t>
 RDMA2_MSG is used to convey an RPC message that immediately
 follows the Transport Header in the Send buffer.
-This is either an RPC request that has no Position-Zero Read chunk
+This is either an RPC request that has no Position Zero Read chunk
 or an RPC reply that is not sent using a Reply chunk.
 <figure align="left">
 <artwork xml:space="preserve" align="left">
@@ -1259,13 +1192,18 @@ struct rpcrdma2_msg {
  anchor="section:1c401555-4b7d-4e35-a9a3-8aa14228170e">
 <t>
 RDMA2_NOMSG is used to convey an entire RPC message using explicit RDMA operations.
-Usually this is because the RPC message does not fit
-within the size limits that result from the
-receiver's inline threshold.
-The message may be a Long request,
-which is read from a memory area specified by a Position-Zero Read chunk;
+This message type is also known as a Long message,
+which is read from a memory area specified by a Position Zero Read chunk;
 or a Long reply,
 which is written into a memory area specified by a Reply chunk.
+</t>
+<t>
+If all the chunk lists are empty
+(i.e., three 32-bit zeroes in the chunk list fields),
+the message conveys a credit grant refresh.
+The header prefix of this message contains a credit grant refresh
+in the rdma_credit field.
+[cel: what goes in the rdma_xid field in this case?]
 <figure align="left">
 <artwork xml:space="preserve" align="left">
 &lt;CODE BEGINS&gt;
@@ -1279,6 +1217,11 @@ struct rpcrdma2_nomsg {
 &lt;CODE ENDS&gt;
 </artwork>
 </figure>
+</t>
+<t>
+In RPC-over-RDMA version 2,
+an alternative to using a Long message is to
+use Message Continuation.
 </t>
 </section>
 
@@ -1364,6 +1307,12 @@ but it does not recognize the value in the rdma_start.rdma_htype field
 or does not support that header type,
 it MUST set the rdma_err field to RDMA2_ERR_INVAL_HTYPE.
 </t>
+<t hangText="RDMA2_ERR_INVAL_FLAG">
+<vspace/>
+If a receiver recognizes the value in the rdma_start.rdma_htype
+field but does not recognize the combination of flags in the rdma_flags field,
+it MUST set the rdma_err field to RDMA2_ERR_INVAL_HTYPE.
+</t>
 <t hangText="RDMA2_ERR_BAD_XDR">
 <vspace/>
 If a responder recognizes the values in the
@@ -1391,8 +1340,8 @@ Read chunks the responder can receive and process.
 <vspace/>
 If the responder implementation cannot handle any Read chunks
 for a request, it MUST set the rdma_max_chunks to zero in this response.
-The requester SHOULD resend the request using a Position-Zero Read chunk.
-If this was a request using a Position-Zero Read chunk,
+The requester SHOULD resend the request using a Position Zero Read chunk.
+If this was a request using a Position Zero Read chunk,
 the requester MUST terminate the transaction with an error.
 </t>
 <t hangText="RDMA2_ERR_WRITE_CHUNKS">
@@ -1827,13 +1776,12 @@ together with the file common.x, obtained from this document.
 /// /*
 ///  * Transport propid values for basic properties
 ///  */
-/// const uint32 RDMA2_PROPID_CREDIT = 0;
 /// const uint32 RDMA2_PROPID_SBSIZ = 1;
 /// const uint32 RDMA2_PROPID_RBSIZ = 2;
 /// const uint32 RDMA2_PROPID_RSSIZ = 3;
 /// const uint32 RDMA2_PROPID_RCSIZ = 4;
 /// const uint32 RDMA2_PROPID_BRS = 5;
-/// const uint32 RDMA2_PROPID_XPC = 6;
+/// const uint32 RDMA2_PROPID_HOSTAUTH = 6;
 ///
 /// /*
 ///  * Types specific to particular properties
@@ -1896,12 +1844,13 @@ together with the file common.x, obtained from this document.
 /// const uint32 RDMA2_ERR_VERS = 1;
 /// const uint32 RDMA2_ERR_BAD_XDR = 2;
 /// const uint32 RDMA2_ERR_INVAL_HTYPE = 3;
-/// const uint32 RDMA2_ERR_READ_CHUNKS = 4;
-/// const uint32 RDMA2_ERR_WRITE_CHUNKS = 5;
-/// const uint32 RDMA2_ERR_SEGMENTS = 6;
-/// const uint32 RDMA2_ERR_WRITE_RESOURCE = 7;
-/// const uint32 RDMA2_ERR_REPLY_RESOURCE = 8;
-/// const uint32 RDMA2_ERR_SYSTEM = 9;
+/// const uint32 RDMA2_ERR_INVAL_FLAG = 4;
+/// const uint32 RDMA2_ERR_READ_CHUNKS = 5;
+/// const uint32 RDMA2_ERR_WRITE_CHUNKS = 6;
+/// const uint32 RDMA2_ERR_SEGMENTS = 7;
+/// const uint32 RDMA2_ERR_WRITE_RESOURCE = 8;
+/// const uint32 RDMA2_ERR_REPLY_RESOURCE = 9;
+/// const uint32 RDMA2_ERR_SYSTEM = 10;
 ///
 /// struct rpcrdma2_err_vers {
 ///         uint32 rdma_vers_low;
@@ -2117,6 +2066,32 @@ The client MUST NOT change the version during the duration of the connection.
 </section>
 
 <section
+ title="Implementation Status"
+ anchor="section:fd2f45e7-85fa-4863-a4cd-ea200878062f">
+<t>
+This section records the status of known implementations of the protocol
+defined by this specification at the time of posting of this Internet-Draft,
+and is based on a proposal described in
+<xref target="RFC7942"/>.
+The description of implementations in this section is intended to
+assist the IETF in its decision processes in progressing drafts to RFCs.
+</t>
+<t>
+Please note that the listing of any individual implementation here
+does not imply endorsement by the IETF.
+Furthermore, no effort has been spent to verify the information presented here
+that was supplied by IETF contributors.
+This is not intended as, and must not be construed to be,
+a catalog of available implementations or their features.
+Readers are advised to note that other implementations may exist.
+</t>
+<t>
+At this time, no known implementations of the protocol
+described in this document exist.
+</t>
+</section>
+
+<section
  title="Security Considerations"
  anchor="section:912A2C09-95EC-4CB6-AA2B-2245726D9EDF">
 <t>
@@ -2145,7 +2120,7 @@ private network or use link-layer encryption.
 
 <section
  title="Security Considerations (Host Authentication)"
- anchor="section:C85BE87E-4F2B-4CAF-8AE5-ACDAA972A9F9">
+ anchor="section:c85be87e-4f2b-4caf-8ae5-acdaa972a9f9">
 <t>
 Wherein we use the relevant sections of
 <xref target="RFC3552"/>
@@ -2163,7 +2138,7 @@ design and test a secure authentication handshake implementation.
 
 <section
  title="IANA Considerations"
- anchor="section:D235C884-6463-411F-BA34-6BCC82AB7A9F">
+ anchor="section:d235c884-6463-411f-ba34-6bcc82ab7a9f">
 <t>
 This document has no IANA actions.
 </t>
@@ -2180,6 +2155,7 @@ This document has no IANA actions.
 <?rfc include="reference.RFC.5280.xml"?>
 <?rfc include="reference.RFC.5531.xml"?>
 <?rfc include="reference.RFC.6125.xml"?>
+<?rfc include="reference.RFC.7942.xml"?>
 <?rfc include="reference.RFC.8166.xml"?>
 <?rfc include="reference.RFC.8174.xml"?>
 <?rfc include="reference.RFC.8446.xml"?>
@@ -2212,298 +2188,203 @@ This document has no IANA actions.
 </references>
 
 <section
- title="Differences from the RPC-over-RDMA Version 1 Protocol"
- anchor="section:c2574344-5aec-427d-a5ed-048d7fcc0d95">
+ title="ULB Specifications"
+ anchor="section:9e003b83-66b5-43d7-b9ef-0f271c8d301b">
 <t>
-This section describes the substantive changes made in
-RPC-over-RDMA version 2,
-as opposed to the structural changes to enable extensibility,
-which are discussed in
-<xref target="section:d945b9f0-0666-4db7-9126-be57cf7b5f4f"/>.
-</t>
-
-<section
- title="Transport Properties"
- anchor="section:630314a8-1cf5-40f7-a5ad-5bc12c719233">
-<t>
-RPC-over-RDMA version 2 provides a mechanism for
-exchanging the transport's operational properties.
-This mechanism allows connection endpoints to communicate the properties
-of their implementation at connection setup.
-The mechanism could be expanded to enable an endpoint to request changes
-in properties of the other endpoint and to notify peer endpoints of
-changes to properties that occur during operation.
-Transport properties are described in
-<xref target="section:86248e99-ca60-478a-8aff-3fb387410077"/>.
-</t>
-</section>
-
-<section
- title="Credit Management Changes"
- anchor="section:5A2E5FF8-0F0B-454D-B9B3-C6773CD77780">
-<t>
-RPC-over-RDMA transports employ credit-based flow control
-to ensure that a requester does not emit more RDMA Sends
-than the responder is prepared to receive.
-Section 3.3.1 of
-<xref target="RFC8166"/>
-explains the purpose and operation
-of RPC-over-RDMA version 1 credit management in detail.
-</t>
-<t>
-In the RPC-over-RDMA version 1 design,
-each RDMA Send from a requester contains an RPC Call with a credit request,
-and each RDMA Send from a responder contains an RPC Reply with a credit grant.
-The credit grant implies that enough Receives have been posted on
-the responder to handle the credit grant minus the number of pending
-RPC transactions (the number of remaining Receive buffers might be zero).
-</t>
-<t>
-In other words, each RPC Reply acts as an implicit ACK
-for a previous RPC Call from the requester,
-indicating that the responder has posted a Receive to replace
-the Receive consumed by the requester's RDMA Send.
-Without an RPC Reply message, the requester has no way to know
-that the responder is properly prepared for subsequent RPC Calls.
-</t>
-<t>
-Aside from being a bit of a layering violation,
-there are basic (but rare) cases where this arrangement is inadequate:
+An Upper Layer Protocol (ULP) is typically defined
+independently of any particular RPC transport.
+An Upper Layer Binding (ULB) specification provides guidance
+that helps the ULP interoperate correctly and efficiently
+over a particular transport.
+For RPC-over-RDMA version 2, a ULB may provide:
 <list style="symbols">
 <t>
-When a requester retransmits an RPC Call on the same connection
-as an earlier RPC Call for the same transaction.
+A taxonomy of XDR data items that are eligible for DDP
 </t>
 <t>
-When a requester transmits an RPC operation that requires no reply.
+Constraints on which upper-layer procedures may be reduced and on
+how many chunks may appear in a single RPC request
 </t>
 <t>
-When more than one RPC-over-RDMA message is needed to complete the
-transaction (e.g., RDMA_DONE).
+A method for determining the maximum size of the reply Payload
+stream for all procedures in the ULP
+</t>
+<t>
+An rpcbind port assignment for operation of the RPC Program and
+Version on an RPC-over-RDMA transport
 </t>
 </list>
-Typically, the connection must be replaced in these cases.
-This resets the credit accounting mechanism but has an undesirable impact
-on other ongoing RPC transactions on that connection.
+Each RPC Program and Version tuple that utilizes RPC-over-RDMA
+version 2 needs to have a ULB specification.
+</t>
+
+<section
+ title="DDP-Eligibility"
+ anchor="section:2f2b32a4-d78a-45f0-b6a3-fa0e2d34a97b">
+<t>
+An ULB designates some XDR data items as eligible for DDP.
+As an RPC-over-RDMA message is formed,
+DDP-eligible data items can be removed from the Payload stream
+and placed directly in the receiver's memory.
+An XDR data item should be considered for DDP-eligibility if there is
+a clear benefit to moving the contents of the item directly from the
+sender's memory to the receiver's memory.
 </t>
 <t>
-Because credit management accompanies each RPC message,
-there is a strict one-to-one ratio between RDMA Send and RPC message.
-There are interesting use cases that might be enabled if this relationship
-were more flexible:
+Criteria for DDP-eligibility include:
 <list style="symbols">
 <t>
-RPC-over-RDMA operations which do not carry an RPC message;
-e.g., control plane operations.
+The XDR data item is frequently sent or received, and its size is
+often much larger than typical inline thresholds.
 </t>
 <t>
-A single RDMA Send that conveys more than one RPC message
-for the purpose of interrupt mitigation.
+If the XDR data item is a result, its maximum size must be
+predictable in advance by the Requester.
 </t>
 <t>
-An RPC message that is conveyed via several sequential RDMA Sends
-to reduce the use of explicit RDMA operations for moderate-sized RPC messages.
+Transport-level processing of the XDR data item is not needed.
+For example, the data item is an opaque byte array, which requires
+no XDR encoding and decoding of its content.
 </t>
 <t>
-An RPC transaction that needs multiple exchanges
-or an odd number of RPC-over-RDMA operations
-to complete.
+The content of the XDR data item is sensitive to address alignment.
+For example, a data copy operation would be required
+on the receiver to enable the message to be parsed correctly,
+or
+to enable the data item to be accessed.
+</t>
+<t>
+The XDR data item does not contain DDP-eligible data items.
 </t>
 </list>
-Bi-directional RPC operation also introduces an ambiguity.
-If the RPC-over-RDMA message does not carry an RPC message, then
-it is not possible to determine whether the sender is a requester
-or a responder, and thus whether the rdma_credit field contains
-a credit request or a credit grant.
 </t>
 <t>
-A more sophisticated credit accounting mechanism is provided in
-RPC-over-RDMA version 2 in an attempt to address some of these shortcomings.
-This new mechanism is detailed in
-<xref target="section:88B2FC9E-5FEA-4195-BC6E-00A37BA116EF"/>.
-</t>
-</section>
-
-<section
- title="Host Authentication Changes"
- anchor="section:16F03208-32CB-451D-90AB-A6F5F4B9E9B0">
-<t>
-For general operation of NFS on open networks,
-we eventually intend to rely on RPC-on-TLS [citation needed]
-to provide cryptographic authentication of the two ends of each connection.
-In turn, this will improve the trustworthiness of AUTH_SYS-style user identities
-that flow on TCP, which are not cryptographic.
-We do not have a similar solution for RPC-over-RDMA, however.
+In addition to defining the set of data items that are DDP-eligible,
+a ULB may also limit the use of chunks to particular upper-layer
+procedures.
+If more than one data item in a procedure is DDP-eligible,
+the ULB may also limit the number of chunks that a Requester
+can provide for a particular upper-layer procedure.
 </t>
 <t>
-Here, the RDMA transport layer already provides a strong guarantee of message
-integrity.
-On some network fabrics, IPsec can be used to protect the privacy of in-transit data,
-or TLS itself could be used for transporting raw RDMA operations.
-However, this is not the case for all fabrics
-(e.g., InfiniBand <xref target="IBARCH"/>).
+Senders MUST NOT reduce data items that are not DDP-eligible.
+Such data items MAY, however, be moved as part of a Position Zero Read
+chunk or a Reply chunk.
 </t>
 <t>
-Thus, it is sensible to add a mechanism in the RPC-over-RDMA transport
-for authenticating the connection endpoints.
-Like GSS channel binding, there could also be a way to determine when this mechanism
-is superfluous and can be avoided.
-This mechanism is described in
-<xref target="section:b7b5c9a4-f507-479c-832f-8972d1c35043"/>.
-</t>
-</section>
-
-<section
- title="Inline Threshold Changes"
- anchor="section:F7FB5108-58EA-4718-84BE-5119A302F5F5">
-<t>
-The term "inline threshold" is defined in Section 3.3.2 of
-<xref target="RFC8166"/>.
-An "inline threshold" value is the largest message size (in octets)
-that can be conveyed on an RDMA connection using only RDMA Send and Receive.
-Each connection has two inline threshold values: one for messages
-flowing from
-client-to-server (referred to as the "client-to-server inline threshold")
-and one for messages flowing from server-to-client
-(referred to as the "server-to-client inline threshold").
-Note that
-<xref target="RFC8166"/>
-uses somewhat different terminology.
-This is because it was written
-with only forward-direction RPC transactions in mind.
+The programming interface by which an upper-layer implementation
+indicates the DDP-eligibility of a data item to the RPC transport is
+not described by this specification.
+The only requirements are that
+the receiver can re-assemble the transmitted RPC-over-RDMA message
+into a valid XDR stream, and that DDP-eligibility rules specified
+by the ULB are respected.
 </t>
 <t>
-A connection's inline thresholds determine when RDMA Read or
-Write operations are required because the RPC message to be
-sent cannot be conveyed via a single RDMA Send and Receive pair.
-When an RPC message does not contain DDP-eligible data items,
-a requester prepares a Long Call or Reply to convey the whole
-RPC message using RDMA Read or Write operations.
+There is no provision to express DDP-eligibility within the XDR
+language.
+The only definitive specification of DDP-eligibility is a ULB.
 </t>
 <t>
-RDMA Read and Write operations require that each data payload
-resides in a region of memory that is registered with the RNIC.
-When an RPC is complete, that region is invalidated, fencing it
-from the responder.
-Memory registration and invalidation typically have a latency cost
-that is insignificant compared to data handling costs.
-When a data payload is small, however, the cost of registering and
-invalidating the memory where the payload resides becomes
-a relatively significant part of total RPC latency.
-Therefore the most efficient operation of RPC-over-RDMA occurs
-when explicit RDMA Read and Write operations are used for large payloads,
-and are avoided for small payloads.
+In general, a DDP-eligibility violation occurs when:
+<list style="symbols">
+<t>
+A Requester reduces a non-DDP-eligible argument data item.
+The Responder MUST NOT process this RPC Call message and MUST report
+the violation as described in Section TBD.
 </t>
 <t>
-When RPC-over-RDMA version 1 was conceived, the typical size
-of RPC messages that did not involve a significant data payload
-was under 500 bytes.
-A 1024-byte inline threshold adequately minimized the frequency
-of inefficient Long Calls and Replies.
+A Responder reduces a non-DDP-eligible result data item.
+The Requester MUST terminate the pending RPC transaction
+and report an appropriate permanent error to the RPC consumer.
 </t>
 <t>
-With NFS version 4.1
-<xref target="RFC5661"/>,
-the increased size of NFS COMPOUND operations
-resulted in RPC messages that are on average larger
-and more complex than previous versions of NFS.
-With 1024-byte inline thresholds, RDMA Read or Write operations
-are needed for frequent operations that do not bear a data payload,
-such as GETATTR and LOOKUP,
-reducing the efficiency of the transport.
+A Responder does not reduce a DDP-eligible result data item into
+an available Write chunk.
+The Requester MUST terminate the pending RPC transaction
+and report an appropriate permanent error to the RPC consumer.
 </t>
-<t>
-To reduce the need to use Long Calls and Replies, RPC-over-RDMA
-version 2 increases the default size of inline thresholds.
-This also increases the maximum size of reverse-direction
-RPC messages.
+</list>
 </t>
 </section>
 
 <section
- title="Support for Remote Invalidation"
- anchor="section:57C034D6-7129-4F7B-B8DF-31E8BC691964">
+ title="Maximum Reply Size"
+ anchor="section:a3f15fe3-2677-4d94-adb5-afa80c7e197a">
 <t>
-An STag that is registered using
-the FRWR mechanism in a privileged execution context
-or is registered via a Memory Window in an unprivileged context
-may be invalidated remotely
-<xref target="RFC5040"/>.
-These mechanisms are available when a requester's
-RNIC supports MEM_MGT_EXTENSIONS.
+[cel: this section needs to be updated to allow
+the use of Message Continuation when
+the Reply size is larger than the provided Reply chunk. ]
 </t>
 <t>
-For the purposes of this discussion, there are two classes of STags.
-Dynamically-registered STags are used in a single RPC, then invalidated.
-Persistently-registered STags live longer than one RPC.
-They may persist for the life of an RPC-over-RDMA connection, or longer.
+A Requester provides resources for both an RPC Call message and its
+matching RPC Reply message.
+A Requester forms the RPC Call message itself;
+thus, the Requester can compute the exact resources needed.
 </t>
 <t>
-An RPC-over-RDMA requester may provide more than one STag
-in one transport header.
-It may provide a combination of dynamically- and
-persistently-registered STags in one RPC message, or
-any combination of these in a series of RPCs on the same connection.
-Only dynamically-registered STags using Memory Windows
-or FRWR (i.e., registered via MEM_MGT_EXTENSIONS) may be invalidated remotely.
+A Requester must allocate resources for the RPC Reply message (an
+RPC-over-RDMA credit, a Receive buffer, and possibly a Write list and
+Reply chunk) before the Responder has formed the actual reply.
+To accommodate all possible replies for the procedure in the RPC Call
+message, a Requester must allocate reply resources based on the
+maximum possible size of the expected RPC Reply message.
 </t>
 <t>
-There is no transport-level mechanism by which a responder can determine
-how a requester-provided STag was registered, nor whether it is
-eligible to be invalidated remotely.
-A requester that mixes persistently- and dynamically-registered STags in one RPC,
-or mixes them across RPCs on the same connection,
-must therefore indicate which handles may be invalidated via a mechanism
-provided in the Upper Layer Protocol.
-RPC-over-RDMA version 2 provides such a mechanism.
-</t>
-<t>
-The RDMA Send With Invalidate operation is used to invalidate an
-STag on a remote system.
-It is available only when a responder's RNIC supports MEM_MGT_EXTENSIONS,
-and must be utilized only when a requester's RNIC supports MEM_MGT_EXTENSIONS
-(can receive and recognize an IETH).
-</t>
-
-<section
- title="Reverse Direction Remote Invalidation"
- anchor="section:750A8D5E-1D5A-4FD7-AFA3-E156561D20E5">
-<t>
-Existing RPC-over-RDMA transport protocol specifications
-<xref target="RFC8166"/>
-<xref target="RFC8167"/>
-do not forbid direct data placement in the reverse direction,
-even though there is currently no Upper Layer Protocol that
-makes data items in reverse direction operations elegible
-for direct data placement.
-</t>
-<t>
-When chunks are present in a reverse direction RPC request,
-Remote Invalidation allows the responder
-to trigger invalidation of a requester's STags as part of sending a reply,
-the same way as is done in the forward direction.
-</t>
-<t>
-However, in the reverse direction,
-the server acts as the requester,
-and the client is the responder.
-The server's RNIC, therefore, must support receiving an IETH,
-and the server must have registered the STags
-with an appropriate registration mechanism.
+If there are procedures in the ULP for which there is no clear reply
+size maximum, the ULB needs to specify a dependable means for
+determining the maximum.
 </t>
 </section>
 
+<section
+ title="Additional Considerations"
+ anchor="section:e568723e-3dd8-4a54-9401-92ae4f98f88f">
+<t>
+There may be other details provided in a ULB.
+<list style="symbols">
+<t>
+An ULB may recommend inline threshold values or other transport-related
+parameters for RPC-over-RDMA version 2 connections bearing that ULP.
+</t>
+<t>
+An ULP may provide a means to communicate these transport-related
+parameters between peers.
+Note that RPC-over-RDMA version 2 does not specify any mechanism
+for changing any transport-related parameter after a connection
+has been established.
+[cel: needs update to account for Transport Properties. ]
+</t>
+<t>
+Multiple ULPs may share a single RPC-over-RDMA version 2
+connection when their ULBs allow the use of RPC-over-RDMA version 2
+and the rpcbind port assignments for the Protocols allow
+connection sharing.
+In this case, the same transport parameters (such as inline threshold)
+apply to all Protocols using that connection.
+</t>
+</list>
+Each ULB needs to be designed to allow correct interoperation without
+regard to the transport parameters actually in use.
+Furthermore, implementations of ULPs must be designed
+to interoperate correctly
+regardless of the connection parameters in effect on a connection.
+</t>
 </section>
 
 <section
- title="Error Reporting Changes"
- anchor="section:E554DF42-6E82-4E28-96A0-8F9872EB476C">
+ title="ULP Extensions"
+ anchor="section:db58c83f-091c-481e-ba7c-a0246d1c475b">
 <t>
-RPC-over-RDMA version 2 expands the repertoire of errors that
-may be reported by connection endpoints.
-This change, which is structured to enable extensibility,
-allows a peer to report overruns of specific resources
-and to avoid requester retries when an error is permanent.
+An RPC Program and Version tuple may be extensible.
+For instance, there may be a minor versioning scheme
+that is not reflected in the RPC version number,
+or
+the ULP may allow additional features to be
+specified after the original RPC Program specification was ratified.
+ULBs are provided for interoperable RPC Programs and Versions by
+extending existing ULBs to reflect the changes made necessary by each
+addition to the existing XDR.
 </t>
 </section>
 
@@ -2511,7 +2392,7 @@ and to avoid requester retries when an error is permanent.
 
 <section
  title="Extending the Version 2 Protocol"
- anchor="section:84E1FFC4-D916-4EB4-9FD8-A8218D084503">
+ anchor="section:84e1ffc4-d916-4eb4-9fd8-a8218d084503">
 <t>
 This Appendix is not addressed to protocol implementers,
 but rather to authors of documents that intend to extend
@@ -2607,13 +2488,13 @@ RPC-over-RDMA version 2 in two ways:
 New OPTIONAL transport header types may be introduced by later
 Standards Track documents.
 Such transport header types will be documented as described in
-<xref target="section:D4650151-40F0-4E85-8755-02C38CF8F444"/>.
+<xref target="section:d4650151-40f0-4e85-8755-02c38cf8f444"/>.
 </t>
 <t>
 New OPTIONAL transport properties may be defined in later
 Standards Track documents.
 Such transport properties will be documented as described in
-<xref target="section:A355ADAD-F03B-41A6-94A8-4128B10301BB"/>.
+<xref target="section:a355adad-f03b-41a6-94a8-4128b10301bb"/>.
 </t>
 </list>
 </t>
@@ -2624,11 +2505,11 @@ and header types.
 <list style="symbols">
 <t>
 New error codes may be created as described in
-<xref target="section:C2F5E937-D612-4E3A-A380-E0B15261F6A0"/>.
+<xref target="section:c2f5e937-d612-4e3a-a380-e0b15261f6a0"/>.
 </t>
 <t>
 New flags to use within the rdma_flags field may be created as described in
-<xref target="section:15C76685-A24D-4799-BC8A-311D03AC3510"/>.
+<xref target="section:15c76685-a24d-4799-bc8a-311d03ac3510"/>.
 </t>
 </list>
 </t>
@@ -2641,13 +2522,17 @@ and then bring them through the standards process.
 
 <section
  title="Adding New Header Types to RPC-over-RDMA Version 2"
- anchor="section:D4650151-40F0-4E85-8755-02C38CF8F444">
+ anchor="section:d4650151-40f0-4e85-8755-02c38cf8f444">
 <t>
 New transport header types are to defined in a manner similar to
 the way existing ones are described in Sections
-<xref target="section:9af0d451-2ef3-454f-adb9-827664ccc39c"/>
+<xref target="section:9af0d451-2ef3-454f-adb9-827664ccc39c"
+ pageno="false"
+ format="counter"/>
 through
-<xref target="section:07e8c178-62df-46a7-a57e-dcf107821d93"/>
+<xref target="section:07e8c178-62df-46a7-a57e-dcf107821d93"
+ pageno="false"
+ format="counter"/>.
 Specifically what is needed is:
 <list style="symbols">
 <t>
@@ -2695,8 +2580,47 @@ this should be noted.
 </section>
 
 <section
+ title="Adding New rdma_flags Bits"
+ anchor="section:55a1749d-702c-48e4-b78c-0db392692c09">
+<t>
+New flag bits are to defined in a manner similar to
+the way existing ones are described in Sections
+<xref target="section:4e23391c-b6a8-46b1-a399-c86f754b51bc"
+ pageno="false"
+ format="counter"/>
+and
+<xref target="section:fb299673-74f3-4f01-adb5-26a02ccd679f"
+ pageno="false"
+ format="counter"/>.
+Each new flag definition should include:
+<list style="symbols">
+<t>
+A description of the function and use of the new flag.
+</t>
+<t>
+An XDR description of the new flag.
+</t>
+</list>
+</t>
+<t>
+In addition, there needs to be additional documentation that is made
+necessary due to the Optional status of new transport header types.
+<list style="symbols">
+<t>
+Information about constraints on support for the new flags should
+be provided.
+For example, if support for one flag is implied
+or foreclosed by another one,
+this needs to be documented.
+</t>
+</list>
+</t>
+
+</section>
+
+<section
  title="Adding New Transport properties to the Protocol"
- anchor="section:A355ADAD-F03B-41A6-94A8-4128B10301BB">
+ anchor="section:a355adad-f03b-41a6-94a8-4128b10301bb">
 <t>
 The set of transport properties is designed to be extensible.
 As a result, once new properties are defined in standards track documents,
@@ -2773,7 +2697,7 @@ security issues raised by those new transport properties.
 
 <section
  title="Adding New Error Codes to the Protocol"
- anchor="section:C2F5E937-D612-4E3A-A380-E0B15261F6A0">
+ anchor="section:c2f5e937-d612-4e3a-a380-e0b15261f6a0">
 <t>
 New error codes to be returned when using new header types
 may be introduced in the same Standards Track document
@@ -2804,7 +2728,7 @@ header types necessary to report associated errors.
 
 <section
  title="Adding New Header Flags to the Protocol"
- anchor="section:15C76685-A24D-4799-BC8A-311D03AC3510">
+ anchor="section:15c76685-a24d-4799-bc8a-311d03ac3510">
 <t>
 There are currently thirty-one flags available for later assignment.
 One possible use for such flags would be in a later protocol version,
@@ -2834,6 +2758,424 @@ Another possibility is to REQUIRE that receivers
 supporting a particular header type also support a set of additional flags.
 </t>
 </list>
+</t>
+</section>
+
+</section>
+
+<section
+ title="Differences from the RPC-over-RDMA Version 1 Protocol"
+ anchor="section:c2574344-5aec-427d-a5ed-048d7fcc0d95">
+<t>
+This section describes the substantive changes made in
+RPC-over-RDMA version 2.
+</t>
+
+<section
+ title="Relationship to the RPC-over-RDMA Version 1 XDR Definition"
+ anchor="section:d945b9f0-0666-4db7-9126-be57cf7b5f4f">
+<t>
+There are a number of structural XDR changes whose goal
+is to enable within-version protocol extensibility.
+</t>
+<t>
+The RPC-over-RDMA version 1 transport header is defined as a single XDR object,
+with an RPC message proper potentially following it.
+In RPC-over-RDMA version 2, as described in
+<xref target="section:417e749e-efec-455f-aae7-12535b9ee8dc"/>
+there are separate XDR definitions of the transport header prefix
+(see
+<xref target="section:2d1735f0-c465-43c6-9c18-3da6b7979862"/>
+which specifies the transport header type to be used,
+and the specific transport header, defined within one of the subsections of
+<xref target="section:eef6a22e-2633-44a2-a8f0-821fec8bf824"/>).
+This is similar to the way that an RPC message consists of
+an RPC header (defined in
+<xref target="RFC5531"/>)
+and an RPC request or reply,
+defined by the Upper Layer protocol being conveyed.
+</t>
+<t>
+As a new version of the RPC-over-RDMA transport protocol,
+RPC-over-RDMA version 2 exists within the versioning rules defined in
+<xref target="RFC8166"/>.
+In particular, it maintains the first four words of the protocol header
+as sent and received,
+as specified in Section 4.2 of
+<xref target="RFC8166"/>,
+even though, as explained in
+<xref target="section:e21d4f74-b536-47f2-9d07-c03a27a20de4"/>
+of this document,
+the XDR definition of those words is structured differently.
+</t>
+<t>
+Although each of the first four words retains its semantic function,
+there are important differences of field interpretation, besides the fact
+that the words have different names and different roles with the XDR
+constrict of they are parts.
+<list style="symbols">
+<t>
+The first word of the header, previously the rdma_xid field,
+retains the format and function that in had in
+RPC-over-RDMA version 1.
+Within RPC-over-RDMA version 2,
+this word is the rdma_xid field of the structure rdma_start.
+However, to accommodate the use of request-response
+pairing of non-RPC messages and the potential use of message continuation,
+it cannot be assumed that it will always have the same value
+it would have had in RPC-over-RDMA version 1.
+As a result, the contents of this field should not be used
+without consideration of the associated protocol version identification.
+</t>
+<t>
+The second word of the header, previously the rdma_vers field,
+retains the format and function that it had in RPC-over-RDMA version 1.
+Within RPC-over-RDMA version 2,
+this word is the rdma_vers field of the structure rdma_start.
+To clearly distinguish version 1 and version 2 messages,
+senders MUST fill in the correct version (fixed after version negotiation)
+and receivers MUST check that the content of the rdma_vers is correct
+before using referencing any other header field.
+</t>
+<t>
+The third word of the header, previously the rdma_credit field,
+retains the size and general purpose that it had in RPC-over-RDMA version 1.
+Within RPC-over-RDMA version 2,
+this word is the rdma_credit field of the structure rdma_start.
+</t>
+<t>
+The fourth word of the header,
+previously the union discriminator field rdma_proc,
+retains its format and general function even though
+the set of valid values has changed.
+The value of this field is now considered an unsigned 32-bit integer
+rather than an enum.
+Within RPC-over-RDMA version 2,
+this word is the rdma_htype field of the structure rdma_start.
+</t>
+</list>
+</t>
+<t>
+Beyond conforming to the restrictions specified in
+<xref target="RFC8166"/>,
+RPC-over-RDMA version 2 tightly limits the scope
+of the changes made in order to ensure interoperability.
+It makes no major structural changes to the protocol,
+and all existing transport header types used in version 1
+(as defined in
+<xref target="RFC8166"/>)
+are retained in version 2.
+Chunks are expressed using the same on-the-wire format and
+are used in the same way in both versions.
+</t>
+</section>
+
+<section
+ title="Transport Properties"
+ anchor="section:630314a8-1cf5-40f7-a5ad-5bc12c719233">
+<t>
+RPC-over-RDMA version 2 provides a mechanism for
+exchanging the transport's operational properties.
+This mechanism allows connection endpoints to communicate the properties
+of their implementation at connection setup.
+The mechanism could be expanded to enable an endpoint to request changes
+in properties of the other endpoint and to notify peer endpoints of
+changes to properties that occur during operation.
+Transport properties are described in
+<xref target="section:86248e99-ca60-478a-8aff-3fb387410077"/>.
+</t>
+</section>
+
+<section
+ title="Credit Management Changes"
+ anchor="section:5a2e5ff8-0f0b-454d-b9b3-c6773cd77780">
+<t>
+RPC-over-RDMA transports employ credit-based flow control
+to ensure that a requester does not emit more RDMA Sends
+than the responder is prepared to receive.
+Section 3.3.1 of
+<xref target="RFC8166"/>
+explains the purpose and operation
+of RPC-over-RDMA version 1 credit management in detail.
+</t>
+<t>
+In the RPC-over-RDMA version 1 design,
+each RDMA Send from a requester contains an RPC Call with a credit request,
+and each RDMA Send from a responder contains an RPC Reply with a credit grant.
+The credit grant implies that enough Receives have been posted on
+the responder to handle the credit grant minus the number of pending
+RPC transactions (the number of remaining Receive buffers might be zero).
+</t>
+<t>
+In other words, each RPC Reply acts as an implicit ACK
+for a previous RPC Call from the requester,
+indicating that the responder has posted a Receive to replace
+the Receive consumed by the requester's RDMA Send.
+Without an RPC Reply message, the requester has no way to know
+that the responder is properly prepared for subsequent RPC Calls.
+</t>
+<t>
+Aside from being a bit of a layering violation,
+there are basic (but rare) cases where this arrangement is inadequate:
+<list style="symbols">
+<t>
+When a requester retransmits an RPC Call on the same connection
+as an earlier RPC Call for the same transaction.
+</t>
+<t>
+When a requester transmits an RPC operation that requires no reply.
+</t>
+<t>
+When more than one RPC-over-RDMA message is needed to complete the
+transaction (e.g., RDMA_DONE).
+</t>
+</list>
+Typically, the connection must be replaced in these cases.
+This resets the credit accounting mechanism but has an undesirable impact
+on other ongoing RPC transactions on that connection.
+</t>
+<t>
+Because credit management accompanies each RPC message,
+there is a strict one-to-one ratio between RDMA Send and RPC message.
+There are interesting use cases that might be enabled if this relationship
+were more flexible:
+<list style="symbols">
+<t>
+RPC-over-RDMA operations which do not carry an RPC message;
+e.g., control plane operations.
+</t>
+<t>
+A single RDMA Send that conveys more than one RPC message
+for the purpose of interrupt mitigation.
+</t>
+<t>
+An RPC message that is conveyed via several sequential RDMA Sends
+to reduce the use of explicit RDMA operations for moderate-sized RPC messages.
+</t>
+<t>
+An RPC transaction that needs multiple exchanges
+or an odd number of RPC-over-RDMA operations
+to complete.
+</t>
+</list>
+Bi-directional RPC operation also introduces an ambiguity.
+If the RPC-over-RDMA message does not carry an RPC message, then
+it is not possible to determine whether the sender is a requester
+or a responder, and thus whether the rdma_credit field contains
+a credit request or a credit grant.
+</t>
+<t>
+A more sophisticated credit accounting mechanism is provided in
+RPC-over-RDMA version 2 in an attempt to address some of these shortcomings.
+This new mechanism is detailed in
+<xref target="section:88b2fc9e-5fea-4195-bc6e-00a37ba116ef"/>.
+</t>
+</section>
+
+<section
+ title="Inline Threshold Changes"
+ anchor="section:f7fb5108-58ea-4718-84be-5119a302f5f5">
+<t>
+The term "inline threshold" is defined in Section 3.3.2 of
+<xref target="RFC8166"/>.
+An "inline threshold" value is the largest message size (in octets)
+that can be conveyed on an RDMA connection using only RDMA Send and Receive.
+Each connection has two inline threshold values: one for messages
+flowing from
+client-to-server (referred to as the "client-to-server inline threshold")
+and one for messages flowing from server-to-client
+(referred to as the "server-to-client inline threshold").
+Note that
+<xref target="RFC8166"/>
+uses somewhat different terminology.
+This is because it was written
+with only forward-direction RPC transactions in mind.
+</t>
+<t>
+A connection's inline thresholds determine when RDMA Read or
+Write operations are required because the RPC message to be
+sent cannot be conveyed via a single RDMA Send and Receive pair.
+When an RPC message does not contain DDP-eligible data items,
+a requester can prepare a Long Call or Reply to convey the whole
+RPC message using RDMA Read or Write operations.
+</t>
+<t>
+RDMA Read and Write operations require that each data payload
+resides in a region of memory that is registered with the RNIC.
+When an RPC is complete, that region is invalidated, fencing it
+from the responder.
+Memory registration and invalidation typically have a latency cost
+that is insignificant compared to data handling costs.
+When a data payload is small, however, the cost of registering and
+invalidating the memory where the payload resides becomes
+a relatively significant part of total RPC latency.
+Therefore the most efficient operation of RPC-over-RDMA occurs
+when explicit RDMA Read and Write operations are used for large payloads,
+and are avoided for small payloads.
+</t>
+<t>
+When RPC-over-RDMA version 1 was conceived, the typical size
+of RPC messages that did not involve a significant data payload
+was under 500 bytes.
+A 1024-byte inline threshold adequately minimized the frequency
+of inefficient Long messages.
+</t>
+<t>
+With NFS version 4.1
+<xref target="RFC5661"/>,
+the increased size of NFS COMPOUND operations
+resulted in RPC messages that are on average larger
+and more complex than previous versions of NFS.
+With 1024-byte inline thresholds, RDMA Read or Write operations
+are needed for frequent operations that do not bear a data payload,
+such as GETATTR and LOOKUP,
+reducing the efficiency of the transport.
+</t>
+<t>
+To reduce the need to use Long messages, RPC-over-RDMA
+version 2 increases the default size of inline thresholds.
+This also increases the maximum size of reverse-direction
+RPC messages.
+</t>
+<t>
+In addition to a larger default inline threshold,
+RPC-over-RDMA version 2 introduces Message Continuation.
+Message Continuation is a mechanism that enables
+the transmission of a data payload using more than one RDMA Send.
+The purpose of Message Continuation
+is to provide relief in several important cases:
+<list style="symbols">
+<t>
+If a requester finds that it is inefficient to
+convey a moderately-sized data payload using Read chunks,
+the requester can use Message Continuation to send the RPC Call.
+</t>
+<t>
+If a requester has provided insufficient Reply chunk space
+for a responder to send an RPC Reply,
+the responder can use Message Continuation to send the RPC Reply.
+</t>
+<t>
+If a sender has to convey a large non-RPC data payload
+(e.g, a large transport property),
+the sender can use Message Continuation to avoid using registered memory.
+</t>
+</list>
+</t>
+</section>
+
+<section
+ title="Host Authentication Changes"
+ anchor="section:16f03208-32cb-451d-90ab-a6f5f4b9e9b0">
+<t>
+For general operation of NFS on open networks,
+we eventually intend to rely on RPC-on-TLS [citation needed]
+to provide cryptographic authentication of the two ends of each connection.
+In turn, this will improve the trustworthiness of AUTH_SYS-style user identities
+that flow on TCP, which are not cryptographic.
+We do not have a similar solution for RPC-over-RDMA, however.
+</t>
+<t>
+Here, the RDMA transport layer already provides a strong guarantee of message
+integrity.
+On some network fabrics, IPsec can be used to protect the privacy of in-transit data,
+or TLS itself could be used for transporting raw RDMA operations.
+However, this is not the case for all fabrics
+(e.g., InfiniBand <xref target="IBARCH"/>).
+</t>
+<t>
+Thus, it is sensible to add a mechanism in the RPC-over-RDMA transport itself
+for authenticating the connection peers.
+This mechanism is described in Section TBD.
+And like GSS channel binding, there should also be a way to determine
+when the use of host authentication is superfluous and can be avoided.
+</t>
+</section>
+
+<section
+ title="Support for Remote Invalidation"
+ anchor="section:57c034d6-7129-4f7b-b8df-31e8bc691964">
+<t>
+An STag that is registered using
+the FRWR mechanism in a privileged execution context
+or is registered via a Memory Window in an unprivileged context
+may be invalidated remotely
+<xref target="RFC5040"/>.
+These mechanisms are available when a requester's
+RNIC supports MEM_MGT_EXTENSIONS.
+</t>
+<t>
+For the purposes of this discussion, there are two classes of STags.
+Dynamically-registered STags are used in a single RPC, then invalidated.
+Persistently-registered STags live longer than one RPC.
+They may persist for the life of an RPC-over-RDMA connection, or longer.
+</t>
+<t>
+An RPC-over-RDMA requester may provide more than one STag
+in one transport header.
+It may provide a combination of dynamically- and
+persistently-registered STags in one RPC message, or
+any combination of these in a series of RPCs on the same connection.
+Only dynamically-registered STags using Memory Windows
+or FRWR (i.e., registered via MEM_MGT_EXTENSIONS) may be invalidated remotely.
+</t>
+<t>
+There is no transport-level mechanism by which a responder can determine
+how a requester-provided STag was registered, nor whether it is
+eligible to be invalidated remotely.
+A requester that mixes persistently- and dynamically-registered STags in one RPC,
+or mixes them across RPCs on the same connection,
+must therefore indicate which handles may be invalidated via a mechanism
+provided in the Upper Layer Protocol.
+RPC-over-RDMA version 2 provides such a mechanism.
+</t>
+<t>
+The RDMA Send With Invalidate operation is used to invalidate an
+STag on a remote system.
+It is available only when a responder's RNIC supports MEM_MGT_EXTENSIONS,
+and must be utilized only when a requester's RNIC supports MEM_MGT_EXTENSIONS
+(can receive and recognize an IETH).
+</t>
+
+<section
+ title="Reverse Direction Remote Invalidation"
+ anchor="section:750a8d5e-1d5a-4fd7-afa3-e156561d20e5">
+<t>
+Existing RPC-over-RDMA transport protocol specifications
+<xref target="RFC8166"/>
+<xref target="RFC8167"/>
+do not forbid direct data placement in the reverse direction,
+even though there is currently no Upper Layer Protocol that
+makes data items in reverse direction operations elegible
+for direct data placement.
+</t>
+<t>
+When chunks are present in a reverse direction RPC request,
+Remote Invalidation allows the responder
+to trigger invalidation of a requester's STags as part of sending a reply,
+the same way as is done in the forward direction.
+</t>
+<t>
+However, in the reverse direction,
+the server acts as the requester,
+and the client is the responder.
+The server's RNIC, therefore, must support receiving an IETH,
+and the server must have registered the STags
+with an appropriate registration mechanism.
+</t>
+</section>
+
+</section>
+
+<section
+ title="Error Reporting Changes"
+ anchor="section:e554df42-6e82-4e28-96a0-8f9872eb476c">
+<t>
+RPC-over-RDMA version 2 expands the repertoire of errors that
+may be reported by connection endpoints.
+This change, which is structured to enable extensibility,
+allows a peer to report overruns of specific resources
+and to avoid requester retries when an error is permanent.
 </t>
 </section>
 
