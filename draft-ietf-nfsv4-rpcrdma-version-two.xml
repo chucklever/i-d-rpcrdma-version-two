@@ -57,10 +57,10 @@ RPC-over-RDMA Version 2 Protocol
 
 <abstract>
 <t>
-This document specifies the second version of the transport protocol
+This document specifies the second version of a protocol
 that conveys Remote Procedure Call (RPC) messages
-on physical transports capable of Remote Direct Memory Access (RDMA).
-This version of this protocol is extensible.
+on transports capable of Remote Direct Memory Access (RDMA).
+This version of the protocol is extensible.
 </t>
 </abstract>
 
@@ -132,6 +132,22 @@ These changes are outlined in
 <xref target="section:c2574344-5aec-427d-a5ed-048d7fcc0d95"/>.
 </t>
 
+</section>
+
+<section
+ title="Requirements Language"
+ anchor="section:ef1a2819-4d22-40af-8d38-fde10849c872">
+<t>
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY",
+and "OPTIONAL" in this document are to be interpreted
+as described in BCP 14
+<xref target="RFC2119"/>
+<xref target="RFC8174"/>
+when, and only when, they appear in all capitals, as shown here.
+</t>
+</section>
+
 <section
  title="Terminology"
  anchor="section:4DC39C9C-3770-491F-B674-F824E87E2143">
@@ -163,22 +179,6 @@ the role of DDP-eligibility in constraining how data payloads are to be conveyed
 
 </section>
 
-</section>
-
-<section
- title="Requirements Language"
- anchor="section:ef1a2819-4d22-40af-8d38-fde10849c872">
-<t>
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-"SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY",
-and "OPTIONAL" in this document are to be interpreted
-as described in BCP 14
-<xref target="RFC2119"/>
-<xref target="RFC8174"/>
-when, and only when, they appear in all capitals, as shown here.
-</t>
-</section>
-
 <section
  title="RPC-over-RDMA Version 2 Flow Control"
  anchor="section:88b2fc9e-5fea-4195-bc6e-00a37ba116ef">
@@ -187,14 +187,24 @@ Because RPC-over-RDMA requires reliable and in-order delivery
 of data payloads,
 RPC-over-RDMA transports MUST use
 the RDMA RC (Reliable Connected) Queue Pair (QP) type,
-which handles recovery from packet loss or misordering.
-RPC-over-RDMA transports, however, do need to provide
-a flow control mechanism to prevent a sender
+which ensures in-transit data integrity
+and
+handles recovery from packet loss or misordering.
+</t>
+<t>
+RPC-over-RDMA transports provide their own
+flow control mechanism to prevent a sender
 from overwhelming receiver resources.
 RPC-over-RDMA transports employ
 an end-to-end credit-based flow control mechanism
-for this purpose.
-[cel: citation needed for what a credit-based flow control mechanism is].
+for this purpose
+<xref target="CBFC"/>.
+Credit-based flow control was chosen because it is
+relatively simple,
+provides robust operation in the face of bursty traffic,
+automated management of receive buffer allocation,
+and
+excellent buffer utilization.
 </t>
 
 <section
@@ -1490,6 +1500,55 @@ without any error response being generated.
 
 </section>
 
+<section
+ title="Choosing a Reply Mechanism"
+ anchor="section:19fc8c94-d83f-4c1b-8ce3-700918d129b5">
+<t>
+A requester provides registered memory resources for both
+an RPC Call message
+and
+its matching RPC Reply message.
+A requester forms each RPC Call itself,
+thus it can compute the exact resources needed to send every Call.
+However, the requester must allocate resources
+to receive the corresponding Reply before the responder has formed it.
+In some cases it is difficult for the requester to know in advance
+precisely what resources will be needed to receive the Reply.
+</t>
+<t>
+In RPC-over-RDMA version 2,
+a requester MAY provide a Reply chunk at any time.
+The responder MAY use the provided Reply chunk
+or decide to use another means to convey the RPC Reply.
+If the combination of the provided Write chunk list and Reply chunk
+is not adequate to convey a Reply, the responder SHOULD use
+Message Continuation (see
+<xref target="section:fb299673-74f3-4f01-adb5-26a02ccd679f"/>
+to send that Reply.
+</t>
+<t>
+If even that is not possible, the responder sends
+an RDMA2_ERROR message to the requester, as described in
+<xref target="section:b1d23e5c-31df-483f-adb7-25430b5de38d"/>:
+<list style="symbols">
+<t>
+The responder MUST send a RDMA2_ERR_WRITE_RESOURCE error
+if the Write chunk list cannot accommodate the ULP's DDP-eligible data payload.
+</t>
+<t>
+The responder MUST send a RDMA2_ERR_REPLY_RESOURCE error
+if the Reply chunk cannot accommodate the non DDP-eligible parts of the Reply.
+</t>
+</list>
+When receiving such errors, the requester SHOULD retry
+the ULP call using larger reply resources.
+In cases where retrying the ULP request is not possible,
+the requester terminates the RPC request and presents
+an error to the RPC consumer.
+</t>
+</section>
+
+
 </section>
 
 <section
@@ -2080,6 +2139,10 @@ The client MUST NOT change the version during the duration of the connection.
 
 </section>
 
+<!-- RFC Editor:
+Please remove the following section and the reference to RFC 7942
+before this document is published.
+-->
 <section
  title="Implementation Status"
  anchor="section:fd2f45e7-85fa-4863-a4cd-ea200878062f">
@@ -2187,9 +2250,56 @@ This document has no IANA actions.
 <author>
 <organization>InfiniBand Trade Association</organization>
 </author>
-<date month='March' year='2015'/>
+<date month="March" year="2015"/>
 </front>
-<seriesInfo name='Release' value='1.3'/>
+<seriesInfo name="Release" value="1.3"/>
+</reference>
+
+<reference
+ anchor="CBFC">
+<front>
+<title>
+Credit-Based Flow Control for ATM Networks: Credit Update Protocol, Adaptive Credit Allocation, and Statistical Multiplexing
+</title>
+<author initials="H.T." surname="Kung">
+<organization>Division of Applied Sciences, Harvard University</organization>
+<address>
+<postal>
+<street>29 Oxford Street</street>
+<city>Cambridge</city>
+<region>MA</region>
+<code>02138</code>
+<country>United States of America</country>
+</postal>
+</address>
+</author>
+<author initials="T." surname="Blackwell">
+<organization>Division of Applied Sciences, Harvard University</organization>
+<address>
+<postal>
+<street>29 Oxford Street</street>
+<city>Cambridge</city>
+<region>MA</region>
+<code>02138</code>
+<country>United States of America</country>
+</postal>
+</address>
+</author>
+<author initials="A." surname="Chapman">
+<organization>Bell-Northern Research</organization>
+<address>
+<postal>
+<street>P.O.Box 3511, Station C</street>
+<city>Ottawa</city>
+<region>Ontario</region>
+<code>KIY 4H7</code>
+<country>Canada</country>
+</postal>
+</address>
+</author>
+<date month="August" year="1994"/>
+</front>
+<seriesInfo name="Proc." value="ACM SIGCOMM '94 Symposium on Communications Architectures, Protocols and Applications, pp. 101-114."/>
 </reference>
 
 <?rfc include="reference.RFC.3552.xml"?>
@@ -2306,7 +2416,8 @@ In general, a DDP-eligibility violation occurs when:
 <t>
 A requester reduces a non-DDP-eligible argument data item.
 The Responder MUST NOT process this RPC Call message and MUST report
-the violation as described in Section TBD.
+the violation as described in
+<xref target="section:b1d23e5c-31df-483f-adb7-25430b5de38d"/>.
 </t>
 <t>
 A Responder reduces a non-DDP-eligible result data item.
@@ -2327,43 +2438,13 @@ and report an appropriate permanent error to the RPC consumer.
  title="Maximum Reply Size"
  anchor="section:a3f15fe3-2677-4d94-adb5-afa80c7e197a">
 <t>
-A requester provides resources for both
-an RPC Call message
-and
-its matching RPC Reply message.
-A requester forms each RPC Call itself,
-thus it can compute the exact resources needed to send every Call.
-However, the requester must allocate resources
-to receive the corresponding Reply before the responder has formed it.
-In some cases it is difficult for the requester to know in advance
-precisely what resources will be needed to receive the Reply.
-</t>
-<t>
-In RPC-over-RDMA version 2,
-a requester MAY provide a Reply chunk at any time,
-and a responder MAY use a provided Reply chunk or not.
-If the combination of the provided Write chunk list and Reply chunk
-is not adequate to convey a Reply, the responder MUST use
-Message Continuation to send that Reply.
-</t>
-<t>
-If even that is not possible, the responder
-responds with an RDMA2_ERROR message:
-<list style="symbols">
-<t>
-The responder MUST send a RDMA2_ERR_WRITE_RESOURCE error
-if the Write chunk list cannot accommodate the ULP's DDP-eligible data payload.
-</t>
-<t>
-The responder MUST send a RDMA2_ERR_REPLY_RESOURCE error
-if the Reply chunk cannot accommodate the non DDP-eligible parts of the Reply.
-</t>
-</list>
-</t>
-<t>
-If there are procedures in the ULP for which there is no clear reply
-size maximum, the ULB should specify a dependable means for
-determining the maximum Reply size for that ULP procedure.
+When expecting small and moderately-sized Replies,
+a requester should typically rely on Message Continuation
+rather than
+provisioning a Reply chunk.
+For each ULP procedure where there is no clear Reply size maximum
+and the maximum can be large,
+the ULB should specify a dependable means for determining the maximum Reply size.
 </t>
 </section>
 
@@ -3119,7 +3200,8 @@ However, this is not the case for all fabrics
 <t>
 Thus, it is sensible to add a mechanism in the RPC-over-RDMA transport itself
 for authenticating the connection peers.
-This mechanism is described in Section TBD.
+This mechanism is described in
+<xref target="section:5f63e1b6-8d24-453b-b18b-b98ad66f3671"/>.
 And like GSS channel binding, there should also be a way to determine
 when the use of host authentication is superfluous and can be avoided.
 </t>
