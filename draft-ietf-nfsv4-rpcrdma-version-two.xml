@@ -75,7 +75,7 @@ This version of this protocol is extensible.
 Remote Direct Memory Access (RDMA)
 <xref target="RFC5040"/>
 <xref target="RFC5041"/>
-<xref target="IBARCH"/>
+<xref target="IB"/>
 is a technique for moving data efficiently between end nodes.
 By directing data into destination buffers as it is sent
 on a network and placing it using direct memory access
@@ -2180,8 +2180,8 @@ This document has no IANA actions.
  title="Informative References">
 
 <reference
- anchor="IBARCH"
- target="http://www.infinibandta.org/content/pages.php?pg=technology_download">
+ anchor="IB"
+ target="https://www.infinibandta.org/ibta-specification/">
 <front>
 <title>InfiniBand Architecture Specification Volume 1</title>
 <author>
@@ -3114,7 +3114,7 @@ integrity.
 On some network fabrics, IPsec can be used to protect the privacy of in-transit data,
 or TLS itself could be used for transporting raw RDMA operations.
 However, this is not the case for all fabrics
-(e.g., InfiniBand <xref target="IBARCH"/>).
+(e.g., InfiniBand <xref target="IB"/>).
 </t>
 <t>
 Thus, it is sensible to add a mechanism in the RPC-over-RDMA transport itself
