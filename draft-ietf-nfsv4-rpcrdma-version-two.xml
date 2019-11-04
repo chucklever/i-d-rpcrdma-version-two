@@ -57,10 +57,10 @@ RPC-over-RDMA Version 2 Protocol
 
 <abstract>
 <t>
-This document specifies a new version of the transport protocol
+This document specifies the second version of the transport protocol
 that conveys Remote Procedure Call (RPC) messages
 on physical transports capable of Remote Direct Memory Access (RDMA).
-The new version of this protocol is extensible.
+This version of this protocol is extensible.
 </t>
 </abstract>
 
@@ -107,13 +107,13 @@ that require changes to on-the-wire behavior.
 </list>
 </t>
 <t>
-To address these issues in a way that is
-compatible with existing RPC-over-RDMA version 1
-deployments, a new version of the RPC-over-RDMA transport protocol
+To address these issues in a way that interoperates
+with existing RPC-over-RDMA version 1 deployments,
+a second version of the RPC-over-RDMA transport protocol
 is presented in this document.
 </t>
 <t>
-This new version of RPC-over-RDMA is extensible,
+Version 2 of RPC-over-RDMA is extensible,
 enabling OPTIONAL extensions to be added
 without impacting existing implementations.
 To enable protocol extension,
@@ -131,34 +131,38 @@ abnormal corner cases.
 These changes are outlined in
 <xref target="section:c2574344-5aec-427d-a5ed-048d7fcc0d95"/>.
 </t>
+
+<section
+ title="Terminology"
+ anchor="section:4DC39C9C-3770-491F-B674-F824E87E2143">
 <t>
 Because of the way in which RPC-over-RDMA version 2
 builds upon the facilities present in RPC-over-RDMA version 1,
 a knowledge of the basic structure of RPC-over-RDMA version 1,
 as described in
 <xref target="RFC8166"/>,
-is assumed in this document.
+is assumed in this document,
+especially Section 2.
 </t>
 <t>
-As in
-<xref target="RFC8166"/>,
-the terms
-"RPC Payload Stream"
-and
-"Transport Header Stream"
-(defined in Section 3.2 of that document)
-are used to distinguish between an RPC message as defined by
-<xref
- target="RFC5531"/>
-and the header whose job it is to describe the RPC message
+The terms "RPC Payload Stream" and "Transport Header Stream" were originally
+defined in Section 3.2 of
+<xref target="RFC8166"/>.
+The RPC Payload Stream is an XDR stream containing an RPC message as defined by [RFC5531].
+The Transport Header Stream is an XDR stream containing data items that
+describe the RPC message payload
 and its associated memory resources.
 In that regard, the reader is assumed to understand
 how RDMA is used to transfer chunks between client and server
 and
 the role of DDP-eligibility in constraining how data payloads are to be conveyed.
-Please see the discussion of terminology in Sections 2 and 3 of
-<xref target="RFC8166"/>.
 </t>
+<t>
+[cel: this subsection to be replaced with a full re-definition of the terminology ]
+</t>
+
+</section>
+
 </section>
 
 <section
@@ -179,17 +183,18 @@ when, and only when, they appear in all capitals, as shown here.
  title="RPC-over-RDMA Version 2 Flow Control"
  anchor="section:88b2fc9e-5fea-4195-bc6e-00a37ba116ef">
 <t>
-RPC-over-RDMA transports are built on top of the RDMA RC QP type
-<xref target="RFC8166"/>.
-Because this QP type is a reliable and ordered transport abstraction,
-RPC-over-RDMA transport protocols do not need
-to handle recovery from packet loss or misordering, but
-they do need a flow control mechanism to prevent fast senders
+Because RPC-over-RDMA requires reliable and in-order delivery
+of data payloads,
+RPC-over-RDMA transports MUST use
+the RDMA RC (Reliable Connected) Queue Pair (QP) type,
+which handles recovery from packet loss or misordering.
+RPC-over-RDMA transports, however, do need to provide
+a flow control mechanism to prevent a sender
 from overwhelming receiver resources.
 RPC-over-RDMA transports employ
 an end-to-end credit-based flow control mechanism
 for this purpose.
-[cel: citation needed].
+[cel: citation needed for what a credit-based flow control mechanism is].
 </t>
 
 <section
@@ -205,8 +210,14 @@ Each requester has a set of Receive credits, and
 each responder has a set of Receive credits.
 These values are managed independently of each other.
 </t>
+
+
 <t>
-In order to remain compatible with RPC-over-RDMA version 1,
+Section 7 of
+<xref target="RFC8166"/>
+requires that the 32-bit field containing the credit grant is the
+third word in the transport header.
+To conform with that requirement,
 the two independent credit values are encoded into a single
 32-bit field in the fixed portion of the transport header.
 After the field is XDR decoded, the receiver takes the low-order
@@ -216,7 +227,7 @@ the high-order two bytes as the maximum number of credits that
 can be outstanding at the sender.
 </t>
 <t>
-Put another way: we have requester credits,
+In this approach, then, there are requester credits,
 sent in messages from the requester to the responder;
 and responder credits,
 sent in messages from the responder to the requester.
@@ -224,11 +235,11 @@ sent in messages from the responder to the requester.
 </section>
 
 <section
- title="Out-of-Band Credit Grant"
+ title="Asynchronous Credit Grants"
  anchor="section:f6348562-97f8-4413-96d7-bde3ff57b375">
 <t>
-In addition to this, a new protocol convention is provided
-to enable one peer to refresh its credit grant to the other peer
+A protocol convention is provided to enable one peer
+to refresh its credit grant to the other peer
 without sending a data payload.
 Messages of this type can also act as a keep-alive ping.
 See
@@ -238,9 +249,9 @@ for information about this convention.
 <t>
 To prevent transport deadlock,
 receivers MUST always be in a position to receive one such
-credit grant update message.
-To do this, receivers might post one extra Receive more than they
-have granted credits.
+credit grant update message, in addition to payload-bearing messages.
+One way a receiver can do this is to post one extra Receive more than
+the credit value it granted.
 </t>
 </section>
 
@@ -476,7 +487,7 @@ property.
 </c>
 <c>Host Auth Message</c>
 <c>6</c>
-<c>opaque</c>
+<c>opaque&lt;&gt;</c>
 <c>N/A</c>
 <c>
 <xref target="section:5f63e1b6-8d24-453b-b18b-b98ad66f3671"
@@ -652,9 +663,9 @@ that general support for reverse direction replies is present on the server.
  title="Host Authentication Message"
  anchor="section:5f63e1b6-8d24-453b-b18b-b98ad66f3671">
 <t>
-The value of this property is used to carry an exchange of
-host authentication material.
-The exchange can accommodate authentication handshakes that
+The value of this transport property is used
+as part of an exchange of host authentication material.
+This property can accommodate authentication handshakes that
 require multiple challenge-response interactions, and
 potentially large amounts of material.
 <figure align="left">
@@ -662,7 +673,7 @@ potentially large amounts of material.
 &lt;CODE BEGINS&gt;
 
 const uint32 RDMA2_PROPID_HOSTAUTH = 6;
-typedef opaque rpcrdma2_prop_hostauth;
+typedef opaque rpcrdma2_prop_hostauth&lt;&gt;;
 
 &lt;CODE ENDS&gt;
 </artwork>
@@ -670,8 +681,8 @@ typedef opaque rpcrdma2_prop_hostauth;
 </t>
 <t>
 When this property is not provided, the peer(s) remain unauthenticated.
-Local security policy on the peers determines whether
-the connection is permitted to continue.
+Local security policy on each peer determines
+whether the connection is permitted to continue.
 </t>
 </section>
 
@@ -701,7 +712,8 @@ See
 for the mapping between header types and the corresponding header structure.
 </t>
 <t>
-Potentially, an RPC message being conveyed as an addendum to the header.
+Potentially, all or part of an RPC message payload
+being conveyed as an addendum to the transport header.
 </t>
 </list>
 </t>
@@ -946,7 +958,7 @@ as the value of the associated RPC message's msg_type field.
 </t>
 <t>
 When no RPC message payload is present,
-a Requester MUST set the value of RPCRDMA2_F_RESPONSE
+a requester MUST set the value of RPCRDMA2_F_RESPONSE
 to reflect how the receiver is to interpret the
 rdma_start.rdma_xid field.
 </t>
@@ -1191,11 +1203,14 @@ struct rpcrdma2_msg {
  title="RDMA2_NOMSG: Convey External RPC Message"
  anchor="section:1c401555-4b7d-4e35-a9a3-8aa14228170e">
 <t>
-RDMA2_NOMSG is used to convey an entire RPC message using explicit RDMA operations.
-This message type is also known as a Long message,
-which is read from a memory area specified by a Position Zero Read chunk;
-or a Long reply,
-which is written into a memory area specified by a Reply chunk.
+RDMA2_NOMSG can convey an entire RPC message payload using explicit RDMA operations.
+When an RPC message payload is present, this message type is also known as a Long message.
+In particular, it is a Long call
+when the responder reads the RPC payload from a memory area specified by a Position Zero Read chunk;
+and it is a Long reply
+when the respond writes the RPC payload into a memory area specified by a Reply chunk.
+In both of these cases, the rdma_xid field is set to the same value
+as the xid of the RPC message payload.
 </t>
 <t>
 If all the chunk lists are empty
@@ -1203,7 +1218,7 @@ If all the chunk lists are empty
 the message conveys a credit grant refresh.
 The header prefix of this message contains a credit grant refresh
 in the rdma_credit field.
-[cel: what goes in the rdma_xid field in this case?]
+In this case, the sender MUST set the rdma_xid field to zero.
 <figure align="left">
 <artwork xml:space="preserve" align="left">
 &lt;CODE BEGINS&gt;
@@ -1232,8 +1247,6 @@ use Message Continuation.
 RDMA2_ERROR provides a way of reporting the occurrence of transport
 errors on a previous transmission.
 This header type MUST NOT be transmitted by a requester.
-[ cel: how is the XID field set when sending an error report
-from a requester, or when the error occurred on a non-RPC message? ]
 <figure align="left">
 <artwork xml:space="preserve" align="left">
 &lt;CODE BEGINS&gt;
@@ -1281,7 +1294,8 @@ is described in Section 5 of
 <xref target="RFC8166"/>.
 </t>
 <t>
-In all cases below, the responder copies the values of the
+Unless otherwise specified, in all cases below,
+the responder copies the values of the
 rdma_start.rdma_xid
 and
 rdma_start.rdma_vers
@@ -1791,6 +1805,7 @@ together with the file common.x, obtained from this document.
 /// typedef uint32 rpcrdma2_prop_rssiz;
 /// typedef uint32 rpcrdma2_prop_rcsiz;
 /// typedef uint32 rpcrdma2_prop_brs;
+/// typedef opaque rpcrdma2_prop_hostauth&lt;&gt;;
 ///
 /// const uint32 RDMA_RVREQSUP_NONE = 0;
 /// const uint32 RDMA_RVREQSUP_INLINE = 1;
@@ -2239,7 +2254,7 @@ often much larger than typical inline thresholds.
 </t>
 <t>
 If the XDR data item is a result, its maximum size must be
-predictable in advance by the Requester.
+predictable in advance by the requester.
 </t>
 <t>
 Transport-level processing of the XDR data item is not needed.
@@ -2263,7 +2278,7 @@ In addition to defining the set of data items that are DDP-eligible,
 a ULB may also limit the use of chunks to particular upper-layer
 procedures.
 If more than one data item in a procedure is DDP-eligible,
-the ULB may also limit the number of chunks that a Requester
+the ULB may also limit the number of chunks that a requester
 can provide for a particular upper-layer procedure.
 </t>
 <t>
@@ -2289,19 +2304,19 @@ The only definitive specification of DDP-eligibility is a ULB.
 In general, a DDP-eligibility violation occurs when:
 <list style="symbols">
 <t>
-A Requester reduces a non-DDP-eligible argument data item.
+A requester reduces a non-DDP-eligible argument data item.
 The Responder MUST NOT process this RPC Call message and MUST report
 the violation as described in Section TBD.
 </t>
 <t>
 A Responder reduces a non-DDP-eligible result data item.
-The Requester MUST terminate the pending RPC transaction
+The requester MUST terminate the pending RPC transaction
 and report an appropriate permanent error to the RPC consumer.
 </t>
 <t>
 A Responder does not reduce a DDP-eligible result data item into
 an available Write chunk.
-The Requester MUST terminate the pending RPC transaction
+The requester MUST terminate the pending RPC transaction
 and report an appropriate permanent error to the RPC consumer.
 </t>
 </list>
@@ -2312,28 +2327,43 @@ and report an appropriate permanent error to the RPC consumer.
  title="Maximum Reply Size"
  anchor="section:a3f15fe3-2677-4d94-adb5-afa80c7e197a">
 <t>
-[cel: this section needs to be updated to allow
-the use of Message Continuation when
-the Reply size is larger than the provided Reply chunk. ]
+A requester provides resources for both
+an RPC Call message
+and
+its matching RPC Reply message.
+A requester forms each RPC Call itself,
+thus it can compute the exact resources needed to send every Call.
+However, the requester must allocate resources
+to receive the corresponding Reply before the responder has formed it.
+In some cases it is difficult for the requester to know in advance
+precisely what resources will be needed to receive the Reply.
 </t>
 <t>
-A Requester provides resources for both an RPC Call message and its
-matching RPC Reply message.
-A Requester forms the RPC Call message itself;
-thus, the Requester can compute the exact resources needed.
+In RPC-over-RDMA version 2,
+a requester MAY provide a Reply chunk at any time,
+and a responder MAY use a provided Reply chunk or not.
+If the combination of the provided Write chunk list and Reply chunk
+is not adequate to convey a Reply, the responder MUST use
+Message Continuation to send that Reply.
 </t>
 <t>
-A Requester must allocate resources for the RPC Reply message (an
-RPC-over-RDMA credit, a Receive buffer, and possibly a Write list and
-Reply chunk) before the Responder has formed the actual reply.
-To accommodate all possible replies for the procedure in the RPC Call
-message, a Requester must allocate reply resources based on the
-maximum possible size of the expected RPC Reply message.
+If even that is not possible, the responder
+responds with an RDMA2_ERROR message:
+<list style="symbols">
+<t>
+The responder MUST send a RDMA2_ERR_WRITE_RESOURCE error
+if the Write chunk list cannot accommodate the ULP's DDP-eligible data payload.
+</t>
+<t>
+The responder MUST send a RDMA2_ERR_REPLY_RESOURCE error
+if the Reply chunk cannot accommodate the non DDP-eligible parts of the Reply.
+</t>
+</list>
 </t>
 <t>
 If there are procedures in the ULP for which there is no clear reply
-size maximum, the ULB needs to specify a dependable means for
-determining the maximum.
+size maximum, the ULB should specify a dependable means for
+determining the maximum Reply size for that ULP procedure.
 </t>
 </section>
 
@@ -2352,8 +2382,8 @@ An ULP may provide a means to communicate these transport-related
 parameters between peers.
 Note that RPC-over-RDMA version 2 does not specify any mechanism
 for changing any transport-related parameter after a connection
-has been established.
-[cel: needs update to account for Transport Properties. ]
+has been established and the initial transport properties
+have been exchanged.
 </t>
 <t>
 Multiple ULPs may share a single RPC-over-RDMA version 2
@@ -2702,8 +2732,11 @@ security issues raised by those new transport properties.
 New error codes to be returned when using new header types
 may be introduced in the same Standards Track document
 that defines the new header type.
-[ cel: what about adding a new error code that is returned
- for an existing header type? ]
+Cases in which a new error code is to be returned
+by an existing header type can be accommodated
+by defining the new error code
+in the same Standards Track document that defines
+the new transport property.
 </t>
 <t>
 For error codes that do not require that additional error
