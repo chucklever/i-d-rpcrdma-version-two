@@ -579,7 +579,7 @@ and to communicate their result(s).
  anchor="section:5ae4b016-9b44-4649-9021-5ae851ac9326">
 
 <section
- title="Transfer Models"
+ title="Transfer Model"
  anchor="section:27a8a236-70bd-4ded-9272-c65f3a5e4067">
 <t>
 A "transfer model" designates which endpoint exposes its memory
@@ -587,38 +587,15 @@ and which is responsible for initiating the transfer of data.
 To enable RDMA Read and Write operations, for example,
 an endpoint first exposes regions of its memory to a remote endpoint,
 which initiates these operations against the exposed memory.
-<list style="hanging">
-<t hangText="Read-Read"><vspace blankLines="0"/>
-Requesters expose their memory to the Responder,
-and the Responder exposes its memory to Requesters.
-The Responder reads, or pulls, RPC arguments
-or whole RPC calls from each Requester.
-Requesters pull RPC results or whole RPC replies from the Responder.
 </t>
-<t hangText="Write-Write"><vspace blankLines="0"/>
-Requesters expose their memory to the Responder,
-and the Responder exposes its memory to Requesters.
-Requesters write, or push, RPC arguments
-or whole RPC calls to the Responder.
-The Responder pushes RPC results
-or whole RPC replies to each Requester.
-</t>
-<t hangText="Read-Write"><vspace blankLines="0"/>
+<t>
+In RPC-over-RDMA version 2,
 Requesters expose their memory to the Responder,
 but the Responder does not expose its memory.
 The Responder pulls RPC arguments
 or whole RPC calls from each Requester.
 The Responder pushes RPC results
 or whole RPC replies to each Requester.
-</t>
-<t hangText="Write-Read"><vspace blankLines="0"/>
-The Responder exposes its memory to Requesters,
-but Requesters do not expose their memory.
-Requesters push RPC arguments
-or whole RPC calls to the Responder.
-Requesters pull RPC results or whole RPC replies from the Responder.
-</t>
-</list>
 </t>
 </section>
 
