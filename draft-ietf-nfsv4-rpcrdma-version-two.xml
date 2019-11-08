@@ -651,75 +651,97 @@ and in concert with the underlying transport.
  title="Managing Receiver Resources"
  anchor="section:130ce79c-8b13-479e-8108-a943024047dD">
 <t>
+The longevity of an RDMA connection mandates
+that sending endpoints respect the resource limits of peer receivers.
+To ensure messages can be sent and received reliably,
+there are two operational parameters for each connection.
 It is critical to provide RDMA Send flow control
 for an RDMA connection.
 If any pre-posted Receive buffer on the connection is not large enough
 to accept an incoming RDMA Send,
 or if a pre-posted Receive buffer is not available to accept an incoming RDMA Send,
 the RDMA connection can be terminated.
-This is different than conventional TCP/IP networking,
-in which buffers are allocated dynamically as messages are received.
-</t>
-<t>
-The longevity of an RDMA connection mandates
-that sending endpoints respect the resource limits of peer receivers.
-To ensure messages can be sent and received reliably,
-there are two operational parameters for each connection.
 </t>
 
 <section
- title="RPC-over-RDMA Credits"
+ title="RPC-over-RDMA Version 2 Flow Control"
  anchor="section:45c67eb8-8dc6-47c3-8555-14270f1514bF">
 <t>
-[ cel: this section needs to discuss the new v2 credit management mechanism ]
+Because RPC-over-RDMA requires reliable and in-order delivery
+of data payloads,
+RPC-over-RDMA transports MUST use
+the RDMA RC (Reliable Connected) Queue Pair (QP) type,
+which ensures in-transit data integrity
+and
+handles recovery from packet loss or misordering.
 </t>
 <t>
-Flow control for RDMA Send operations directed to the Responder
-is implemented as a simple request/grant protocol
-in the RPC-over-RDMA header associated with each RPC message.
+However, RPC-over-RDMA transports provide their own
+flow control mechanism to prevent a sender
+from overwhelming receiver resources.
+RPC-over-RDMA transports employ
+an end-to-end credit-based flow control mechanism
+for this purpose
+<xref target="CBFC"/>.
+Credit-based flow control was chosen because it is
+relatively simple,
+provides robust operation in the face of bursty traffic,
+automated management of receive buffer allocation,
+and
+excellent buffer utilization.
+</t>
+
+<section
+ title="Granting Credits"
+ anchor="section:278fca6a-f2a8-42f3-a4e9-a8d4b217567e">
+<t>
+An RPC-over-RDMA version 2 credit is
+the capability to receive one RPC-over-RDMA version 2 message.
+This enables RPC-over-RDMA version 2 to support asymmetrical operation,
+where a message in one direction might be matched by zero, one, or multiple
+messages in the other direction.
 </t>
 <t>
-An RPC-over-RDMA version 1 credit is
-the capability to handle one RPC-over-RDMA transaction.
-Each RPC-over-RDMA message sent from Requester to Responder
-requests a number of credits from the Responder.
-Each RPC-over-RDMA message sent from Responder to Requester
-informs the Requester how many credits the Responder has granted.
-The requested and granted values are carried
-in each RPC-over-RDMA message's rdma_credit field.
+To achieve this,
+credits are assigned to each connection peer's posted Receive buffers.
+Each Requester has a set of Receive credits, and
+each Responder has a set of Receive credits.
+These credit values are managed independently of each other.
 </t>
 <t>
-Practically speaking, the critical value is the granted value.
-A Requester MUST NOT send unacknowledged requests
-in excess of the Responder's granted credit limit.
-If the granted value is exceeded, the RDMA layer may signal an error,
+Section 7 of
+<xref target="RFC8166"/>
+requires that the 32-bit field containing the credit grant is the
+third word in the transport header.
+To conform with that requirement,
+the two independent credit values are encoded into a single
+32-bit field in the fixed portion of the transport header.
+After the field is XDR decoded, the receiver takes the low-order
+two bytes as the number of credits that are newly granted by the sender,
+and
+the high-order two bytes as the maximum number of credits that
+can be outstanding at the sender.
+</t>
+<t>
+In this approach, then, there are requester credits,
+sent in messages from the requester to the responder;
+and responder credits,
+sent in messages from the responder to the requester.
+</t>
+<t>
+A sender MUST NOT send unacknowledged messages
+in excess of the receiver's granted credit limit.
+If the granted value is exceeded,
+the RDMA layer may signal an error,
 possibly terminating the connection.
 The granted value MUST NOT be zero,
 since such a value would result in deadlock.
 </t>
 <t>
-RPC calls complete in any order,
-but the current granted credit limit at the Responder
-is known to the Requester from RDMA Send ordering properties.
-The number of allowed new requests the Requester may send
-is then the lower of the current requested and granted credit values,
-minus the number of requests in flight.
-Advertised credit values are not altered when individual RPCs
-are started or completed.
-</t>
-<t>
-The requested and granted credit values MAY be adjusted
+The granted credit values MAY be adjusted
 to match the needs or policies in effect on either peer.
-For instance, a Responder may reduce the granted credit
+For instance, a peer may reduce its granted credit
 value to accommodate the available resources in a Shared Receive Queue.
-The Responder MUST ensure that an increase in receive resources
-is effected before the next RPC Reply message is sent.
-</t>
-<t>
-A Requester MUST maintain enough receive resources
-to accommodate expected replies.
-Responders have to be prepared for there to be no receive resources
-available on Requesters with no pending RPC transactions.
 </t>
 <t>
 Certain RDMA implementations may impose additional flow-control restrictions,
@@ -727,6 +749,29 @@ such as limits on RDMA Read operations in progress at the Responder.
 Accommodation of such restrictions is considered
 the responsibility of each RPC-over-RDMA version 2 implementation.
 </t>
+</section>
+
+<section
+ title="Asynchronous Credit Grants"
+ anchor="section:f6348562-97f8-4413-96d7-bde3ff57b375">
+<t>
+A protocol convention is provided to enable one peer
+to refresh its credit grant to the other peer
+without sending a data payload.
+Messages of this type can also act as a keep-alive ping.
+See
+<xref target="section:1c401555-4b7d-4e35-a9a3-8aa14228170e"/>
+for information about this convention.
+</t>
+<t>
+To prevent transport deadlock,
+receivers MUST always be in a position to receive one such
+credit grant update message, in addition to payload-bearing messages.
+One way a receiver can do this is to post one extra Receive more than
+the credit value it granted.
+</t>
+</section>
+
 </section>
 
 <section
@@ -1407,94 +1452,6 @@ An RPC-over-RDMA transaction using a Long Reply:
 </t>
 </section>
 
-</section>
-
-</section>
-
-<section
- title="RPC-over-RDMA Version 2 Flow Control"
- anchor="section:88b2fc9e-5fea-4195-bc6e-00a37ba116ef">
-<t>
-Because RPC-over-RDMA requires reliable and in-order delivery
-of data payloads,
-RPC-over-RDMA transports MUST use
-the RDMA RC (Reliable Connected) Queue Pair (QP) type,
-which ensures in-transit data integrity
-and
-handles recovery from packet loss or misordering.
-</t>
-<t>
-RPC-over-RDMA transports provide their own
-flow control mechanism to prevent a sender
-from overwhelming receiver resources.
-RPC-over-RDMA transports employ
-an end-to-end credit-based flow control mechanism
-for this purpose
-<xref target="CBFC"/>.
-Credit-based flow control was chosen because it is
-relatively simple,
-provides robust operation in the face of bursty traffic,
-automated management of receive buffer allocation,
-and
-excellent buffer utilization.
-</t>
-
-<section
- title="Granting Credits"
- anchor="section:278fca6a-f2a8-42f3-a4e9-a8d4b217567e">
-<t>
-RPC-over-RDMA version 2 can support fully asymmetrical operation,
-where a message in one direction might be matched by zero, one, or multiple
-messages in the other direction.
-To achieve this,
-credits are assigned to each connection peer's posted Receive buffers.
-Each requester has a set of Receive credits, and
-each responder has a set of Receive credits.
-These values are managed independently of each other.
-</t>
-
-
-<t>
-Section 7 of
-<xref target="RFC8166"/>
-requires that the 32-bit field containing the credit grant is the
-third word in the transport header.
-To conform with that requirement,
-the two independent credit values are encoded into a single
-32-bit field in the fixed portion of the transport header.
-After the field is XDR decoded, the receiver takes the low-order
-two bytes as the number of credits that are newly granted by the sender,
-and
-the high-order two bytes as the maximum number of credits that
-can be outstanding at the sender.
-</t>
-<t>
-In this approach, then, there are requester credits,
-sent in messages from the requester to the responder;
-and responder credits,
-sent in messages from the responder to the requester.
-</t>
-</section>
-
-<section
- title="Asynchronous Credit Grants"
- anchor="section:f6348562-97f8-4413-96d7-bde3ff57b375">
-<t>
-A protocol convention is provided to enable one peer
-to refresh its credit grant to the other peer
-without sending a data payload.
-Messages of this type can also act as a keep-alive ping.
-See
-<xref target="section:1c401555-4b7d-4e35-a9a3-8aa14228170e"/>
-for information about this convention.
-</t>
-<t>
-To prevent transport deadlock,
-receivers MUST always be in a position to receive one such
-credit grant update message, in addition to payload-bearing messages.
-One way a receiver can do this is to post one extra Receive more than
-the credit value it granted.
-</t>
 </section>
 
 </section>
@@ -4543,7 +4500,7 @@ a credit request or a credit grant.
 A more sophisticated credit accounting mechanism is provided in
 RPC-over-RDMA version 2 in an attempt to address some of these shortcomings.
 This new mechanism is detailed in
-<xref target="section:88b2fc9e-5fea-4195-bc6e-00a37ba116ef"/>.
+<xref target="section:45c67eb8-8dc6-47c3-8555-14270f1514bF"/>.
 </t>
 </section>
 
