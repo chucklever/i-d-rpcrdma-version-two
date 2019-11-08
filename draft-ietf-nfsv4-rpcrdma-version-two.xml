@@ -1259,9 +1259,6 @@ RPC-over-RDMA version 2
 provides several mechanisms that enable
 RPC message payloads of any size to be conveyed efficiently.
 </t>
-<t>
-[ cel: perhaps we need a new term for a continued message. ]
-</t>
 
 <section
  title="Short Messages"
@@ -1287,7 +1284,7 @@ RDMA Send operation.
 No other operations are needed.
 </t>
 <t>
-An RPC-over-RDMA transaction using Short Messages:
+An RPC-over-RDMA transaction using a Short Message:
 <figure align="left">
 <artwork xml:space="preserve" align="left">
         Requester                             Responder
@@ -1303,7 +1300,52 @@ An RPC-over-RDMA transaction using Short Messages:
 </t>
 </section>
 
-<section title="Chunked Messages" toc="default">
+<section
+ title="Continued Messages"
+ anchor="section:bda7bc14-2a3d-4224-873c-855912218987">
+<t>
+If an RPC message is larger than the inline threshold,
+the sender can choose to split that message over multiple
+RPC-over-RDMA messages.
+The Payload stream of each RPC-over-RDMA message contains
+a part of the RPC message.
+The receiver reconstitutes the RPC message by concatenating
+the Payload streams of the sequence
+of RPC-over-RDMA messages together.
+</t>
+<t>
+Though the purpose of a Continued Message is to handle
+large RPC messages,
+senders MAY use a Continued Message at any time
+to convey an RPC message,
+and MAY split the RPC message payload on any convenient
+boundary.
+</t>
+<t>
+An RPC-over-RDMA transaction using a Continued Message:
+<figure align="left">
+<artwork xml:space="preserve" align="left">
+        Requester                             Responder
+            |        RDMA Send (RDMA_MSG)         |
+       Call |   ------------------------------&gt;   |
+            |        RDMA Send (RDMA_MSG)         |
+            |   ------------------------------&gt;   |
+            |        RDMA Send (RDMA_MSG)         |
+            |   ------------------------------&gt;   |
+            |                                     |
+            |                                     |
+            |                                     | Processing
+            |                                     |
+            |        RDMA Send (RDMA_MSG)         |
+            |   &lt;------------------------------   | Reply
+</artwork>
+</figure>
+</t>
+</section>
+
+<section
+ title="Chunked Messages"
+ anchor="section:41c2df3b-e54d-4ccf-9eac-860f44dec2d2">
 <t>
 If DDP-eligible data items are present in a Payload stream,
 a sender MAY reduce some or all of these items by removing them
@@ -1356,6 +1398,12 @@ An RPC-over-RDMA transaction with a Write chunk:
 </artwork>
 </figure>
 </t>
+<t>
+Chunking and Message Continuation can be combined.
+After reduction, the sender MAY split the reduced
+RPC message into multiple Payload streams and then send it
+via a Continued Message.
+</t>
 </section>
 
 <section
@@ -1367,12 +1415,10 @@ the Payload stream is reduced by removing DDP-eligible data items
 and placing them in chunks to be moved separately.
 If there are no DDP-eligible data items in the Payload stream,
 or the Payload stream is still too large after it has been reduced,
-the RDMA transport MUST use RDMA Read or Write operations to convey
-the Payload stream itself.
-This mechanism is referred to as a "Long Message".
-</t>
-<t>
-[ cel: this section needs an update to allow the use of Message Continuation ]
+the sender uses either Message Continuation,
+or it can use RDMA Read or Write operations to convey the
+entire RPC message.
+The latter mechanism is referred to as a "Long Message".
 </t>
 <t>
 To transmit a Long Message, the sender conveys only the Transport stream
