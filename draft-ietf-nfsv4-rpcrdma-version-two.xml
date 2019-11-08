@@ -4753,6 +4753,11 @@ version 2 increases the default size of inline thresholds.
 This also increases the maximum size of reverse-direction
 RPC messages.
 </t>
+</section>
+
+<section
+ title="Message Continuation Changes"
+ anchor="section:1f3a1439-702f-4309-8733-5fa0e20555f4">
 <t>
 In addition to a larger default inline threshold,
 RPC-over-RDMA version 2 introduces Message Continuation.
@@ -4853,10 +4858,6 @@ It is available only when a responder's RNIC supports MEM_MGT_EXTENSIONS,
 and must be utilized only when a requester's RNIC supports MEM_MGT_EXTENSIONS
 (can receive and recognize an IETH).
 </t>
-
-<section
- title="Reverse Direction Remote Invalidation"
- anchor="section:750a8d5e-1d5a-4fd7-afa3-e156561d20e5">
 <t>
 Existing RPC-over-RDMA transport protocol specifications
 <xref target="RFC8166"/>
@@ -4880,8 +4881,6 @@ The server's RNIC, therefore, must support receiving an IETH,
 and the server must have registered the STags
 with an appropriate registration mechanism.
 </t>
-</section>
-
 </section>
 
 <section
