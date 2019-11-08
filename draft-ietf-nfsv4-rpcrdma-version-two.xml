@@ -593,7 +593,7 @@ Requesters expose their memory to the Responder,
 and the Responder exposes its memory to Requesters.
 The Responder reads, or pulls, RPC arguments
 or whole RPC calls from each Requester.
-Requesters pull RPC results or whole RPC relies from the Responder.
+Requesters pull RPC results or whole RPC replies from the Responder.
 </t>
 <t hangText="Write-Write"><vspace blankLines="0"/>
 Requesters expose their memory to the Responder,
@@ -601,7 +601,7 @@ and the Responder exposes its memory to Requesters.
 Requesters write, or push, RPC arguments
 or whole RPC calls to the Responder.
 The Responder pushes RPC results
-or whole RPC relies to each Requester.
+or whole RPC replies to each Requester.
 </t>
 <t hangText="Read-Write"><vspace blankLines="0"/>
 Requesters expose their memory to the Responder,
@@ -609,14 +609,14 @@ but the Responder does not expose its memory.
 The Responder pulls RPC arguments
 or whole RPC calls from each Requester.
 The Responder pushes RPC results
-or whole RPC relies to each Requester.
+or whole RPC replies to each Requester.
 </t>
 <t hangText="Write-Read"><vspace blankLines="0"/>
 The Responder exposes its memory to Requesters,
 but Requesters do not expose their memory.
 Requesters push RPC arguments
 or whole RPC calls to the Responder.
-Requesters pull RPC results or whole RPC relies from the Responder.
+Requesters pull RPC results or whole RPC replies from the Responder.
 </t>
 </list>
 </t>
@@ -626,39 +626,32 @@ Requesters pull RPC results or whole RPC relies from the Responder.
  title="Message Framing"
  anchor="section:195e0288-862d-40bb-a259-4239930c728a">
 <t>
-[cel: this section needs to take Message Continuation into account ]
-</t>
-<t>
-On an RPC-over-RDMA transport,
-each RPC message is encapsulated by an RPC-over-RDMA message.
-An RPC-over-RDMA message consists of two XDR streams.
+Each RPC-over-RDMA version 2 message consists of exactly two XDR streams:
 <list style="hanging">
-<t hangText="RPC Payload Stream"><vspace blankLines="0"/>
-The "Payload stream" contains the encapsulated RPC message
-being transferred by this RPC-over-RDMA message.
-This stream always begins with the Transaction ID (XID) field
-of the encapsulated RPC message.
-</t>
 <t hangText="Transport Stream"><vspace blankLines="0"/>
 The "Transport stream" contains a header that describes
 and controls the transfer of the Payload stream
 in this RPC-over-RDMA message.
-This header is analogous to the record marking
-used for RPC-over-TCP but is more extensive,
-since RDMA transports support several modes of data transfer.
+Every RDMA Send message on an RPC-over-RDMA version 2
+connection begins with a Transport stream.
+</t>
+<t hangText="RPC Payload Stream"><vspace blankLines="0"/>
+The "Payload stream" contains part or all of a single RPC message.
+The sender
+MAY divide an RPC message at any convenient boundary,
+but
+MUST send RPC message fragments in XDR stream order
+and
+MUST NOT interleave Payload streams from multiple RPC messages.
+The RPC-over-RDMA version 2 message carrying the final part
+of an RPC message is marked.
 </t>
 </list>
-</t>
-<t>
-In its simplest form,
-an RPC-over-RDMA message consists of
+In its simplest form, an RPC-over-RDMA version 2 message consists of
 a Transport stream
 followed immediately by
 a Payload stream
 conveyed together in a single RDMA Send.
-To transmit large RPC messages,
-a combination of one RDMA Send operation
-and one or more other RDMA operations is employed.
 </t>
 <t>
 RPC-over-RDMA framing replaces all other RPC framing
@@ -763,14 +756,13 @@ the responsibility of each RPC-over-RDMA version 2 implementation.
  title="Inline Threshold"
  anchor="section:653e7ab4-782f-43f2-947f-d097ada8b3c9">
 <t>
-[ cel: this section needs to be updated for v2 ]
 An "inline threshold" value is the largest message size
 (in octets) that can be conveyed in one direction between
-peer implementations using RDMA Send and Receive.
-The inline threshold value is the smaller of the largest number
-of bytes the sender can post via a single RDMA Send operation and
-the largest number of bytes the receiver can accept via a single
-RDMA Receive operation.
+peer implementations using RDMA Send and Receive operations.
+The inline threshold value is effectively
+the smaller of the largest number of bytes the sender can post via a single RDMA Send operation
+and
+the largest number of bytes the receiver can accept via a single RDMA Receive operation.
 Each connection has two inline threshold values:
 one for messages flowing from Requester-to-Responder,
 referred to as the "call inline threshold",
@@ -780,30 +772,95 @@ referred to as the "reply inline threshold".
 Inline threshold values can be advertised to peers
 via Transport Properties.
 </t>
+<t>
+Receiver implementations MUST support inline thresholds of 4096 bytes.
+In the absence of an exchange of Transport Properties,
+senders and receivers MUST assume both connection inline thresholds are 4096 bytes.
+</t>
 </section>
 
 <section
  title="Initial Connection State"
  anchor="section:9563f1f0-28a7-48e1-a752-e842575c6539">
 <t>
-[ cel: this section should explain RPC-over-RDMA version negotiation. ]
+When an RPC-over-RDMA version 2 client establishes a
+connection to a server, its first order of business is to
+determine the server's highest supported protocol version.
 </t>
 <t>
-As a basis for an initial exchange of RPC requests,
-each RPC-over-RDMA version 2 connection provides the ability
-to exchange at least one RPC-over-RDMA message at a time,
-whose RPC Call and Reply messages are no more than 1024 bytes in size.
-A Responder MAY exceed this basic level of configuration,
-but a Requester MUST NOT assume more than one credit is available
-and MUST receive a valid reply from the Responder
-carrying the actual number of available credits
-prior to sending its next request.
+Upon connection establishment a client MUST NOT send
+more than a single RPC-over-RDMA message at a
+time until it receives a valid non-error RPC-over-RDMA message
+from the server that grants client credits.
 </t>
 <t>
-Receiver implementations MUST support inline thresholds of 1024 bytes.
-In the absence of an exchange of Transport Properties,
-senders and receivers MUST assume the inline thresholds are 1024 bytes.
+The second word of each transport header is used to convey
+the transport protocol version.
+In the interest of simplicity, we refer to that word as
+rdma_vers even though in the RPC-over-RDMA version 2
+XDR definition it is described as rdma_start.rdma_vers.
 </t>
+<t>
+First, the client sends a single valid RPC-over-RDMA message
+with the value two (2) in the rdma_vers field.
+Because the server might support only RPC-over-RDMA
+version 1, this initial message can be no larger than the
+version 1 default inline threshold of 1024 bytes.
+</t>
+
+<section
+ title="Server Does Support RPC-over-RDMA Version 2"
+ anchor="section:8db4c54e-c1ce-43ba-93b4-031e829960f5">
+<t>
+If the server does support RPC-over-RDMA version 2,
+it sends RPC-over-RDMA messages back to the client
+with the value two (2) in the rdma_vers field.
+Both peers may use the default inline threshold value
+for RPC-over-RDMA version 2 connections (4096 bytes).
+</t>
+</section>
+
+<section
+ title="Server Does Not Support RPC-over-RDMA Version 2"
+ anchor="section:bedc4e66-4295-4dd6-8ac9-dd06907a08ad">
+<t>
+If the server does not support RPC-over-RDMA version 2,
+it MUST send an RPC-over-RDMA message to the client with the
+same XID, with RDMA2_ERROR in the rdma_start.rdma_htype field,
+and with the error code RDMA2_ERR_VERS.
+This message also reports a range of protocol versions that
+the server supports.
+To continue operation, the client selects a protocol
+version in the range of server-supported versions for
+subsequent messages on this connection.
+</t>
+<t>
+If the connection is lost immediately after an
+RDMA2_ERROR / RDMA2_ERR_VERS message is received,
+a client can avoid a possible version negotiation loop
+when re-establishing another connection by assuming
+that particular server does not support RPC-over-RDMA version 2.
+A client can assume the same situation (no server support
+for RPC-over-RDMA version 2) if the initial negotiation message
+is lost or dropped.
+Once the negotiation exchange is complete,
+both peers may use the default inline threshold value
+for the transport protocol version that has been selected.
+</t>
+</section>
+
+<section
+ title="Client Does Not Support RPC-over-RDMA Version 2"
+ anchor="section:1ffe4c69-b516-476a-bba7-41863709f48d">
+<t>
+If the server supports the RPC-over-RDMA protocol version
+used in Call messages from a client,
+it MUST send Replies with the same RPC-over-RDMA protocol version
+that the client uses to send its Calls.
+The client MUST NOT change the version during the duration of the connection.
+</t>
+</section>
+
 </section>
 
 </section>
@@ -3252,95 +3309,11 @@ cannot be expressed within XDR.
 
 </section>
 
-<section
- title="Protocol Version Negotiation"
- anchor="section:86d76c8e-8954-40dc-b94c-8fb7fa9ec86f">
-<t>
-When an RPC-over-RDMA version 2 client establishes a
-connection to a server, its first order of business is to
-determine the server's highest supported protocol version.
-</t>
-<t>
-As with RPC-over-RDMA version 1,
-upon connection establishment a client
-MUST NOT send more than a single RPC-over-RDMA message at a
-time until it receives a valid non-error RPC-over-RDMA message
-from the server that grants client credits.
-</t>
-<t>
-The second word of each transport header is used to convey
-the transport protocol version.
-In the interest of simplicity, we refer to that word as
-rdma_vers even though in the RPC-over-RDMA version 2
-XDR definition it is described as rdma_start.rdma_vers.
-</t>
-<t>
-First, the client sends a single valid RPC-over-RDMA message
-with the value two (2) in the rdma_vers field.
-Because the server might support only RPC-over-RDMA
-version 1, this initial message can be no larger than the
-version 1 default inline threshold of 1024 bytes.
-</t>
-
-<section
- title="Server Does Support RPC-over-RDMA Version 2"
- anchor="section:8db4c54e-c1ce-43ba-93b4-031e829960f5">
-<t>
-If the server does support RPC-over-RDMA version 2,
-it sends RPC-over-RDMA messages back to the client
-with the value two (2) in the rdma_vers field.
-Both peers may use the default inline threshold value
-for RPC-over-RDMA version 2 connections (4096 bytes).
-</t>
-</section>
-
-<section
- title="Server Does Not Support RPC-over-RDMA Version 2"
- anchor="section:bedc4e66-4295-4dd6-8ac9-dd06907a08ad">
-<t>
-If the server does not support RPC-over-RDMA version 2,
-it MUST send an RPC-over-RDMA message to the client with the
-same XID, with RDMA2_ERROR in the rdma_start.rdma_htype field,
-and with the error code RDMA2_ERR_VERS.
-This message also reports a range of protocol versions that
-the server supports.
-To continue operation, the client selects a protocol
-version in the range of server-supported versions for
-subsequent messages on this connection.
-</t>
-<t>
-If the connection is lost immediately after an
-RDMA2_ERROR / RDMA2_ERR_VERS message is received,
-a client can avoid a possible version negotiation loop
-when re-establishing another connection by assuming
-that particular server does not support RPC-over-RDMA version 2.
-A client can assume the same situation (no server support
-for RPC-over-RDMA version 2) if the initial negotiation message
-is lost or dropped.
-Once the negotiation exchange is complete,
-both peers may use the default inline threshold value
-for the transport protocol version that has been selected.
-</t>
-</section>
-
-<section
- title="Client Does Not Support RPC-over-RDMA Version 2"
- anchor="section:1ffe4c69-b516-476a-bba7-41863709f48d">
-<t>
-If the server supports the RPC-over-RDMA protocol version
-used in Call messages from a client,
-it MUST send Replies with the same RPC-over-RDMA protocol version
-that the client uses to send its Calls.
-The client MUST NOT change the version during the duration of the connection.
-</t>
-</section>
-
-</section>
-
 <!-- RFC Editor:
 Please remove the following section and the reference to RFC 7942
 before this document is published.
 -->
+
 <section
  title="Implementation Status"
  anchor="section:fd2f45e7-85fa-4863-a4cd-ea200878062f">
@@ -3680,7 +3653,7 @@ RDMA transport implementations should conform to
 </section>
 
 <section
- title="Security Considerations: Transport Properties"
+ title="Transport Properties"
  anchor="section:3B0E673B-98D7-436D-BD6F-180180503DF6">
 <t>
 Like other fields that appear in each RPC-over-RDMA header,
@@ -3699,7 +3672,7 @@ private network or use link-layer encryption.
 </section>
 
 <section
- title="Security Considerations: Host Authentication"
+ title="Host Authentication"
  anchor="section:c85be87e-4f2b-4caf-8ae5-acdaa972a9f9">
 <t>
 Wherein we use the relevant sections of
