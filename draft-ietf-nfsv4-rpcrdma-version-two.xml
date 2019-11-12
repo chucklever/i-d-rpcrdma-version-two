@@ -145,6 +145,11 @@ and limits the size of reverse direction messages.
 It is difficult to make optimizations or protocol fixes
 that require changes to on-the-wire behavior.
 </t>
+<t>
+For some RPC procedures, the maximum reply size is
+difficult or impossible for a Requester to estimate
+in advance.
+</t>
 </list>
 To address these issues in a way that interoperates
 with existing RPC-over-RDMA version 1 deployments,
