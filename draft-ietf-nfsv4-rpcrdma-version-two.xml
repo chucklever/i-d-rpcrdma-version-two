@@ -111,21 +111,21 @@ They retain message delineations like UDP
 but provide reliable and sequenced data transfer like TCP.
 They also provide an offloaded bulk transfer service
 not provided by UDP or TCP.
-RDMA transports are therefore appropriately viewed
+RDMA transports are therefore appropriately treated
 as a new transport type by RPC.
 </t>
 <t>
 Although the RDMA transport described herein
 can provide relatively transparent support for any RPC application,
-this document also describes mechanisms that optimize data transfer even further,
-when RPC applications are willing to exploit awareness of RDMA as the transport.
+this document also describes mechanisms that enable further optimization of data transfer,
+when RPC applications are structured to exploit awareness of a transport's RDMA capability.
 In this context, the Network File System (NFS) protocols,
 as described in
 <xref target="RFC1094"/>,
 <xref target="RFC1813"/>,
 <xref target="RFC7530"/>,
 <xref target="RFC5661"/>,
-and future NFSv4 minor versions,
+and subsequent NFSv4 minor versions,
 are all potential beneficiaries of RDMA transports.
 A complete problem statement is presented in
 <xref target="RFC5532"/>.
@@ -151,7 +151,7 @@ difficult or impossible for a Requester to estimate
 in advance.
 </t>
 </list>
-To address these issues in a way that interoperates
+To address these issues in a way that enables interoperation
 with existing RPC-over-RDMA version 1 deployments,
 a second version of the RPC-over-RDMA transport protocol
 is presented in this document.
@@ -207,14 +207,15 @@ when, and only when, they appear in all capitals, as shown here.
  title="Remote Procedure Calls"
  anchor="section:4d675e45-c377-48df-8029-c5c9f8c48f9f">
 <t>
-This section highlights key elements of the
-RPC
+This section highlights key elements of the RPC protocol
 <xref target="RFC5531"/>
 and
-External Data Representation (XDR)
+the External Data Representation (XDR)
 <xref target="RFC4506"/>
-protocols, upon which RPC-over-RDMA version 2 is constructed.
-Strong grounding with these protocols is recommended before reading this document.
+used by it.
+RPC-over-RDMA version 2 enables the transmission of RPC messges built using XDR
+and also uses XDR internaly to describe its own header formats
+An understanding of RPC and its use of XDR is assumed in this document.
 </t>
 
 <section
@@ -329,6 +330,15 @@ When a connection-oriented transport is used,
 clients initiate transport connections,
 while servers wait passively to accept incoming connection requests.
 </t>
+<t>
+Most commonly,
+the client end of the connection acts in the role of Requester,
+and the server end of the connection acts as a Responder.
+In some cases,
+RPC can also be used to send RPC requests in the reverse direction.
+In this case, the server end of the connection acts as a Requestor
+while the client end acts as a Responder.
+</t>
 </section>
 
 <section
@@ -344,7 +354,7 @@ to translate native data types and serialize arguments and results
 <t>
 The XDR protocol encodes data independently
 of the endianness or size of host-native data types,
-enabling unambiguous decoding of data on the receiving end.
+enabling unambiguous decoding of data by the receiver.
 RPC Programs are specified
 by writing an XDR definition of their procedures,
 argument data types,
@@ -377,7 +387,7 @@ into its native data representation format.
  title="XDR Opaque Data"
  anchor="section:c6d3092c-99e6-4cce-b377-fffc4862929F">
 <t>
-Sometimes, a data item must be transferred as is:
+Sometimes, a data item is to be transferred as is:
 without encoding or decoding.
 The contents of such a data item are referred to as "opaque data".
 XDR encoding places the content of opaque data items
@@ -458,7 +468,7 @@ for a receiving host's CPU to copy transferred data
 to another location after it has been received.
 </t>
 <t>
-This document focuses on the use of RDMA Read and Write operations
+RPC-over-RDMA version 2 enables the use of RDMA Read and Write operations
 to achieve both data movement offload and DDP.
 However, not all RDMA-based data transfer qualifies as DDP,
 and DDP can be achieved using non-RDMA mechanisms.
@@ -494,18 +504,27 @@ the RPC-over-RDMA version 2 protocol assumes
 each transport provides the following abstract operations.
 A more complete discussion of these operations can be found in
 <xref target="RFC5040"/>.
-<list style="hanging">
-<t hangText="Registered Memory"><vspace blankLines="0"/>
-Registered memory is a region of memory
-that is assigned a steering tag
-that permits access by the RDMA provider
+</t>
+
+<section
+ title="Memory Registration"
+ anchor="section:90f88ba5-5ad6-4ac1-b40d-ed9247e61ca5">
+<t>
+Memory registration assigns a steering tag
+to a region of memory,
+permitting the RDMA provider
 to perform data-transfer operations.
 The RPC-over-RDMA version 2 protocol assumes that
-each region of registered memory MUST be identified
+each registered memory region is identified
 with a steering tag of no more than 32 bits and memory
 addresses of up to 64 bits in length.
 </t>
-<t hangText="RDMA Send"><vspace blankLines="0"/>
+</section>
+
+<section
+ title="RDMA Send"
+ anchor="section:07bba55f-c48f-474c-918b-db6c9d2325dd">
+<t>
 The RDMA provider supports an RDMA Send operation,
 with completion signaled on the receiving peer
 after data has been placed in a pre-posted buffer.
@@ -514,7 +533,12 @@ in the order they were issued at the sender.
 The amount of data transferred by a single RDMA Send operation
 is limited by the size of the remote peer's pre-posted buffers.
 </t>
-<t hangText="RDMA Receive"><vspace blankLines="0"/>
+</section>
+
+<section
+ title="RDMA Receive"
+ anchor="section:9be6a44c-1ea5-4ccd-b188-ee04e930497b">
+<t>
 The RDMA provider supports an RDMA Receive operation
 to receive data conveyed by incoming RDMA Send operations.
 To reduce the amount of memory that must remain pinned
@@ -524,7 +548,12 @@ Flow control to prevent overrunning receiver resources
 is provided by the RDMA consumer
 (in this case, the RPC-over-RDMA version 2 protocol).
 </t>
-<t hangText="RDMA Write"><vspace blankLines="0"/>
+</section>
+
+<section
+ title="RDMA Write"
+ anchor="section:cfd79bce-e8e9-4a51-b43a-b747af6213f4">
+<t>
 The RDMA provider supports an RDMA Write operation
 to place data directly into a remote memory region.
 The local host initiates an RDMA Write,
@@ -535,7 +564,8 @@ a steering tag,
 memory address,
 and
 the length of the remote peer's memory region.
-<vspace blankLines="1"/>
+</t>
+<t>
 RDMA Writes are not ordered with respect to one another,
 but are ordered with respect to RDMA Sends.
 A subsequent RDMA Send completion
@@ -543,7 +573,12 @@ obtained at the write initiator
 guarantees that prior RDMA Write data
 has been successfully placed in the remote peer's memory.
 </t>
-<t hangText="RDMA Read"><vspace blankLines="0"/>
+</section>
+
+<section
+ title="RDMA Read"
+ anchor="section:f37121af-49ff-4575-a699-7310f4ae1296">
+<t>
 The RDMA provider supports an RDMA Read operation
 to place peer source data directly into the read initiator's memory.
 The local host initiates an RDMA Read,
@@ -555,24 +590,16 @@ memory addresses,
 and a length for the remote source
 and
 local destination memory region.
-<vspace blankLines="1"/>
+</t>
+<t>
 The local host signals Read completion to the remote peer
 as part of a subsequent RDMA Send message.
-The remote peer can then release steering tags
+The remote peer can then invalidate steering tags
 and
 subsequently free associated source memory regions.
 </t>
-</list>
-</t>
-<t>
-The RPC-over-RDMA version 2 protocol
-is designed to be carried over RDMA transports
-that support the above abstract operations.
-This protocol conveys information
-sufficient for an RPC peer to direct an RDMA provider
-to perform transfers containing RPC data
-and to communicate their result(s).
-</t>
+</section>
+
 </section>
 
 </section>
@@ -608,14 +635,14 @@ or whole RPC replies to each Requester.
  title="Message Framing"
  anchor="section:195e0288-862d-40bb-a259-4239930c728a">
 <t>
-Each RPC-over-RDMA version 2 message consists of exactly two XDR streams:
+Each RPC-over-RDMA version 2 message consists of at most two XDR streams:
 <list style="hanging">
 <t hangText="Transport Stream"><vspace blankLines="0"/>
 The "Transport stream" contains a header that describes
 and controls the transfer of the Payload stream
 in this RPC-over-RDMA message.
 Every RDMA Send message on an RPC-over-RDMA version 2
-connection begins with a Transport stream.
+connection MUST begin with a Transport stream.
 </t>
 <t hangText="RPC Payload Stream"><vspace blankLines="0"/>
 The "Payload stream" contains part or all of a single RPC message.
@@ -626,14 +653,16 @@ MUST send RPC message fragments in XDR stream order
 and
 MUST NOT interleave Payload streams from multiple RPC messages.
 The RPC-over-RDMA version 2 message carrying the final part
-of an RPC message is marked.
+of an RPC message is marked (see
+<xref target="section:fb299673-74f3-4f01-adb5-26a02ccd679f"/>).
 </t>
 </list>
-In its simplest form, an RPC-over-RDMA version 2 message consists of
+In its simplest form, an RPC-over-RDMA version 2 message
+conveying an RPC message payload consists of
 a Transport stream
 followed immediately by
 a Payload stream
-conveyed together in a single RDMA Send.
+transmitted together via a single RDMA Send.
 </t>
 <t>
 RPC-over-RDMA framing replaces all other RPC framing
@@ -711,7 +740,7 @@ To achieve this,
 credits are assigned to each connection peer's posted Receive buffers.
 Each Requester has a set of Receive credits, and
 each Responder has a set of Receive credits.
-These credit values are managed independently of each other.
+These credit values are managed independently of one another.
 </t>
 <t>
 Section 7 of
@@ -734,7 +763,7 @@ and responder credits,
 sent in messages from the responder to the requester.
 </t>
 <t>
-A sender MUST NOT send unacknowledged messages
+A sender MUST NOT send RDMA messages
 in excess of the receiver's granted credit limit.
 If the granted value is exceeded,
 the RDMA layer may signal an error,
@@ -831,7 +860,7 @@ XDR definition it is described as rdma_start.rdma_vers.
 First, the client sends a single valid RPC-over-RDMA message
 with the value two (2) in the rdma_vers field.
 Because the server might support only RPC-over-RDMA
-version 1, this initial message can be no larger than the
+version 1, this initial message MUST NOT be larger than the
 version 1 default inline threshold of 1024 bytes.
 </t>
 
@@ -881,10 +910,11 @@ for the transport protocol version that has been selected.
  anchor="section:1ffe4c69-b516-476a-bba7-41863709f48d">
 <t>
 If the server supports the RPC-over-RDMA protocol version
-used in Call messages from a client,
-it MUST send Replies with the same RPC-over-RDMA protocol version
-that the client uses to send its Calls.
-The client MUST NOT change the version during the duration of the connection.
+used in the first RPC-over-RDMA message received from a client,
+it MUST use that protocol version in all subsequent messages
+it sends on that connection.
+The client MUST NOT change the protocol version
+for the duration of the connection.
 </t>
 </section>
 
@@ -1252,7 +1282,7 @@ the same as the encoded length of the result data item.
 </section>
 
 <section
- title="Message Size"
+ title="Message Transfer Methods"
  anchor="section:740e5b29-8c88-40ab-9506-69635d9a8167">
 <t>
 A receiver of RDMA Send operations is required
@@ -1269,7 +1299,7 @@ RPC message payloads of any size to be conveyed efficiently.
  title="Short Messages"
  anchor="section:13a871a4-554f-4e3c-89ba-c5a75929f01E">
 <t>
-RPC messages are frequently smaller than typical inline thresholds.
+RPC message payloads are often smaller than typical inline thresholds.
 For example, an NFS version 3 GETATTR operation is only 56 octets:
 20 octets of RPC header,
 a 32-octet file handle argument,
@@ -1798,7 +1828,8 @@ In particular,
 <list style="symbols">
 <t>
 Requesters may use the value to determine when it is necessary to
-provide a Position Zero Read chunk when sending a request.
+provide a Position Zero Read chunk or Message Continuation
+when sending a request.
 </t>
 <t>
 Requesters may use the value to determine when it is necessary to
@@ -1884,9 +1915,8 @@ direction requests and replies is not supported.
 <t>
 The value RDMA2_RVREQSUP_INLINE indicates that receipt of reverse
 direction requests or replies is only supported using inline
-messages and that use of explicit RDMA operations or other form of
-Direct Data Placement for reverse direction requests or responses
-is not supported.
+messages and that use of explicit RDMA operations
+for reverse direction messages is not supported.
 </t>
 <t>
 The value RDMA2_RVREQSUP_GENL that receipt of reverse direction
@@ -2173,7 +2203,7 @@ RPCRDMA2_F_RESPONSE flag
 and the
 RPCRDMA2_F_MORE flag.
 The other bits are reserved for future use as described in
-<xref target="section:15c76685-a24d-4799-bc8a-311d03ac3510"/>.
+<xref target="section:55a1749d-702c-48e4-b78c-0db392692c09"/>.
 The sender MUST set these flags to zero.
 </t>
 
@@ -2234,7 +2264,14 @@ the receiver is to concatenate the data payload of the next
 received message to the end of the data payload of the
 current received message.
 The sender clears the RPCRDMA2_F_MORE flag in the final
-message means in the sequence.
+message in the sequence.
+</t>
+<t>
+All RPC-over-RDMA messages in such a sequence MUST have the same values
+in the rdma_start.rdma_xid and rdma_start.rdma_htype fields.
+If this constraint is not met,
+the receiver MUST respond with an RDMA2_ERROR message
+with the rdma_err field set to RDMA2_ERR_INVAL_FLAG.
 </t>
 <t>
 If a peer receives an RPC-over-RDMA message
@@ -2244,6 +2281,11 @@ the rdma_start.rdma_htype field does not contain
 RDMA2_MSG or RDMA2_CONNPROP,
 the receiver MUST respond with
 an RDMA2_ERROR message with the rdma_err field set to RDMA2_ERR_INVAL_FLAG.
+</t>
+<t>
+[ dnoveck: Both the above and your error in the existing third paragraph
+raise issues since they could be sent by a responder.
+Will need to fix RDMA2_ERROR so that this can be done when appropriate. ]
 </t>
 <t>
 When the RPCRDMA2_F_MORE flag is set in an individual message,
@@ -2744,13 +2786,13 @@ without any error response being generated.
  title="Choosing a Reply Mechanism"
  anchor="section:19fc8c94-d83f-4c1b-8ce3-700918d129b5">
 <t>
-A requester provides registered memory resources for both
+A requester provides any necessary registered memory resources for both
 an RPC Call message
 and
 its matching RPC Reply message.
 A requester forms each RPC Call itself,
-thus it can compute the exact resources needed to send every Call.
-However, the requester must allocate resources
+thus it can compute the exact memory resources needed to send every Call.
+However, the requester must allocate memory resources
 to receive the corresponding Reply before the responder has formed it.
 In some cases it is difficult for the requester to know in advance
 precisely what resources will be needed to receive the Reply.
@@ -3027,6 +3069,7 @@ together with the file common.x, obtained from this document.
 /// };
 ///
 /// const RPCRDMA2_F_RESPONSE           0x00000001;
+/// const RPCRDMA2_F_MORE               0x00000002;
 ///
 /// struct rpcrdma2_hdr_prefix
 ///         struct rpcrdma_common       rdma_start;
@@ -4118,8 +4161,8 @@ the protocol described earlier in this document.
 </t>
 <t>
 Subsequent RPC-over-RDMA versions are free to change the protocol
-in any way they choose as long as they maintain the first four header words
-as currently specified by
+in any way they choose as long as they leave unchanged those fields
+identified as "fixed for all versions" in Section 4.2.1 of
 <xref target="RFC8166"/>.
 </t>
 <t>
@@ -4227,7 +4270,7 @@ New error codes may be created as described in
 </t>
 <t>
 New flags to use within the rdma_flags field may be created as described in
-<xref target="section:15c76685-a24d-4799-bc8a-311d03ac3510"/>.
+<xref target="section:55a1749d-702c-48e4-b78c-0db392692c09"/>.
 </t>
 </list>
 </t>
@@ -4298,7 +4341,7 @@ this should be noted.
 </section>
 
 <section
- title="Adding New rdma_flags Bits"
+ title="Adding New Header Flags to the Protocol"
  anchor="section:55a1749d-702c-48e4-b78c-0db392692c09">
 <t>
 New flag bits are to defined in a manner similar to
@@ -4313,10 +4356,19 @@ and
 Each new flag definition should include:
 <list style="symbols">
 <t>
+An XDR description of the new flag.
+</t>
+<t>
 A description of the function and use of the new flag.
 </t>
 <t>
-An XDR description of the new flag.
+An indication for which header types the flag value is meaningful
+and
+for which header types it is an error to set the flag or to leave it unset.
+</t>
+<t>
+A means to determine whether receivers are prepared
+to receive transport headers with the new flag set.
 </t>
 </list>
 </t>
@@ -4333,7 +4385,6 @@ this needs to be documented.
 </t>
 </list>
 </t>
-
 </section>
 
 <section
@@ -4444,41 +4495,6 @@ It should be documented just like any other new header type.
 <t>
 When a new header type is sent, the sender needs to be prepared to accept
 header types necessary to report associated errors.
-</t>
-</section>
-
-<section
- title="Adding New Header Flags to the Protocol"
- anchor="section:15c76685-a24d-4799-bc8a-311d03ac3510">
-<t>
-There are currently thirty-one flags available for later assignment.
-One possible use for such flags would be in a later protocol version,
-should that version retain the same general header structure as version 2.
-</t>
-<t>
-In addition, it is possible to assign unused flags within
-extensions made to version 2, as long as the following practices are adhered to:
-<list style="symbols">
-<t>
-Flags should not be added to the flag word in the prefix structure if those
-flags only apply to a single header type.
-New flags should only be defined for conditions applying to multiple header types.
-</t>
-<t>
-The document defining the new flag should indicate for which header types
-the flag value is meaningful and for which header types it is an error to set
-the flag or to leave it unset.
-</t>
-<t>
-The sender needs to be provided with a means to determine whether the receiver
-is prepared to receive transport headers with the new flag set.
-This is most likely to take the form of a transport property
-together with the definition of suitable defaults
-to use when that property is not supported.
-Another possibility is to REQUIRE that receivers
-supporting a particular header type also support a set of additional flags.
-</t>
-</list>
 </t>
 </section>
 
@@ -4924,7 +4940,7 @@ script used in this document.
 </t>
 <t>
 Special thanks go to
-Transport Area Director Spencer Dawkins,
+Transport Area Director Magnus Westerlund,
 NFSV4 Working Group Chairs Spencer Shepler
 and
 Brian Pawlowski,
