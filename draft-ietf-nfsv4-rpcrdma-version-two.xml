@@ -147,7 +147,7 @@ that require changes to on-the-wire behavior.
 </t>
 <t>
 For some RPC procedures, the maximum reply size is
-difficult or impossible for a Requester to estimate
+difficult or impossible for an RPC client to estimate
 in advance.
 </t>
 </list>
@@ -214,7 +214,7 @@ the External Data Representation (XDR)
 <xref target="RFC4506"/>
 used by it.
 RPC-over-RDMA version 2 enables the transmission of RPC messges built using XDR
-and also uses XDR internaly to describe its own header formats
+and also uses XDR internaly to describe its own header formats.
 An understanding of RPC and its use of XDR is assumed in this document.
 </t>
 
@@ -334,8 +334,8 @@ while servers wait passively to accept incoming connection requests.
 Most commonly,
 the client end of the connection acts in the role of Requester,
 and the server end of the connection acts as a Responder.
-In some cases,
-RPC can also be used to send RPC requests in the reverse direction.
+However,
+RPC transactions can also be sent in the reverse direction.
 In this case, the server end of the connection acts as a Requestor
 while the client end acts as a Responder.
 </t>
