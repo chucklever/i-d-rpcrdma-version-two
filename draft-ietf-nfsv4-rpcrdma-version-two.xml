@@ -16,7 +16,7 @@
 
 <front>
 
-<title abbrev="RDMA Transport for RPC V2">
+<title abbrev="RPC-over-RDMA Version 2">
 RPC-over-RDMA Version 2 Protocol
 </title>
 
@@ -1282,31 +1282,38 @@ the same as the encoded length of the result data item.
 </section>
 
 <section
- title="Message Transfer Methods"
+ title="Message Format"
  anchor="section:740e5b29-8c88-40ab-9506-69635d9a8167">
 <t>
-A receiver of RDMA Send operations is required
-to have previously posted one or more adequately sized buffers.
-Memory savings are achieved on both Requesters and Responders
-by posting small Receive buffers.
-However, not all RPC messages are small.
-RPC-over-RDMA version 2
-provides several mechanisms that enable
-RPC message payloads of any size to be conveyed efficiently.
+Because a Responder is required to have previously posted
+recieve resources, RPC/RDMA version 2 provides several
+ways of conveying an RPC/RDMA message.
+A sender chooses the specific format for a message
+among several factors:
+<list style="symbols">
+<t>
+The existence of DDP-eligible data items in the RPC message
+</t>
+<t>
+The size of the RPC message to be transported
+</t>
+<t>
+The direction of the RPC message (i.e., Call or Reply)
+</t>
+<t>
+The hardware resources that are available
+</t>
+<t>
+The arrangement of the sink memory buffers
+</t>
+</list>
+The following subsections describe in detail how each format 
+is constructued.
 </t>
 
 <section
- title="Short Messages"
+ title="Simple Format"
  anchor="section:13a871a4-554f-4e3c-89ba-c5a75929f01E">
-<t>
-RPC message payloads are often smaller than typical inline thresholds.
-For example, an NFS version 3 GETATTR operation is only 56 octets:
-20 octets of RPC header,
-a 32-octet file handle argument,
-and
-4 octets for its length.
-The reply to this common request is about 100 octets.
-</t>
 <t>
 Since all RPC messages conveyed via RPC-over-RDMA version 2
 require at least one RDMA Send operation,
@@ -1316,70 +1323,13 @@ is to append the Payload stream directly to the Transport stream.
 An RPC-over-RDMA header with a small RPC Call or Reply
 message immediately following is transferred using a single
 RDMA Send operation.
-No other operations are needed.
+When no chunks are present,
+Calls and Replies are constructed the same way, and
+no other operations are needed.
 </t>
-<t>
-An RPC-over-RDMA transaction using a Short Message:
-<figure align="left">
-<artwork xml:space="preserve" align="left">
-        Requester                             Responder
-            |        RDMA Send (RDMA_MSG)         |
-       Call |   ------------------------------&gt;   |
-            |                                     |
-            |                                     | Processing
-            |                                     |
-            |        RDMA Send (RDMA_MSG)         |
-            |   &lt;------------------------------   | Reply
-</artwork>
-</figure>
-</t>
-</section>
 
 <section
- title="Continued Messages"
- anchor="section:bda7bc14-2a3d-4224-873c-855912218987">
-<t>
-If an RPC message is larger than the inline threshold,
-the sender can choose to split that message over multiple
-RPC-over-RDMA messages.
-The Payload stream of each RPC-over-RDMA message contains
-a part of the RPC message.
-The receiver reconstitutes the RPC message by concatenating
-the Payload streams of the sequence
-of RPC-over-RDMA messages together.
-</t>
-<t>
-Though the purpose of a Continued Message is to handle
-large RPC messages,
-senders MAY use a Continued Message at any time
-to convey an RPC message,
-and MAY split the RPC message payload on any convenient
-boundary.
-</t>
-<t>
-An RPC-over-RDMA transaction using a Continued Message:
-<figure align="left">
-<artwork xml:space="preserve" align="left">
-        Requester                             Responder
-            |        RDMA Send (RDMA_MSG)         |
-       Call |   ------------------------------&gt;   |
-            |        RDMA Send (RDMA_MSG)         |
-            |   ------------------------------&gt;   |
-            |        RDMA Send (RDMA_MSG)         |
-            |   ------------------------------&gt;   |
-            |                                     |
-            |                                     |
-            |                                     | Processing
-            |                                     |
-            |        RDMA Send (RDMA_MSG)         |
-            |   &lt;------------------------------   | Reply
-</artwork>
-</figure>
-</t>
-</section>
-
-<section
- title="Chunked Messages"
+ title="Simple Format with Chunks"
  anchor="section:41c2df3b-e54d-4ccf-9eac-860f44dec2d2">
 <t>
 If DDP-eligible data items are present in a Payload stream,
@@ -1390,16 +1340,49 @@ The Transport stream with the reduced Payload stream immediately
 following is then transferred using a single RDMA Send operation.
 </t>
 <t>
+When chunks are present, 
+Calls are handled differently than Replies.
+<list style="hanging">
+<t hangText="Simple Call"><vspace blankLines="0"/>
 After receiving the Transport and Payload streams
 of an RPC Call message accompanied by Read chunks,
 the Responder uses RDMA Read operations to move reduced data items in Read chunks.
+RPC/RDMA Replies never convey Read chunks.
+</t>
+<t hangText="Simple Reply"><vspace blankLines="0"/>
 Before sending the Transport and Payload streams of an RPC Reply message
 containing Write chunks, the Responder uses RDMA Write operations
 to move reduced data items in Write and Reply chunks.
+RPC/RDMA Calls can carry provisioned but unused Write chunks
+for the Responder to use for the sending matching Reply.
 </t>
+</list>
+</t>
+</section>
+
+<section
+ title="Simple Format Examples"
+ anchor="section:a690cf12-0e31-4df2-a32a-8cb8e2a3b2c8">
 <t>
-An RPC-over-RDMA transaction with a Read chunk:
-<figure align="left">
+<figure
+ align="left"
+ title="A Simple Call without chunks and
+        a Simple Reply without chunks">
+<artwork xml:space="preserve" align="left">
+        Requester                             Responder
+            |        RDMA Send (RDMA_MSG)         |
+       Call |   ------------------------------&gt;   |
+            |                                     |
+            |                                     | Processing
+            |                                     |
+            |        RDMA Send (RDMA_MSG)         |
+            |   &lt;------------------------------   | Reply
+</artwork>
+</figure>
+<figure
+ align="left"
+ title="A Simple Call with a Read chunk and
+        a Simple Reply without chunks">
 <artwork xml:space="preserve" align="left">
         Requester                             Responder
             |        RDMA Send (RDMA_MSG)         |
@@ -1415,10 +1398,10 @@ An RPC-over-RDMA transaction with a Read chunk:
             |   &lt;------------------------------   | Reply
 </artwork>
 </figure>
-</t>
-<t>
-An RPC-over-RDMA transaction with a Write chunk:
-<figure align="left">
+<figure
+ align="left"
+ title="A Simple Call without chunks and
+        a Simple Reply with a Write chunk">
 <artwork xml:space="preserve" align="left">
         Requester                             Responder
             |        RDMA Send (RDMA_MSG)         |
@@ -1433,54 +1416,176 @@ An RPC-over-RDMA transaction with a Write chunk:
 </artwork>
 </figure>
 </t>
+</section>
+
+</section>
+
+<section
+ title="Continued Format"
+ anchor="section:bda7bc14-2a3d-4224-873c-855912218987">
 <t>
-Chunking and Message Continuation can be combined.
-After reduction, the sender MAY split the reduced
-RPC message into multiple Payload streams and then send it
-via a Continued Message.
+A sender can choose to split a message payload over multiple
+RPC-over-RDMA messages.
+The Payload stream of each RPC-over-RDMA message contains
+a part of the RPC message.
+The receiver reconstitutes the RPC message by concatenating
+the Payload streams of the sequence
+of RPC-over-RDMA messages together.
+A Sender MAY split an RPC message payload on any convenient
+boundary.
+</t>
+
+<section
+ title="Continued Format with Chunks"
+ anchor="section:3b102dbf-81b2-4e0f-bb4b-d238db83ab44">
+<t>
+When no chunks are present,
+Calls and Replies are constructed the same way.
+However, if DDP-eligible data items are present in a Payload stream,
+a sender MAY reduce some or all of these items by removing them
+from the Payload stream.
+The sender then uses a separate mechanism to transfer the reduced data items.
+The Transport stream with the reduced Payload stream immediately
+following is then transferred using a single RDMA Send operation.
+</t>
+<t>
+As with Simple Format messages, when chunks are present, 
+Calls are handled differently than Replies.
+<list style="hanging">
+<t hangText="Continued Call"><vspace blankLines="0"/>
+After receiving the Transport and Payload streams
+of an RPC Call message accompanied by Read chunks,
+the Responder uses RDMA Read operations to move reduced data items in Read chunks.
+RPC/RDMA Replies never convey Read chunks.
+</t>
+<t hangText="Continued Reply"><vspace blankLines="0"/>
+Before sending the Transport and Payload streams of an RPC Reply message
+containing Write chunks, the Responder uses RDMA Write operations
+to move reduced data items in Write and Reply chunks.
+RPC/RDMA Calls can carry provisioned but unused Write chunks
+for the Responder to use for the sending matching Reply.
+</t>
+</list>
 </t>
 </section>
 
 <section
- title="Long Messages"
+ anchor="section:49c71620-d55a-4867-801a-10928118befe"
+ title="Continued Format Examples">
+<t>
+<figure
+ align="left"
+ title="A Continued Call without chunks and
+        a Continued Reply without chunks">
+<artwork xml:space="preserve" align="left">
+        Requester                             Responder
+            |        RDMA Send (RDMA_MSG)         |
+       Call |   ------------------------------&gt;   |
+            |        RDMA Send (RDMA_MSG)         |
+            |   ------------------------------&gt;   |
+            |        RDMA Send (RDMA_MSG)         |
+            |   ------------------------------&gt;   |
+            |                                     |
+            |                                     |
+            |                                     | Processing
+            |                                     |
+            |        RDMA Send (RDMA_MSG)         |
+            |   &lt;------------------------------   | Reply
+            |        RDMA Send (RDMA_MSG)         |
+            |   &lt;------------------------------   |
+            |        RDMA Send (RDMA_MSG)         |
+            |   &lt;------------------------------   |
+</artwork>
+</figure>
+<figure
+ align="left"
+ title="A Continued Call with a Read chunk and
+        a Simple Reply without chunks">
+<artwork xml:space="preserve" align="left">
+        Requester                             Responder
+            |        RDMA Send (RDMA_MSG)         |
+       Call |   ------------------------------&gt;   |
+            |        RDMA Send (RDMA_MSG)         |
+            |   ------------------------------&gt;   |
+            |        RDMA Send (RDMA_MSG)         |
+            |   ------------------------------&gt;   |
+            |        RDMA Read                    |
+            |   &lt;------------------------------   |
+            |        RDMA Response (arg data)     |
+            |   ------------------------------&gt;   |
+            |                                     |
+            |                                     | Processing
+            |                                     |
+            |        RDMA Send (RDMA_MSG)         |
+            |   &lt;------------------------------   | Reply
+</artwork>
+</figure>
+<figure
+ align="left"
+ title="A Simple Call without chunks and
+        a Continued Reply with a Write chunk">
+<artwork xml:space="preserve" align="left">
+        Requester                             Responder
+            |        RDMA Send (RDMA_MSG)         |
+       Call |   ------------------------------&gt;   |
+            |                                     |
+            |                                     | Processing
+            |                                     |
+            |        RDMA Write (result data)     |
+            |   &lt;------------------------------   |
+            |        RDMA Send (RDMA_MSG)         |
+            |   &lt;------------------------------   | Reply
+            |        RDMA Send (RDMA_MSG)         |
+            |   &lt;------------------------------   |
+            |        RDMA Send (RDMA_MSG)         |
+            |   &lt;------------------------------   |
+</artwork>
+</figure>
+</t>
+</section>
+
+</section>
+
+<section
+ title="Special Format"
  anchor="section:d9731520-bdde-4a1b-9f54-9901d5c57648">
 <t>
-When a Payload stream is larger than the receiver's inline threshold,
-the Payload stream is reduced by removing DDP-eligible data items
-and placing them in chunks to be moved separately.
 If there are no DDP-eligible data items in the Payload stream,
 or the Payload stream is still too large after it has been reduced,
 the sender uses either Message Continuation,
 or it can use RDMA Read or Write operations to convey the
 entire RPC message.
-The latter mechanism is referred to as a "Long Message".
+The latter mechanism is referred to as a "Special Format" message.
 </t>
 <t>
-To transmit a Long Message, the sender conveys only the Transport stream
+To transmit a Special Format Message,
+the sender conveys only the Transport stream
 with an RDMA Send operation.
 The Payload stream is not included in the Send buffer in this instance.
 Instead, the Requester provides chunks that the Responder
 uses to move the Payload stream.
+Like other formats, because chunks are present,
+Calls are handled differently than Replies.
 <list style="hanging">
-<t hangText="Long Call"><vspace blankLines="0"/>
-To send a Long Call message, the Requester provides a special Read chunk
+<t hangText="Special Format Call"><vspace blankLines="0"/>
+The Requester provides a Read chunk
 that contains the RPC Call message's Payload stream.
 Every RDMA read segment in this chunk MUST contain zero in its Position field.
 This type of chunk is known as a "Position Zero Read chunk".
 </t>
-<t hangText="Long Reply"><vspace blankLines="0"/>
-To send a Long Reply, the Requester provides a single special Write chunk
-in advance, known as the "Reply chunk",
+<t hangText="Special Format Reply"><vspace blankLines="0"/>
+The Requester provisions a single Write chunk in advance,
+known as the "Reply chunk",
 that will contain the RPC Reply message's Payload stream.
 The Requester sizes the Reply chunk to accommodate the maximum expected
 reply size for that upper-layer operation.
 </t>
 </list>
-Though the purpose of a Long Message is to handle large RPC messages,
-Requesters MAY use a Long Message at any time to convey an RPC Call message.
+Though the purpose of a Special Format Message is to handle large RPC messages,
+Requesters MAY use a Special Format Message at any time to convey an RPC Call message.
 </t>
 <t>
-A Responder chooses which form of reply to use based on the chunks provided
+A Responder chooses which Format to use based on the chunks provided
 by the Requester.
 If Write chunks were provided and the Responder has a DDP-eligible result,
 it first reduces the reply Payload stream.
@@ -1495,9 +1600,14 @@ As these chunks contain a Payload stream,
 such chunks MUST include appropriate XDR roundup padding
 to maintain proper XDR alignment of their contents.
 </t>
+
+<section
+ anchor="section:199de5c1-e307-4664-abeb-dd687b4329c3"
+ title="Special Format Examples">
 <t>
-An RPC-over-RDMA transaction using a Long Call:
-<figure align="left">
+<figure
+ align="left"
+ title="A Special Call and a Simple Reply without chunks">
 <artwork xml:space="preserve" align="left">
         Requester                             Responder
             |        RDMA Send (RDMA_NOMSG)       |
@@ -1515,8 +1625,9 @@ An RPC-over-RDMA transaction using a Long Call:
 </figure>
 </t>
 <t>
-An RPC-over-RDMA transaction using a Long Reply:
-<figure align="left">
+<figure
+ align="left"
+ title="A Simple Call without chunks and a Special Reply">
 <artwork xml:space="preserve" align="left">
         Requester                             Responder
             |        RDMA Send (RDMA_MSG)         |
@@ -1531,6 +1642,8 @@ An RPC-over-RDMA transaction using a Long Reply:
 </artwork>
 </figure>
 </t>
+</section>
+
 </section>
 
 </section>
@@ -2344,7 +2457,7 @@ For the most part this structure parallels
 its RPC-over-RDMA version 1 equivalent.
 That is, the rdma_reads, rdma_writes, rdma_reply fields provide,
 respectively,
-descriptions of the chunks used to read a Long message or directly
+descriptions of the chunks used to read a Special Format message or directly
 placed data from the requester, to write directly placed response
 data into the requester's memory, and to write a long reply into the
 requester's memory.
@@ -2496,11 +2609,11 @@ struct rpcrdma2_msg {
  anchor="section:1c401555-4b7d-4e35-a9a3-8aa14228170e">
 <t>
 RDMA2_NOMSG can convey an entire RPC message payload using explicit RDMA operations.
-When an RPC message payload is present, this message type is also known as a Long message.
-In particular, it is a Long call
-when the responder reads the RPC payload from a memory area specified by a Position Zero Read chunk;
-and it is a Long reply
-when the respond writes the RPC payload into a memory area specified by a Reply chunk.
+When an RPC message payload is present, this message type is also known as a Special Format message.
+In particular, it is a Special Format Call
+when the Responder reads the RPC payload from a memory area specified by a Position Zero Read chunk;
+and it is a Special Format Reply
+when the Responder writes the RPC payload into a memory area specified by a Reply chunk.
 In both of these cases, the rdma_xid field is set to the same value
 as the xid of the RPC message payload.
 </t>
@@ -2527,7 +2640,7 @@ struct rpcrdma2_nomsg {
 </t>
 <t>
 In RPC-over-RDMA version 2,
-an alternative to using a Long message is to
+an alternative to using a Special Format message is to
 use Message Continuation.
 </t>
 </section>
@@ -3686,12 +3799,12 @@ when allocating reply buffers and Reply chunks.
 </t>
 <t>RPC messages, and thus Payload streams,
 are made larger as a result.
-ULP operations that fit in a Short Message when a simpler form of authentication is in use
-might need to be reduced or conveyed via a Long Message
+ULP operations that fit in a Simple Format message when a simpler form of authentication is in use
+might need to be reduced or conveyed via a Special Format message
 when RPCSEC_GSS authentication is in use.
 It is more likely that a Requester provides both a Read list and a Reply chunk
-in the same RPC-over-RDMA Transport header to convey a Long Call
-and provision a receptacle for a Long Reply.
+in the same RPC-over-RDMA Transport header to convey a Special Format Call
+and provision a receptacle for a Special Format Reply.
 </t>
 <t>
 In addition to this cost, the XDR encoding and decoding
@@ -3735,14 +3848,14 @@ Thus, reducing DDP-eligible items affects the result of message integrity verifi
 Therefore, a sender MUST NOT reduce a Payload stream
 when RPCSEC_GSS integrity or encryption services are in use.
 Effectively, no data item is DDP-eligible in this situation,
-and Chunked Messages cannot be used.
+and Formats with chunks cannot be used.
 In this mode, an RPC-over-RDMA transport operates
 in the same manner as a transport that does not support DDP.
 </t>
 <t>
 When an RPCSEC_GSS integrity or privacy service is in use,
 a Requester provides both a Read list and a Reply chunk in the same RPC-over-RDMA header
-to convey a Long Call and provision a receptacle for a Long Reply.
+to convey a Special Format Call and provision a receptacle for a Special Format Reply.
 </t>
 </section>
 
@@ -4733,7 +4846,7 @@ A connection's inline thresholds determine when RDMA Read or
 Write operations are required because the RPC message to be
 sent cannot be conveyed via a single RDMA Send and Receive pair.
 When an RPC message does not contain DDP-eligible data items,
-a requester can prepare a Long Call or Reply to convey the whole
+a requester can prepare a Special Format Call or Reply to convey the whole
 RPC message using RDMA Read or Write operations.
 </t>
 <t>
@@ -4755,7 +4868,7 @@ When RPC-over-RDMA version 1 was conceived, the typical size
 of RPC messages that did not involve a significant data payload
 was under 500 bytes.
 A 1024-byte inline threshold adequately minimized the frequency
-of inefficient Long messages.
+of inefficient Special Format messages.
 </t>
 <t>
 With NFS version 4.1
@@ -4769,7 +4882,7 @@ such as GETATTR and LOOKUP,
 reducing the efficiency of the transport.
 </t>
 <t>
-To reduce the need to use Long messages, RPC-over-RDMA
+To reduce the need to use Special Format messages, RPC-over-RDMA
 version 2 increases the default size of inline thresholds.
 This also increases the maximum size of reverse-direction
 RPC messages.
