@@ -77,47 +77,45 @@ Remote Direct Memory Access (RDMA)
 <xref target="RFC5041"/>
 <xref target="IBA"/>
 is a technique for moving data efficiently between network nodes.
-By directing data into destination buffers as it is sent
-on a network and placing it using direct memory access
-implemented by hardware,
-the complementary benefits of
-faster transfers
+By placing transferred data directly into destination buffers
+using Direct Memory Access, it achieves the reciprocal benefits of
+faster data transfer
 and
-reduced host overhead
-are obtained.
+reduced host CPU overhead.
 </t>
 <t>
 Open Network Computing Remote Procedure Call
 (ONC RPC, often shortened in NFSv4 documents to RPC)
 <xref target="RFC5531"/>
 is a Remote Procedure Call protocol
-that runs over a variety of transports.
+that runs over a variety of network transports.
 Most RPC implementations today use UDP
 <xref target="RFC0768"/>
 or
 TCP
 <xref target="RFC0793"/>.
-On UDP, RPC messages are encapsulated inside datagrams,
+RPC messages are encapsulated inside UDP datagrams,
 while on a TCP byte stream,
-RPC messages are delineated by a record marking protocol.
+a record marking protocol delineates RPC messages.
 An RDMA transport also conveys RPC messages
-in a specific fashion that must be fully described
+in a specific fashion that must be fully defined
 if RPC implementations are to interoperate
 when using RDMA to transport RPC transactions.
 </t>
 <t>
-RDMA transports present semantics that differ from either UDP or TCP.
-They retain message delineations like UDP
+An RDMA transport presents semantics that differs from either UDP or TCP.
+Such a transport retains message delineations like UDP
 but provide reliable and sequenced data transfer like TCP.
-They also provide an offloaded bulk transfer service
+It also provides an offloaded bulk transfer service
 not provided by UDP or TCP.
 RDMA transports are therefore appropriately treated
 as a new transport type by RPC.
 </t>
 <t>
 Although the RDMA transport described herein
-can provide relatively transparent support for any RPC application,
-this document also describes mechanisms that enable further optimization of data transfer,
+can transparently support any RPC application,
+the current document also describes mechanisms that
+enable further optimization of data transfer
 when RPC applications are structured to exploit awareness of a transport's RDMA capability.
 In this context, the Network File System (NFS) protocols,
 as described in
@@ -127,13 +125,13 @@ as described in
 <xref target="RFC5661"/>,
 and subsequent NFSv4 minor versions,
 are all potential beneficiaries of RDMA transports.
-A complete problem statement is presented in
+A complete problem statement appears in
 <xref target="RFC5532"/>.
 </t>
 <t>
 The RPC-over-RDMA version 1 protocol specified in
 <xref target="RFC8166"/>
-is deployed and in use,
+in use in the field,
 although there are known shortcomings to this protocol:
 <list style="symbols">
 <t>
@@ -153,25 +151,25 @@ in advance.
 </list>
 To address these issues in a way that enables interoperation
 with existing RPC-over-RDMA version 1 deployments,
-a second version of the RPC-over-RDMA transport protocol
-is presented in this document.
+we present a second version of the RPC-over-RDMA transport protocol
+in this document.
 </t>
 <t>
 Version 2 of RPC-over-RDMA is extensible,
-enabling OPTIONAL extensions to be added
+enabling the introduction of OPTIONAL extensions
 without impacting existing implementations.
-To enable protocol extension,
-the XDR definition for RPC-over-RDMA version 2 is
-organized differently than the definition version 1.
-These changes, which are discussed in
+We have significantly re-organized
+the XDR definition for RPC-over-RDMA version 2
+to enable protocol extension.
+These changes, discussed in
 <xref target="section:d945b9f0-0666-4db7-9126-be57cf7b5f4f"/>,
 do not alter the on-the-wire format.
 </t>
 <t>
-In addition, RPC-over-RDMA version 2 contains
+Also, RPC-over-RDMA version 2 contains
 a set of incremental changes that relieve certain
 performance constraints and enable recovery from
-abnormal corner cases.
+unusual corner cases.
 These changes are outlined in
 <xref target="section:c2574344-5aec-427d-a5ed-048d7fcc0d95"/>
 and include
@@ -179,7 +177,7 @@ a larger default inline threshold,
 the ability to convey a single RPC message using multiple RDMA Send operations,
 support for authentication of connection peers,
 richer error reporting,
-an improved credit-based flow control mechanism,
+improved credit-based flow control,
 and
 support for Remote Invalidation.
 </t>
