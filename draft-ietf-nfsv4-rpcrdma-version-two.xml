@@ -2593,11 +2593,11 @@ or an RPC reply that is not sent using a Reply chunk.
 const rpcrdma2_proc RDMA2_MSG = 0;
 
 struct rpcrdma2_msg {
-        struct rpcrdma2_chunk_lists  rdma_chunks;
+        struct rpcrdma2_chunk_lists rdma_chunks;
 
         /* The rpc message starts here and continues
          * through the end of the transmission. */
-        uint32                       rdma_rpc_first_word;
+        uint32                      rdma_rpc_first_word;
 };
 
 &lt;CODE ENDS&gt;
@@ -2633,7 +2633,7 @@ In this case, the sender MUST set the rdma_xid field to zero.
 const rpcrdma2_proc RDMA2_NOMSG = 1;
 
 struct rpcrdma2_nomsg {
-        struct rpcrdma2_chunk_lists  rdma_chunks;
+        struct rpcrdma2_chunk_lists rdma_chunks;
 };
 
 &lt;CODE ENDS&gt;
@@ -3299,15 +3299,15 @@ together with the file common.x, obtained from this document.
 ///  * Header Types to Convey RPC Messages.
 ///  */
 /// struct rpcrdma2_msg {
-///         struct rpcrdma2_chunk_lists  rdma_chunks;
+///         struct rpcrdma2_chunk_lists rdma_chunks;
 ///
 ///         /* The rpc message starts here and continues
 ///          * through the end of the transmission. */
-///         uint32                       rdma_rpc_first_word;
+///         uint32                      rdma_rpc_first_word;
 /// };
 ///
 /// struct rpcrdma2_nomsg {
-///         struct rpcrdma2_chunk_lists  rdma_chunks;
+///         struct rpcrdma2_chunk_lists rdma_chunks;
 /// };
 ///
 /// /*
@@ -3984,11 +3984,9 @@ possibly through use of a translation service as described in
 <?rfc include="reference.RFC.4506.xml"?>
 <?rfc include="reference.RFC.5042.xml"?>
 <?rfc include="reference.RFC.5056.xml"?>
-<?rfc include="reference.RFC.5280.xml"?>
 <?rfc include="reference.RFC.5531.xml"?>
 <?rfc include="reference.RFC.5660.xml"?>
 <?rfc include="reference.RFC.5665.xml"?>
-<?rfc include="reference.RFC.6125.xml"?>
 <?rfc include="reference.RFC.7861.xml"?>
 <?rfc include="reference.RFC.7942.xml"?>
 <?rfc include="reference.RFC.8166.xml"?>
