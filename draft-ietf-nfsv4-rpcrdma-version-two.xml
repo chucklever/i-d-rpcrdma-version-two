@@ -69,8 +69,8 @@ This version of the protocol is extensible.
 <middle>
 
 <section
- title="Introduction"
- anchor="section:72f6ba4a-aafb-4e9d-8b87-800ebccc5879">
+ anchor="section:72f6ba4a-aafb-4e9d-8b87-800ebccc5879"
+ title="Introduction">
 <t>
 Remote Direct Memory Access (RDMA)
 <xref target="RFC5040"/>
@@ -186,8 +186,8 @@ support for Remote Invalidation.
 </section>
 
 <section
- title="Requirements Language"
- anchor="section:ef1a2819-4d22-40af-8d38-fde10849c872">
+ anchor="section:ef1a2819-4d22-40af-8d38-fde10849c872"
+ title="Requirements Language">
 <t>
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY",
@@ -200,12 +200,12 @@ when, and only when, they appear in all capitals, as shown here.
 </section>
 
 <section
- title="Terminology"
- anchor="section:4DC39C9C-3770-491F-B674-F824E87E2143">
+ anchor="section:4dc39c9c-3770-491f-b674-f824e87e2143"
+ title="Terminology">
 
 <section
- title="Remote Procedure Calls"
- anchor="section:4d675e45-c377-48df-8029-c5c9f8c48f9f">
+ anchor="section:4d675e45-c377-48df-8029-c5c9f8c48f9f"
+ title="Remote Procedure Calls">
 <t>
 This section highlights key elements of the RPC protocol
 <xref target="RFC5531"/>
@@ -219,8 +219,8 @@ An understanding of RPC and its use of XDR is assumed in this document.
 </t>
 
 <section
- title="Upper-Layer Protocols"
- anchor="section:8d804fe5-c7c7-4c6c-92d8-888da10caaec">
+ anchor="section:8d804fe5-c7c7-4c6c-92d8-888da10caaec"
+ title="Upper-Layer Protocols">
 <t>
 RPCs are an abstraction used to implement the operations of an Upper-Layer Protocol (ULP).
 "ULP" refers to an RPC Program and Version tuple,
@@ -235,8 +235,8 @@ an implementation of a ULP running on an RPC client.
 </section>
 
 <section
- title="Requesters and Responders"
- anchor="section:17a77782-8b11-4fb5-af0b-e0da7759c10A">
+ anchor="section:17a77782-8b11-4fb5-af0b-e0da7759c10A"
+ title="Requesters and Responders">
 <t>
 Like a local procedure call,
 every RPC procedure has a set of "arguments" and a set of "results".
@@ -314,8 +314,8 @@ to complete the processing on an RPC transaction.
 </section>
 
 <section
- title="RPC Transports"
- anchor="section:63f47fcd-629b-4b00-aa8b-dbf836401581">
+ anchor="section:63f47fcd-629b-4b00-aa8b-dbf836401581"
+ title="RPC Transports">
 <t>
 The role of an "RPC transport" is to
 mediate the exchange of RPC messages between Requesters and Responders.
@@ -342,8 +342,8 @@ while the client end acts as a Responder.
 </section>
 
 <section
- title="External Data Representation"
- anchor="section:98bdc62c-0af4-4379-8b5c-6d98b7a520c7">
+ anchor="section:98bdc62c-0af4-4379-8b5c-6d98b7a520c7"
+ title="External Data Representation">
 <t>
 One cannot assume that all Requesters and Responders
 represent data objects the same way internally.
@@ -384,8 +384,8 @@ into its native data representation format.
 </t>
 
 <section
- title="XDR Opaque Data"
- anchor="section:c6d3092c-99e6-4cce-b377-fffc4862929F">
+ anchor="section:c6d3092c-99e6-4cce-b377-fffc4862929F"
+ title="XDR Opaque Data">
 <t>
 Sometimes, a data item is to be transferred as is:
 without encoding or decoding.
@@ -400,8 +400,8 @@ or generic byte strings.
 </section>
 
 <section
- title="XDR Roundup"
- anchor="section:c210323f-c524-4e98-a02d-23549a4bebc5">
+ anchor="section:c210323f-c524-4e98-a02d-23549a4bebc5"
+ title="XDR Roundup">
 <t>
 The number of octets in a variable-length data item
 precedes that item in an XDR stream.
@@ -424,8 +424,8 @@ and the extra octets are referred to as "XDR roundup padding".
 </section>
 
 <section
- title="Remote Direct Memory Access"
- anchor="section:de830270-64ed-4510-ac25-29837d352031">
+ anchor="section:de830270-64ed-4510-ac25-29837d352031"
+ title="Remote Direct Memory Access">
 <t>
 RPC Requesters and Responders can be made more efficient
 if large RPC messages are transferred by a third party,
@@ -442,8 +442,8 @@ the physical mechanism an RDMA transport utilizes when moving data.
 </t>
 
 <section
- title="Direct Data Placement"
- anchor="section:1b97ecfd-7aba-4299-9007-dab28ac76f81">
+ anchor="section:1b97ecfd-7aba-4299-9007-dab28ac76f81"
+ title="Direct Data Placement">
 <t>
 Typically, RPC implementations copy
 the contents of RPC messages into a buffer before being sent.
@@ -476,8 +476,8 @@ and DDP can be achieved using non-RDMA mechanisms.
 </section>
 
 <section
- title="RDMA Transport Requirements"
-anchor="section:6903045e-bd1c-4e12-bf96-6b534989f46A">
+ anchor="section:6903045e-bd1c-4e12-bf96-6b534989f46A"
+ title="RDMA Transport Requirements">
 <t>
 To achieve good performance during receive operations,
 RDMA transports require that
@@ -507,8 +507,8 @@ A more complete discussion of these operations can be found in
 </t>
 
 <section
- title="Memory Registration"
- anchor="section:90f88ba5-5ad6-4ac1-b40d-ed9247e61ca5">
+ anchor="section:90f88ba5-5ad6-4ac1-b40d-ed9247e61ca5"
+ title="Memory Registration">
 <t>
 Memory registration assigns a steering tag
 to a region of memory,
@@ -522,8 +522,8 @@ addresses of up to 64 bits in length.
 </section>
 
 <section
- title="RDMA Send"
- anchor="section:07bba55f-c48f-474c-918b-db6c9d2325dd">
+ anchor="section:07bba55f-c48f-474c-918b-db6c9d2325dd"
+ title="RDMA Send">
 <t>
 The RDMA provider supports an RDMA Send operation,
 with completion signaled on the receiving peer
@@ -536,8 +536,8 @@ is limited by the size of the remote peer's pre-posted buffers.
 </section>
 
 <section
- title="RDMA Receive"
- anchor="section:9be6a44c-1ea5-4ccd-b188-ee04e930497b">
+ anchor="section:9be6a44c-1ea5-4ccd-b188-ee04e930497b"
+ title="RDMA Receive">
 <t>
 The RDMA provider supports an RDMA Receive operation
 to receive data conveyed by incoming RDMA Send operations.
@@ -551,8 +551,8 @@ is provided by the RDMA consumer
 </section>
 
 <section
- title="RDMA Write"
- anchor="section:cfd79bce-e8e9-4a51-b43a-b747af6213f4">
+ anchor="section:cfd79bce-e8e9-4a51-b43a-b747af6213f4"
+ title="RDMA Write">
 <t>
 The RDMA provider supports an RDMA Write operation
 to place data directly into a remote memory region.
@@ -576,8 +576,8 @@ has been successfully placed in the remote peer's memory.
 </section>
 
 <section
- title="RDMA Read"
- anchor="section:f37121af-49ff-4575-a699-7310f4ae1296">
+ anchor="section:f37121af-49ff-4575-a699-7310f4ae1296"
+ title="RDMA Read">
 <t>
 The RDMA provider supports an RDMA Read operation
 to place peer source data directly into the read initiator's memory.
@@ -607,12 +607,12 @@ subsequently free associated source memory regions.
 </section>
 
 <section
- title="RPC-over-RDMA Protocol Framework"
- anchor="section:5ae4b016-9b44-4649-9021-5ae851ac9326">
+ anchor="section:5ae4b016-9b44-4649-9021-5ae851ac9326"
+ title="RPC-over-RDMA Protocol Framework">
 
 <section
- title="Transfer Model"
- anchor="section:27a8a236-70bd-4ded-9272-c65f3a5e4067">
+ anchor="section:27a8a236-70bd-4ded-9272-c65f3a5e4067"
+ title="Transfer Model">
 <t>
 A "transfer model" designates which endpoint exposes its memory
 and which is responsible for initiating the transfer of data.
@@ -632,8 +632,8 @@ or whole RPC replies to each Requester.
 </section>
 
 <section
- title="Message Framing"
- anchor="section:195e0288-862d-40bb-a259-4239930c728a">
+ anchor="section:195e0288-862d-40bb-a259-4239930c728a"
+ title="Message Framing">
 <t>
 Each RPC-over-RDMA version 2 message consists of at most two XDR streams:
 <list style="hanging">
@@ -682,8 +682,8 @@ and in concert with the underlying transport.
 </section>
 
 <section
- title="Managing Receiver Resources"
- anchor="section:130ce79c-8b13-479e-8108-a943024047dD">
+ anchor="section:130ce79c-8b13-479e-8108-a943024047dD"
+ title="Managing Receiver Resources">
 <t>
 The longevity of an RDMA connection mandates
 that sending endpoints respect the resource limits of peer receivers.
@@ -698,8 +698,8 @@ the RDMA connection can be terminated.
 </t>
 
 <section
- title="RPC-over-RDMA Version 2 Flow Control"
- anchor="section:45c67eb8-8dc6-47c3-8555-14270f1514bF">
+ anchor="section:45c67eb8-8dc6-47c3-8555-14270f1514bF"
+ title="RPC-over-RDMA Version 2 Flow Control">
 <t>
 Because RPC-over-RDMA requires reliable and in-order delivery
 of data payloads,
@@ -726,8 +726,8 @@ excellent buffer utilization.
 </t>
 
 <section
- title="Granting Credits"
- anchor="section:278fca6a-f2a8-42f3-a4e9-a8d4b217567e">
+ anchor="section:278fca6a-f2a8-42f3-a4e9-a8d4b217567e"
+ title="Granting Credits">
 <t>
 An RPC-over-RDMA version 2 credit is
 the capability to receive one RPC-over-RDMA version 2 message.
@@ -786,8 +786,8 @@ the responsibility of each RPC-over-RDMA version 2 implementation.
 </section>
 
 <section
- title="Asynchronous Credit Grants"
- anchor="section:f6348562-97f8-4413-96d7-bde3ff57b375">
+ anchor="section:f6348562-97f8-4413-96d7-bde3ff57b375"
+ title="Asynchronous Credit Grants">
 <t>
 A protocol convention is provided to enable one peer
 to refresh its credit grant to the other peer
@@ -809,8 +809,8 @@ the credit value it granted.
 </section>
 
 <section
- title="Inline Threshold"
- anchor="section:653e7ab4-782f-43f2-947f-d097ada8b3c9">
+ anchor="section:653e7ab4-782f-43f2-947f-d097ada8b3c9"
+ title="Inline Threshold">
 <t>
 An "inline threshold" value is the largest message size
 (in octets) that can be conveyed in one direction between
@@ -836,8 +836,8 @@ senders and receivers MUST assume both connection inline thresholds are 4096 byt
 </section>
 
 <section
- title="Initial Connection State"
- anchor="section:9563f1f0-28a7-48e1-a752-e842575c6539">
+ anchor="section:9563f1f0-28a7-48e1-a752-e842575c6539"
+ title="Initial Connection State">
 <t>
 When an RPC-over-RDMA version 2 client establishes a
 connection to a server, its first order of business is to
@@ -865,8 +865,8 @@ version 1 default inline threshold of 1024 bytes.
 </t>
 
 <section
- title="Server Does Support RPC-over-RDMA Version 2"
- anchor="section:8db4c54e-c1ce-43ba-93b4-031e829960f5">
+ anchor="section:8db4c54e-c1ce-43ba-93b4-031e829960f5"
+ title="Server Does Support RPC-over-RDMA Version 2">
 <t>
 If the server does support RPC-over-RDMA version 2,
 it sends RPC-over-RDMA messages back to the client
@@ -877,8 +877,8 @@ for RPC-over-RDMA version 2 connections (4096 bytes).
 </section>
 
 <section
- title="Server Does Not Support RPC-over-RDMA Version 2"
- anchor="section:bedc4e66-4295-4dd6-8ac9-dd06907a08ad">
+ anchor="section:bedc4e66-4295-4dd6-8ac9-dd06907a08ad"
+ title="Server Does Not Support RPC-over-RDMA Version 2">
 <t>
 If the server does not support RPC-over-RDMA version 2,
 it MUST send an RPC-over-RDMA message to the client with the
@@ -906,8 +906,8 @@ for the transport protocol version that has been selected.
 </section>
 
 <section
- title="Client Does Not Support RPC-over-RDMA Version 2"
- anchor="section:1ffe4c69-b516-476a-bba7-41863709f48d">
+ anchor="section:1ffe4c69-b516-476a-bba7-41863709f48d"
+ title="Client Does Not Support RPC-over-RDMA Version 2">
 <t>
 If the server supports the RPC-over-RDMA protocol version
 used in the first RPC-over-RDMA message received from a client,
@@ -923,8 +923,8 @@ for the duration of the connection.
 </section>
 
 <section
- title="XDR Encoding with Chunks"
- anchor="section:cfa8877c-b905-455d-b420-bf7a4a7f7829">
+ anchor="section:cfa8877c-b905-455d-b420-bf7a4a7f7829"
+ title="XDR Encoding with Chunks">
 <t>
 When a DDP capability is available,
 the transport places the contents of one or more XDR data items
@@ -933,8 +933,8 @@ separately from the transfer of other parts of the containing XDR stream.
 </t>
 
 <section
- title="Reducing an XDR Stream"
- anchor="section:0E225040-D15F-4E9A-A0C3-AFA115BB12C7">
+ anchor="section:0e225040-d15f-4e9a-a0c3-afa115bb12c7"
+ title="Reducing an XDR Stream">
 <t>
 RPC-over-RDMA version 2 provides a mechanism for
 moving part of an RPC message via a data transfer distinct
@@ -962,8 +962,8 @@ is referred to as a "reduced" data item.
 </section>
 
 <section
- title="DDP-Eligibility"
- anchor="section:155D7E5E-821B-485A-9B68-1248B7E35743">
+ anchor="section:155d7e5e-821b-485a-9b68-1248b7e35743"
+ title="DDP-Eligibility">
 <t>
 Not all XDR data items benefit from DDP.
 For example, small data items
@@ -990,8 +990,8 @@ Detailed requirements for ULBs are provided in
 </section>
 
 <section
- title="RDMA Segments"
- anchor="section:8966c401-1714-413c-9384-b1f71f0a920d">
+ anchor="section:8966c401-1714-413c-9384-b1f71f0a920d"
+ title="RDMA Segments">
 <t>
 When encoding a Payload stream that contains a DDP-eligible data item,
 a sender may choose to reduce that data item.
@@ -1034,8 +1034,8 @@ for further discussion.
 </section>
 
 <section
- title="Chunks"
- anchor="section:c561e45c-fe88-47e3-bdfd-689d482fcad3">
+ anchor="section:c561e45c-fe88-47e3-bdfd-689d482fcad3"
+ title="Chunks">
 <t>
 In RPC-over-RDMA version 2,
 a "chunk" refers to a portion of the Payload stream
@@ -1066,8 +1066,8 @@ before using them in RDMA operations.
 </t>
 
 <section
- title="Counted Arrays"
- anchor="section:2b8d1299-b521-4198-b99c-25b4e344b8bb">
+ anchor="section:2b8d1299-b521-4198-b99c-25b4e344b8bb"
+ title="Counted Arrays">
 <t>
 If a chunk contains a counted array data type,
 the count of array elements MUST remain in the Payload stream,
@@ -1088,8 +1088,8 @@ is transferred as part of the chunk.
 </section>
 
 <section
- title="Optional-Data"
- anchor="section:ec322087-6d38-42b9-b24b-831aabcfb5f9">
+ anchor="section:ec322087-6d38-42b9-b24b-831aabcfb5f9"
+ title="Optional-Data">
 <t>
 If a chunk contains an optional-data data type,
 the "is present" field MUST remain in the Payload stream,
@@ -1098,8 +1098,8 @@ while the data, if present, MUST be moved to the chunk.
 </section>
 
 <section
- title="XDR Unions"
- anchor="section:5ae887e6-fd9d-4a9f-a298-925b87a6a5b2">
+ anchor="section:5ae887e6-fd9d-4a9f-a298-925b87a6a5b2"
+ title="XDR Unions">
 <t>
 A union data type MUST NOT be made DDP-eligible,
 but one or more of its arms MAY be DDP-eligible,
@@ -1108,8 +1108,8 @@ subject to the other requirements in this section.
 </section>
 
 <section
- title="Chunk Roundup"
- anchor="section:a7aa6a3a-2d02-4c11-bb88-0ba2eb76b0c0">
+ anchor="section:a7aa6a3a-2d02-4c11-bb88-0ba2eb76b0c0"
+ title="Chunk Roundup">
 <t>
 Except in special cases (covered in
 <xref target="section:d9731520-bdde-4a1b-9f54-9901d5c57648"/>),
@@ -1127,7 +1127,9 @@ in the Payload stream begin on four-byte alignment.
 
 </section>
 
-<section title="Read Chunks" toc="default">
+<section
+ anchor="section:025098f1-1355-4c97-8fda-5b4859372aa5"
+ title="Read Chunks">
 <t>
 A "Read chunk" represents an XDR data item
 that is to be pulled from the Requester to the Responder.
@@ -1177,8 +1179,8 @@ even if one or more of the RDMA segments have a non-four-byte-aligned length.
 </t>
 
 <section
- title="Decoding Read Chunks"
- anchor="section:5f4cc5f7-325d-479c-b592-6e93979431d0">
+ anchor="section:5f4cc5f7-325d-479c-b592-6e93979431d0"
+ title="Decoding Read Chunks">
 <t>
 While decoding a received Payload stream,
 whenever the XDR offset in the Payload stream
@@ -1194,8 +1196,8 @@ The Requester may then release Read chunks advertised in the request.
 </section>
 
 <section
- title="Read Chunk Roundup"
- anchor="section:2d24ecfa-6471-43bc-9635-872a07dbe2f8">
+ anchor="section:2d24ecfa-6471-43bc-9635-872a07dbe2f8"
+ title="Read Chunk Roundup">
 <t>
 When reducing a variable-length argument data item,
 the Requester MUST NOT include the data item's XDR roundup
@@ -1207,8 +1209,8 @@ The chunk's total length MUST be the same as the encoded length of the data item
 </section>
 
 <section
- title="Write Chunks"
- anchor="section:b8492157-7734-43e8-9a90-8ee32c674a12">
+ anchor="section:b8492157-7734-43e8-9a90-8ee32c674a12"
+ title="Write Chunks">
 <t>
 While constructing an RPC Call message,
 a Requester prepares memory regions
@@ -1252,8 +1254,8 @@ but all of its segments are empty segments.
 </t>
 
 <section
- title="Decoding Write Chunks"
- anchor="section:2e73c718-e091-4d41-a88a-0b28c84fbe5c">
+ anchor="section:2e73c718-e091-4d41-a88a-0b28c84fbe5c"
+ title="Decoding Write Chunks">
 <t>
 After receiving the RPC Reply message,
 the Requester reconstructs the transferred data
@@ -1264,8 +1266,8 @@ of the associated DDP-eligible result data item.
 </section>
 
 <section
- title="Write Chunk Roundup"
- anchor="section:00f1edd4-2e2f-4b54-bc21-9d6dfa39556b">
+ anchor="section:00f1edd4-2e2f-4b54-bc21-9d6dfa39556b"
+ title="Write Chunk Roundup">
 <t>
 When provisioning a Write chunk for a variable-length result data item,
 the Requester MUST NOT include additional space for XDR roundup padding.
@@ -1282,8 +1284,8 @@ the same as the encoded length of the result data item.
 </section>
 
 <section
- title="Message Format"
- anchor="section:740e5b29-8c88-40ab-9506-69635d9a8167">
+ anchor="section:740e5b29-8c88-40ab-9506-69635d9a8167"
+ title="Message Format">
 <t>
 Because a Responder is required to have previously posted
 recieve resources, RPC/RDMA version 2 provides several
@@ -1312,8 +1314,8 @@ is constructued.
 </t>
 
 <section
- title="Simple Format"
- anchor="section:13a871a4-554f-4e3c-89ba-c5a75929f01E">
+ anchor="section:13a871a4-554f-4e3c-89ba-c5a75929f01E"
+ title="Simple Format">
 <t>
 Since all RPC messages conveyed via RPC-over-RDMA version 2
 require at least one RDMA Send operation,
@@ -1329,8 +1331,8 @@ no other operations are needed.
 </t>
 
 <section
- title="Simple Format with Chunks"
- anchor="section:41c2df3b-e54d-4ccf-9eac-860f44dec2d2">
+ anchor="section:41c2df3b-e54d-4ccf-9eac-860f44dec2d2"
+ title="Simple Format with Chunks">
 <t>
 If DDP-eligible data items are present in a Payload stream,
 a sender MAY reduce some or all of these items by removing them
@@ -1361,8 +1363,8 @@ for the Responder to use for the sending matching Reply.
 </section>
 
 <section
- title="Simple Format Examples"
- anchor="section:a690cf12-0e31-4df2-a32a-8cb8e2a3b2c8">
+ anchor="section:a690cf12-0e31-4df2-a32a-8cb8e2a3b2c8"
+ title="Simple Format Examples">
 <t>
 <figure
  align="left"
@@ -1421,8 +1423,8 @@ for the Responder to use for the sending matching Reply.
 </section>
 
 <section
- title="Continued Format"
- anchor="section:bda7bc14-2a3d-4224-873c-855912218987">
+ anchor="section:bda7bc14-2a3d-4224-873c-855912218987"
+ title="Continued Format">
 <t>
 A sender can choose to split a message payload over multiple
 RPC-over-RDMA messages.
@@ -1436,8 +1438,8 @@ boundary.
 </t>
 
 <section
- title="Continued Format with Chunks"
- anchor="section:3b102dbf-81b2-4e0f-bb4b-d238db83ab44">
+ anchor="section:3b102dbf-81b2-4e0f-bb4b-d238db83ab44"
+ title="Continued Format with Chunks">
 <t>
 When no chunks are present,
 Calls and Replies are constructed the same way.
@@ -1547,8 +1549,8 @@ for the Responder to use for the sending matching Reply.
 </section>
 
 <section
- title="Special Format"
- anchor="section:d9731520-bdde-4a1b-9f54-9901d5c57648">
+ anchor="section:d9731520-bdde-4a1b-9f54-9901d5c57648"
+ title="Special Format">
 <t>
 If there are no DDP-eligible data items in the Payload stream,
 or the Payload stream is still too large after it has been reduced,
@@ -1651,8 +1653,8 @@ to maintain proper XDR alignment of their contents.
 </section>
 
 <section
- title="Transport Properties"
- anchor="section:86248e99-ca60-478a-8aff-3fb387410077">
+ anchor="section:86248e99-ca60-478a-8aff-3fb387410077"
+ title="Transport Properties">
 <t>
 RPC-over-RDMA version 2 provides a mechanism
 for connection endpoints
@@ -1682,8 +1684,8 @@ For discussion of extensions to the set of transport properties, see
 </t>
 
 <section
- title="Transport Properties Model"
- anchor="section:d5ac12f6-6735-48f3-b4ba-b44a19ff9298">
+ anchor="section:d5ac12f6-6735-48f3-b4ba-b44a19ff9298"
+ title="Transport Properties Model">
 <t>
 A basic set of receiver and sender properties is specified in this document.
 An extensible approach is used, allowing new properties to be defined
@@ -1787,8 +1789,8 @@ Words beyond the last one specified are treated as containing zero.
 </section>
 
 <section
- title="Current Transport Properties"
- anchor="section:943010bd-c342-46b7-9fcd-df746437dd6f">
+ anchor="section:943010bd-c342-46b7-9fcd-df746437dd6f"
+ title="Current Transport Properties">
 <t>
 Although the set of transport properties may be extended,
 a basic set of transport properties is defined in
@@ -1890,8 +1892,8 @@ property.
 </texttable>
 
 <section
- title="Maximum Send Size"
- anchor="section:0a985ff5-a5c1-477f-8932-517be34ccf65">
+ anchor="section:0a985ff5-a5c1-477f-8932-517be34ccf65"
+ title="Maximum Send Size">
 <t>
 The Maximum Send Size specifies the maximum size, in octets,
 of Send payloads.
@@ -1913,8 +1915,8 @@ typedef uint32 rpcrdma2_prop_sbsiz;
 </section>
 
 <section
- title="Receive Buffer Size"
- anchor="section:5101b1f1-b1ad-4b6b-9fa4-d6fa324ffc0d">
+ anchor="section:5101b1f1-b1ad-4b6b-9fa4-d6fa324ffc0d"
+ title="Receive Buffer Size">
 <t>
 The Receive Buffer Size specifies the minimum size, in octets,
 of pre-posted receive buffers.
@@ -1959,8 +1961,8 @@ provided by the requester.
 </section>
 
 <section
- title="Maximum RDMA Segment Size"
- anchor="section:14ed280d-521c-410c-a190-cf891be53900">
+ anchor="section:14ed280d-521c-410c-a190-cf891be53900"
+ title="Maximum RDMA Segment Size">
 <t>
 The Maximum RDMA Segment Size specifies the maximum size, in octets,
 of an RDMA segment this endpoint is prepared to send or receive.
@@ -1978,8 +1980,8 @@ typedef uint32 rpcrdma2_prop_rssiz;
 </section>
 
 <section
- title="Maximum RDMA Segment Count"
- anchor="section:98fc720d-6263-4a52-ae89-d2469b982512">
+ anchor="section:98fc720d-6263-4a52-ae89-d2469b982512"
+ title="Maximum RDMA Segment Count">
 <t>
 The Maximum RDMA Segment Count specifies the maximum number of
 RDMA segments that can appear in a requester's transport header.
@@ -1997,8 +1999,8 @@ typedef uint32 rpcrdma2_prop_rcsiz;
 </section>
 
 <section
- title="Reverse Request Support"
- anchor="section:6ace2d7f-044b-491f-97ea-5760345a2e8f">
+ anchor="section:6ace2d7f-044b-491f-97ea-5760345a2e8f"
+ title="Reverse Request Support">
 <t>
 The value of this property is used to indicate a client implementation's
 readiness to accept and process messages that are part
@@ -2053,8 +2055,8 @@ that general support for reverse direction replies is present on the server.
 </section>
 
 <section
- title="Host Authentication Message"
- anchor="section:5f63e1b6-8d24-453b-b18b-b98ad66f3671">
+ anchor="section:5f63e1b6-8d24-453b-b18b-b98ad66f3671"
+ title="Host Authentication Message">
 <t>
 The value of this transport property is used
 as part of an exchange of host authentication material.
@@ -2084,12 +2086,12 @@ whether the connection is permitted to continue.
 </section>
 
 <section
- title="RPC-over-RDMA Version 2 Transport Messages"
- anchor="section:eef6a22e-2633-44a2-a8f0-821fec8bf824">
+ anchor="section:eef6a22e-2633-44a2-a8f0-821fec8bf824"
+ title="RPC-over-RDMA Version 2 Transport Messages">
 
 <section
- title="Overall Transport Message Structure"
- anchor="section:417e749e-efec-455f-aae7-12535b9ee8dc">
+ anchor="section:417e749e-efec-455f-aae7-12535b9ee8dc"
+ title="Overall Transport Message Structure">
 <t>
 Each transport message consists of multiple sections:
 <list style="symbols">
@@ -2122,8 +2124,8 @@ modifying the existing set of header types.
 </section>
 
 <section
- title="Transport Header Types"
- anchor="section:67b34950-5376-49fd-93d7-b4fdf80d1c9b">
+ anchor="section:67b34950-5376-49fd-93d7-b4fdf80d1c9b"
+ title="Transport Header Types">
 <t>
 The new header types within RPC-over-RDMA version 2
 are set forth in
@@ -2155,10 +2157,10 @@ document) that explains the semantics and use of this operation.
 </t>
 <texttable
  align="left"
- style="full"
  anchor="table:b5c31bf9-d623-4957-97db-29fc1d416cb8"
- title=""
- suppress-title="false">
+ style="full"
+ suppress-title="false"
+ title="">
 <ttcol align="left">Operation</ttcol>
 <ttcol align="left">Code</ttcol>
 <ttcol align="left">XDR type</ttcol>
@@ -2213,8 +2215,8 @@ with an error code of RDMA2_ERR_INVAL_HTYPE.
 </section>
 
 <section
- title="RPC-over-RDMA Version 2 Headers and Chunks"
- anchor="section:2e577c75-4e43-4e13-8b17-75afa849f0b6">
+ anchor="section:2e577c75-4e43-4e13-8b17-75afa849f0b6"
+ title="RPC-over-RDMA Version 2 Headers and Chunks">
 <t>
 Most RPC-over-RDMA version 2 data structures are derived
 from corresponding structures in RPC-over-RDMA version 1.
@@ -2227,8 +2229,8 @@ protocol extensibility.
 </t>
 
 <section
- title="Common Transport Header Prefix"
- anchor="section:e21d4f74-b536-47f2-9d07-c03a27a20de4">
+ anchor="section:e21d4f74-b536-47f2-9d07-c03a27a20de4"
+ title="Common Transport Header Prefix">
 <t>
 The rpcrdma_common prefix describes the first part
 of each RDMA-over-RPC transport header for version 2
@@ -2288,8 +2290,8 @@ reflects these changes, which are discussed in further detail in
 </section>
 
 <section
- title="RPC-over-RDMA Version 2 Transport Header Prefix"
- anchor="section:2d1735f0-c465-43c6-9c18-3da6b7979862">
+ anchor="section:2d1735f0-c465-43c6-9c18-3da6b7979862"
+ title="RPC-over-RDMA Version 2 Transport Header Prefix">
 <t>
 The following prefix structure appears at the start of any
 RPC-over-RDMA version 2 transport header.
@@ -2321,8 +2323,8 @@ The sender MUST set these flags to zero.
 </t>
 
 <section
- title="RPCRDMA2_F_RESPONSE Flag"
- anchor="section:4e23391c-b6a8-46b1-a399-c86f754b51bc">
+ anchor="section:4e23391c-b6a8-46b1-a399-c86f754b51bc"
+ title="RPCRDMA2_F_RESPONSE Flag">
 <t>
 The RPCRDMA2_F_RESPONSE flag qualifies the value contained in the
 transport header's rdma_start.rdma_xid field.
@@ -2364,8 +2366,8 @@ the RPCRDMA2_F_RESPONSE flag MUST be set.
 </section>
 
 <section
- title="RPCRDMA2_F_MORE Flag"
- anchor="section:fb299673-74f3-4f01-adb5-26a02ccd679f">
+ anchor="section:fb299673-74f3-4f01-adb5-26a02ccd679f"
+ title="RPCRDMA2_F_MORE Flag">
 <t>
 The RPCRDMA2_F_MORE flag signifies that
 the RPC-over-RDMA message payload continues in the next message.
@@ -2432,8 +2434,8 @@ an out-of-band credit grant
 </section>
 
 <section
- title="Describing External Data Payloads"
- anchor="section:af116198-1815-4308-99ab-0197b2c5ea0b">
+ anchor="section:af116198-1815-4308-99ab-0197b2c5ea0b"
+ title="Describing External Data Payloads">
 <t>
 The rpcrdma2_chunk_lists structure specifies how an RPC message
 is conveyed using explicit RDMA operations.
@@ -2464,8 +2466,8 @@ requester's memory.
 </t>
 
 <section
- title="Chunks and Chunk Lists"
- anchor="section:ac98f12c-4662-48f5-a18d-48e652f0d4d7">
+ anchor="section:ac98f12c-4662-48f5-a18d-48e652f0d4d7"
+ title="Chunks and Chunk Lists">
 <t>
 The chunks and chunk list structures follow the same rules as in
 Section 3.4 of
@@ -2497,8 +2499,8 @@ RPC-over-RDMA version 2 requesters to have perfect reply size estimation.
 </section>
 
 <section
- title="Remote Invalidation"
- anchor="section:a957db67-a8fd-4886-b7a7-57382cfe3190">
+ anchor="section:a957db67-a8fd-4886-b7a7-57382cfe3190"
+ title="Remote Invalidation">
 <t>
 An important addition relative to the corresponding RPC-over-RDMA version 1
 rdma_header structures is the rdma_inv_handle field.
@@ -2535,8 +2537,8 @@ Invalidate Work Request.
 </section>
 
 <section
- title="Header Types Defined in RPC-over-RDMA version 2"
- anchor="section:8039c7b8-9068-401e-9cbd-5c1e67d403e7">
+ anchor="section:8039c7b8-9068-401e-9cbd-5c1e67d403e7"
+ title="Header Types Defined in RPC-over-RDMA version 2">
 <t>
 The header types defined and used in RPC-over-RDMA version 1
 are all carried over into RPC-over-RDMA version 2,
@@ -2577,8 +2579,8 @@ connection peers to exchange information about their transport properties.
 </t>
 
 <section
- title="RDMA2_MSG: Convey RPC Message Inline"
- anchor="section:9af0d451-2ef3-454f-adb9-827664ccc39c">
+ anchor="section:9af0d451-2ef3-454f-adb9-827664ccc39c"
+ title="RDMA2_MSG: Convey RPC Message Inline">
 <t>
 RDMA2_MSG is used to convey an RPC message that immediately
 follows the Transport Header in the Send buffer.
@@ -2605,8 +2607,8 @@ struct rpcrdma2_msg {
 </section>
 
 <section
- title="RDMA2_NOMSG: Convey External RPC Message"
- anchor="section:1c401555-4b7d-4e35-a9a3-8aa14228170e">
+ anchor="section:1c401555-4b7d-4e35-a9a3-8aa14228170e"
+ title="RDMA2_NOMSG: Convey External RPC Message">
 <t>
 RDMA2_NOMSG can convey an entire RPC message payload using explicit RDMA operations.
 When an RPC message payload is present, this message type is also known as a Special Format message.
@@ -2646,8 +2648,8 @@ use Message Continuation.
 </section>
 
 <section
- title="RDMA2_ERROR: Report Transport Error"
- anchor="section:b1d23e5c-31df-483f-adb7-25430b5de38d">
+ anchor="section:b1d23e5c-31df-483f-adb7-25430b5de38d"
+ title="RDMA2_ERROR: Report Transport Error">
 <t>
 RDMA2_ERROR provides a way of reporting the occurrence of transport
 errors on a previous transmission.
@@ -2839,8 +2841,8 @@ rdma_start.rdma_xid field.
 </section>
 
 <section
- title="RDMA2_CONNPROP: Advertise Transport Properties"
- anchor="section:07e8c178-62df-46a7-a57e-dcf107821d93">
+ anchor="section:07e8c178-62df-46a7-a57e-dcf107821d93"
+ title="RDMA2_CONNPROP: Advertise Transport Properties">
 <t>
 The RDMA2_CONNPROP message type allows an RPC-over-RDMA endpoint,
 whether client or server, to indicate to its partner relevant
@@ -2896,8 +2898,8 @@ without any error response being generated.
 </section>
 
 <section
- title="Choosing a Reply Mechanism"
- anchor="section:19fc8c94-d83f-4c1b-8ce3-700918d129b5">
+ anchor="section:19fc8c94-d83f-4c1b-8ce3-700918d129b5"
+ title="Choosing a Reply Mechanism">
 <t>
 A requester provides any necessary registered memory resources for both
 an RPC Call message
@@ -2947,8 +2949,8 @@ an error to the RPC consumer.
 </section>
 
 <section
- title="XDR Protocol Definition"
- anchor="section:bf53e759-d97f-487d-a5e2-9b8153db1803">
+ anchor="section:bf53e759-d97f-487d-a5e2-9b8153db1803"
+ title="XDR Protocol Definition">
 <t>
 This section contains a description of the core features of
 the RPC-over-RDMA version 2 protocol expressed in the XDR language
@@ -3003,8 +3005,8 @@ for details.
 </t>
 
 <section
- title="Code Component License"
- anchor="section:aaab9699-eae3-46ca-a1d5-a8776a5ecb7d">
+ anchor="section:aaab9699-eae3-46ca-a1d5-a8776a5ecb7d"
+ title="Code Component License">
 <t>
 Code components extracted from this document must include the
 following license text.
@@ -3065,8 +3067,8 @@ copy of the license text need be preserved.
 </section>
 
 <section
- title="Extraction and Use of XDR Definitions"
- anchor="section:a288b3e6-5e73-412d-91e8-f87c031cb05b">
+ anchor="section:a288b3e6-5e73-412d-91e8-f87c031cb05b"
+ title="Extraction and Use of XDR Definitions">
 <t>
 The reader can apply the following sed script to this
 document to produce a machine-readable XDR description of
@@ -3164,8 +3166,8 @@ together with the file common.x, obtained from this document.
 </section>
 
 <section
- title="XDR Definition for RPC-over-RDMA Version 2 Core Structures"
- anchor="section:b25ffcfc-511f-4383-8025-4a68cfcb4f49">
+ anchor="section:b25ffcfc-511f-4383-8025-4a68cfcb4f49"
+ title="XDR Definition for RPC-over-RDMA Version 2 Core Structures">
 <t>
 <figure align="left">
 <artwork xml:space="preserve" align="left">
@@ -3275,8 +3277,8 @@ together with the file common.x, obtained from this document.
 </section>
 
 <section
- title="XDR Definition for RPC-over-RDMA Version 2 Base Header Types"
- anchor="section:84e950a5-c842-4d19-b56d-0458c3e219b2">
+ anchor="section:84e950a5-c842-4d19-b56d-0458c3e219b2"
+ title="XDR Definition for RPC-over-RDMA Version 2 Base Header Types">
 <t>
 <figure align="left">
 <artwork xml:space="preserve" align="left">
@@ -3365,8 +3367,8 @@ together with the file common.x, obtained from this document.
 </section>
 
 <section
- title="Use of the XDR Description Files"
- anchor="section:5541f0da-efbb-4431-af9c-6f82aa773963">
+ anchor="section:5541f0da-efbb-4431-af9c-6f82aa773963"
+ title="Use of the XDR Description Files">
 <t>
 The three files common.x and baseops.x,
 when combined with the XDR descriptions for extension defined later,
@@ -3451,8 +3453,8 @@ cannot be expressed within XDR.
 </section>
 
 <section
- title="RPC Bind Parameters"
- anchor="section:e914de0a-05f3-4e14-a067-fb49a4f9b0ad">
+ anchor="section:e914de0a-05f3-4e14-a067-fb49a4f9b0ad"
+ title="RPC Bind Parameters">
 <t>
 In setting up a new RDMA connection,
 the first action by an RPC client is to obtain a transport address
@@ -3559,8 +3561,8 @@ before this document is published.
 -->
 
 <section
- title="Implementation Status"
- anchor="section:fd2f45e7-85fa-4863-a4cd-ea200878062f">
+ anchor="section:fd2f45e7-85fa-4863-a4cd-ea200878062f"
+ title="Implementation Status">
 <t>
 This section records the status of known implementations of the protocol
 defined by this specification at the time of posting of this Internet-Draft,
@@ -3585,12 +3587,12 @@ described in this document exist.
 </section>
 
 <section
- title="Security Considerations"
- anchor="section:912A2C09-95EC-4CB6-AA2B-2245726D9EDF">
+ anchor="section:912A2C09-95EC-4CB6-AA2B-2245726D9EDF"
+ title="Security Considerations">
 
 <section
- title="Memory Protection"
- anchor="section:9e0f4573-2f3e-4758-9a9d-c5ae8f54d5f6">
+ anchor="section:9e0f4573-2f3e-4758-9a9d-c5ae8f54d5f6"
+ title="Memory Protection">
 <t>
 A primary consideration is the protection of the integrity and confidentiality
 of host memory by an RPC-over-RDMA transport.
@@ -3607,8 +3609,8 @@ and in particular, their security models.
 </t>
 
 <section
- title="Protection Domains"
- anchor="section:2ca69bb1-1d40-4226-a375-face55cf0108">
+ anchor="section:2ca69bb1-1d40-4226-a375-face55cf0108"
+ title="Protection Domains">
 <t>
 The use of Protection Domains to limit the exposure of memory regions
 to a single connection is critical.
@@ -3620,8 +3622,8 @@ strong authentication of remote endpoints is recommended.
 </section>
 
 <section
- title="Handle (STag) Predictability"
- anchor="section:35460fd7-b8e5-4c95-901c-fbe827b61966">
+ anchor="section:35460fd7-b8e5-4c95-901c-fbe827b61966"
+ title="Handle (STag) Predictability">
 <t>
 Unpredictable memory handles should be used
 for any operation requiring advertised memory regions.
@@ -3634,8 +3636,8 @@ registered memory.
 </section>
 
 <section
- title="Memory Protection"
- anchor="section:958d6c42-3fa3-4368-9ea9-2f43b8795bcb">
+ anchor="section:958d6c42-3fa3-4368-9ea9-2f43b8795bcb"
+ title="Memory Protection">
 <t>
 Requesters should register memory regions for remote access
 only when they are about to be the target of an RPC operation that involves an RDMA Read or Write.
@@ -3658,8 +3660,8 @@ before the regions are released to be reused for other purposes on the Requester
 </section>
 
 <section
- title="Denial of Service"
- anchor="section:71519a0b-0458-4ae8-912d-2f09a968ab09">
+ anchor="section:71519a0b-0458-4ae8-912d-2f09a968ab09"
+ title="Denial of Service">
 <t>
 A detailed discussion of denial-of-service exposures
 that can result from the use of an RDMA transport is found
@@ -3700,8 +3702,8 @@ Such situations can deny service to other users sharing the connection from that
 </section>
 
 <section
- title="RPC Message Security"
- anchor="section:4b069dfd-7532-4b9b-a9c9-1f0e8ee0d2fC">
+ anchor="section:4b069dfd-7532-4b9b-a9c9-1f0e8ee0d2fC"
+ title="RPC Message Security">
 <t>
 ONC RPC provides cryptographic security via the RPCSEC_GSS framework
 <xref target="RFC7861"/>.
@@ -3717,8 +3719,8 @@ Some performance benefits enabled by RDMA transports can be lost.
 </t>
 
 <section
- title="RPC-over-RDMA Protection at Lower Layers"
- anchor="section:ca56ff24-b218-455a-9faf-c8f7c17bf26c">
+ anchor="section:ca56ff24-b218-455a-9faf-c8f7c17bf26c"
+ title="RPC-over-RDMA Protection at Lower Layers">
 <t>
 For any RPC transport, utilizing RPCSEC_GSS integrity or privacy services
 has performance implications.
@@ -3745,8 +3747,8 @@ is desired and where efficiency is required.
 </section>
 
 <section
- title="RPCSEC_GSS on RPC-over-RDMA Transports"
- anchor="section:61deca2d-94c4-4fd4-be7a-59ae3a77c9a2">
+ anchor="section:61deca2d-94c4-4fd4-be7a-59ae3a77c9a2"
+ title="RPCSEC_GSS on RPC-over-RDMA Transports">
 <t>
 Not all RDMA devices and fabrics support the above protection mechanisms.
 Also, per-message authentication is still required
@@ -3771,8 +3773,8 @@ MUST NOT be reduced.
 </t>
 
 <section
- title="RPCSEC_GSS Context Negotiation"
- anchor="section:17014ff8-d5ef-4db8-bbb5-337a07cd66e2">
+ anchor="section:17014ff8-d5ef-4db8-bbb5-337a07cd66e2"
+ title="RPCSEC_GSS Context Negotiation">
 <t>
 Some NFS client implementations use a separate connection
 to establish a Generic Security Service (GSS) context for NFS operation.
@@ -3783,8 +3785,8 @@ an NFS server MUST also provide a TCP-based NFS service on port 2049.
 </section>
 
 <section
- title="RPC-over-RDMA with RPCSEC_GSS Authentication"
- anchor="section:77AA4781-E811-4B0D-8704-F96CCD4888DF">
+ anchor="section:77AA4781-E811-4B0D-8704-F96CCD4888DF"
+ title="RPC-over-RDMA with RPCSEC_GSS Authentication">
 <t>
 The RPCSEC_GSS authentication service has no impact on the DDP-eligibility
 of data items in a ULP.
@@ -3814,8 +3816,8 @@ requires host compute resources to construct the GSS verifier.
 </section>
 
 <section
- title="RPC-over-RDMA with RPCSEC_GSS Integrity or Privacy"
- anchor="section:4574ad52-fe73-4679-a808-ae3612c60f24">
+ anchor="section:4574ad52-fe73-4679-a808-ae3612c60f24"
+ title="RPC-over-RDMA with RPCSEC_GSS Integrity or Privacy">
 <t>
 The RPCSEC_GSS integrity service enables endpoints
 to detect modification of RPC messages in flight.
@@ -3860,8 +3862,8 @@ to convey a Special Format Call and provision a receptacle for a Special Format 
 </section>
 
 <section
- title="Protecting RPC-over-RDMA Transport Headers"
- anchor="section:0cddd345-064a-4c96-b251-17afce70219f">
+ anchor="section:0cddd345-064a-4c96-b251-17afce70219f"
+ title="Protecting RPC-over-RDMA Transport Headers">
 <t>
 Like the base fields in an ONC RPC message (XID, call direction, and so on),
 the contents of an RPC-over-RDMA message's Transport stream
@@ -3897,8 +3899,8 @@ RDMA transport implementations should conform to
 </section>
 
 <section
- title="Transport Properties"
- anchor="section:3B0E673B-98D7-436D-BD6F-180180503DF6">
+ anchor="section:3b0e673b-98d7-436d-bd6f-180180503df6"
+ title="Transport Properties">
 <t>
 Like other fields that appear in each RPC-over-RDMA header,
 property information is sent in the clear on the fabric
@@ -3916,8 +3918,8 @@ private network or use link-layer encryption.
 </section>
 
 <section
- title="Host Authentication"
- anchor="section:c85be87e-4f2b-4caf-8ae5-acdaa972a9f9">
+ anchor="section:c85be87e-4f2b-4caf-8ae5-acdaa972a9f9"
+ title="Host Authentication">
 <t>
 Wherein we use the relevant sections of
 <xref target="RFC3552"/>
@@ -3934,8 +3936,8 @@ design and test a secure authentication handshake implementation.
 </section>
 
 <section
- title="IANA Considerations"
- anchor="section:d235c884-6463-411f-ba34-6bcc82ab7a9f">
+ anchor="section:d235c884-6463-411f-ba34-6bcc82ab7a9f"
+ title="IANA Considerations">
 <t>
 The RPC-over-RDMA family of transports have been assigned RPC netids
 by
@@ -4076,8 +4078,8 @@ Credit-Based Flow Control for ATM Networks: Credit Update Protocol, Adaptive Cre
 </references>
 
 <section
- title="ULB Specifications"
- anchor="section:9e003b83-66b5-43d7-b9ef-0f271c8d301b">
+ anchor="section:9e003b83-66b5-43d7-b9ef-0f271c8d301b"
+ title="ULB Specifications">
 <t>
 An Upper-Layer Protocol (ULP) is typically defined
 independently of any particular RPC transport.
@@ -4107,8 +4109,8 @@ version 2 needs to have a ULB specification.
 </t>
 
 <section
- title="DDP-Eligibility"
- anchor="section:2f2b32a4-d78a-45f0-b6a3-fa0e2d34a97b">
+ anchor="section:2f2b32a4-d78a-45f0-b6a3-fa0e2d34a97b"
+ title="DDP-Eligibility">
 <t>
 An ULB designates some XDR data items as eligible for DDP.
 As an RPC-over-RDMA message is formed,
@@ -4198,8 +4200,8 @@ and report an appropriate permanent error to the RPC consumer.
 </section>
 
 <section
- title="Maximum Reply Size"
- anchor="section:a3f15fe3-2677-4d94-adb5-afa80c7e197a">
+ anchor="section:a3f15fe3-2677-4d94-adb5-afa80c7e197a"
+ title="Maximum Reply Size">
 <t>
 When expecting small and moderately-sized Replies,
 a requester should typically rely on Message Continuation
@@ -4212,8 +4214,8 @@ the ULB should specify a dependable means for determining the maximum Reply size
 </section>
 
 <section
- title="Additional Considerations"
- anchor="section:e568723e-3dd8-4a54-9401-92ae4f98f88f">
+ anchor="section:e568723e-3dd8-4a54-9401-92ae4f98f88f"
+ title="Additional Considerations">
 <t>
 There may be other details provided in a ULB.
 <list style="symbols">
@@ -4247,8 +4249,8 @@ regardless of the connection parameters in effect on a connection.
 </section>
 
 <section
- title="ULP Extensions"
- anchor="section:db58c83f-091c-481e-ba7c-a0246d1c475b">
+ anchor="section:db58c83f-091c-481e-ba7c-a0246d1c475b"
+ title="ULP Extensions">
 <t>
 An RPC Program and Version tuple may be extensible.
 For instance, there may be a minor versioning scheme
@@ -4265,8 +4267,8 @@ addition to the existing XDR.
 </section>
 
 <section
- title="Extending the Version 2 Protocol"
- anchor="section:84e1ffc4-d916-4eb4-9fd8-a8218d084503">
+ anchor="section:84e1ffc4-d916-4eb4-9fd8-a8218d084503"
+ title="Extending the Version 2 Protocol">
 <t>
 This Appendix is not addressed to protocol implementers,
 but rather to authors of documents that intend to extend
@@ -4395,8 +4397,8 @@ and then bring them through the standards process.
 </t>
 
 <section
- title="Adding New Header Types to RPC-over-RDMA Version 2"
- anchor="section:d4650151-40f0-4e85-8755-02c38cf8f444">
+ anchor="section:d4650151-40f0-4e85-8755-02c38cf8f444"
+ title="Adding New Header Types to RPC-over-RDMA Version 2">
 <t>
 New transport header types are to defined in a manner similar to
 the way existing ones are described in Sections
@@ -4454,8 +4456,8 @@ this should be noted.
 </section>
 
 <section
- title="Adding New Header Flags to the Protocol"
- anchor="section:55a1749d-702c-48e4-b78c-0db392692c09">
+ anchor="section:55a1749d-702c-48e4-b78c-0db392692c09"
+ title="Adding New Header Flags to the Protocol">
 <t>
 New flag bits are to defined in a manner similar to
 the way existing ones are described in Sections
@@ -4501,8 +4503,8 @@ this needs to be documented.
 </section>
 
 <section
- title="Adding New Transport properties to the Protocol"
- anchor="section:a355adad-f03b-41a6-94a8-4128b10301bb">
+ anchor="section:a355adad-f03b-41a6-94a8-4128b10301bb"
+ title="Adding New Transport properties to the Protocol">
 <t>
 The set of transport properties is designed to be extensible.
 As a result, once new properties are defined in standards track documents,
@@ -4578,8 +4580,8 @@ security issues raised by those new transport properties.
 </section>
 
 <section
- title="Adding New Error Codes to the Protocol"
- anchor="section:c2f5e937-d612-4e3a-a380-e0b15261f6a0">
+ anchor="section:c2f5e937-d612-4e3a-a380-e0b15261f6a0"
+ title="Adding New Error Codes to the Protocol">
 <t>
 New error codes to be returned when using new header types
 may be introduced in the same Standards Track document
@@ -4614,16 +4616,16 @@ header types necessary to report associated errors.
 </section>
 
 <section
- title="Differences from the RPC-over-RDMA Version 1 Protocol"
- anchor="section:c2574344-5aec-427d-a5ed-048d7fcc0d95">
+ anchor="section:c2574344-5aec-427d-a5ed-048d7fcc0d95"
+ title="Differences from the RPC-over-RDMA Version 1 Protocol">
 <t>
 This section describes the substantive changes made in
 RPC-over-RDMA version 2.
 </t>
 
 <section
- title="Relationship to the RPC-over-RDMA Version 1 XDR Definition"
- anchor="section:d945b9f0-0666-4db7-9126-be57cf7b5f4f">
+ anchor="section:d945b9f0-0666-4db7-9126-be57cf7b5f4f"
+ title="Relationship to the RPC-over-RDMA Version 1 XDR Definition">
 <t>
 There are a number of structural XDR changes whose goal
 is to enable within-version protocol extensibility.
@@ -4721,8 +4723,8 @@ are used in the same way in both versions.
 </section>
 
 <section
- title="Transport Properties"
- anchor="section:630314a8-1cf5-40f7-a5ad-5bc12c719233">
+ anchor="section:630314a8-1cf5-40f7-a5ad-5bc12c719233"
+ title="Transport Properties">
 <t>
 RPC-over-RDMA version 2 provides a mechanism for
 exchanging the transport's operational properties.
@@ -4737,8 +4739,8 @@ Transport properties are described in
 </section>
 
 <section
- title="Credit Management Changes"
- anchor="section:5a2e5ff8-0f0b-454d-b9b3-c6773cd77780">
+ anchor="section:5a2e5ff8-0f0b-454d-b9b3-c6773cd77780"
+ title="Credit Management Changes">
 <t>
 RPC-over-RDMA transports employ credit-based flow control
 to ensure that a requester does not emit more RDMA Sends
@@ -4823,8 +4825,8 @@ This new mechanism is detailed in
 </section>
 
 <section
- title="Inline Threshold Changes"
- anchor="section:f7fb5108-58ea-4718-84be-5119a302f5f5">
+ anchor="section:f7fb5108-58ea-4718-84be-5119a302f5f5"
+ title="Inline Threshold Changes">
 <t>
 The term "inline threshold" is defined in Section 3.3.2 of
 <xref target="RFC8166"/>.
@@ -4890,8 +4892,8 @@ RPC messages.
 </section>
 
 <section
- title="Message Continuation Changes"
- anchor="section:1f3a1439-702f-4309-8733-5fa0e20555f4">
+ anchor="section:1f3a1439-702f-4309-8733-5fa0e20555f4"
+ title="Message Continuation Changes">
 <t>
 In addition to a larger default inline threshold,
 RPC-over-RDMA version 2 introduces Message Continuation.
@@ -4920,8 +4922,8 @@ the sender can use Message Continuation to avoid using registered memory.
 </section>
 
 <section
- title="Host Authentication Changes"
- anchor="section:16f03208-32cb-451d-90ab-a6f5f4b9e9b0">
+ anchor="section:16f03208-32cb-451d-90ab-a6f5f4b9e9b0"
+ title="Host Authentication Changes">
 <t>
 For general operation of NFS on open networks,
 we eventually intend to rely on RPC-on-TLS [citation needed]
@@ -4949,8 +4951,8 @@ when the use of host authentication is superfluous and can be avoided.
 </section>
 
 <section
- title="Support for Remote Invalidation"
- anchor="section:57c034d6-7129-4f7b-b8df-31e8bc691964">
+ anchor="section:57c034d6-7129-4f7b-b8df-31e8bc691964"
+ title="Support for Remote Invalidation">
 <t>
 An STag that is registered using
 the FRWR mechanism in a privileged execution context
@@ -5018,8 +5020,8 @@ with an appropriate registration mechanism.
 </section>
 
 <section
- title="Error Reporting Changes"
- anchor="section:e554df42-6e82-4e28-96a0-8f9872eb476c">
+ anchor="section:e554df42-6e82-4e28-96a0-8f9872eb476c"
+ title="Error Reporting Changes">
 <t>
 RPC-over-RDMA version 2 expands the repertoire of errors that
 may be reported by connection endpoints.
@@ -5032,8 +5034,8 @@ and to avoid requester retries when an error is permanent.
 </section>
 
 <section
- title="Acknowledgments"
  anchor="section:7b212a81-9c2a-4c05-891a-369cc7184585"
+ title="Acknowledgments"
  numbered="no">
 <t>
 The authors gratefully acknowledge the work of Brent Callaghan
