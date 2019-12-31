@@ -1,10 +1,11 @@
 # RPC-over-RDMA Version 2 Protocol
 
-This is the working area for the individual Internet-Draft, "RPC-over-RDMA Version 2 Protocol".
+This is the working area for the IETF [NFSV4 Working Group](https://datatracker.ietf.org/wg/nfsv4/documents/) Internet-Draft,
+"RPC-over-RDMA Version 2 Protocol".
 
-* [Editor's Copy](https://chucklever.github.io/i-d-rpcrdma-version-two/#go.draft-cel-nfsv4-rpcrdma-version-two.html)
-* [Individual Draft](https://tools.ietf.org/html/draft-cel-nfsv4-rpcrdma-version-two)
-* [Compare Editor's Copy to Individual Draft](https://chucklever.github.io/i-d-rpcrdma-version-two/#go.draft-cel-nfsv4-rpcrdma-version-two.diff)
+* [Editor's Copy](https://chucklever.github.io/i-d-rpcrdma-version-two/#go.draft-ietf-nfsv4-rpcrdma-version-two.html)
+* [Working Group Draft](https://tools.ietf.org/html/draft-ietf-nfsv4-rpcrdma-version-two)
+* [Compare Editor's Copy to Working Group Draft](https://chucklever.github.io/i-d-rpcrdma-version-two/#go.draft-ietf-nfsv4-rpcrdma-version-two.diff)
 
 ## Building the Draft
 
