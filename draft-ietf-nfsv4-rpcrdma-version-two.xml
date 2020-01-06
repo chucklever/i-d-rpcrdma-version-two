@@ -601,46 +601,48 @@ subsequently free associated source memory regions.
 
 <section
  anchor="section:5ae4b016-9b44-4649-9021-5ae851ac9326"
- title="RPC-over-RDMA Protocol Framework">
-
-<section
- anchor="section:27a8a236-70bd-4ded-9272-c65f3a5e4067"
- title="Transfer Model">
+ title="RPC-over-RDMA Framework">
 <t>
-A "transfer model" designates which endpoint exposes its memory
-and which is responsible for initiating the transfer of data.
-To enable RDMA Read and Write operations, for example,
-an endpoint first exposes regions of its memory to a remote endpoint,
-which initiates these operations against the exposed memory.
+Before an RDMA data transfer can occur,
+an endpoint first exposes regions of its memory to a remote endpoint.
+The remote endpoint then initiates RDMA Read and Write operations
+against the exposed memory.
+A "transfer model" designates
+which endpoint exposes its memory
+and
+which is responsible for initiating the transfer of data.
 </t>
 <t>
 In RPC-over-RDMA version 2,
-Requesters expose their memory to the Responder,
-but the Responder does not expose its memory.
-The Responder pulls RPC arguments
-or whole RPC calls from each Requester.
-The Responder pushes RPC results
-or whole RPC replies to each Requester.
+only Requesters expose their memory to the Responder,
+and only Responders initiate RDMA Read and Write operations.
+Read access to memory regions enables the Responder to
+pull RPC arguments
+or
+whole RPC Calls from each Requester.
+The Responder pushes
+RPC results
+or
+whole RPC Replies to a Requester's
+memory regions to which it has write access.
 </t>
-</section>
 
 <section
  anchor="section:195e0288-862d-40bb-a259-4239930c728a"
  title="Message Framing">
 <t>
 Each RPC-over-RDMA version 2 message consists of at most two XDR streams:
-<list style="hanging">
-<t hangText="Transport Stream"><vspace blankLines="0"/>
+<list style="symbols">
+<t>
 The "Transport stream" contains a header that describes
 and controls the transfer of the Payload stream
 in this RPC-over-RDMA message.
-Every RDMA Send message on an RPC-over-RDMA version 2
-connection MUST begin with a Transport stream.
+Every RDMA Send on an RPC-over-RDMA version 2 connection
+MUST begin with a Transport stream.
 </t>
-<t hangText="RPC Payload Stream"><vspace blankLines="0"/>
+<t>
 The "Payload stream" contains part or all of a single RPC message.
-The sender
-MAY divide an RPC message at any convenient boundary,
+The sender MAY divide an RPC message at any convenient boundary
 but
 MUST send RPC message fragments in XDR stream order
 and
@@ -650,24 +652,14 @@ of an RPC message is marked (see
 <xref target="section:fb299673-74f3-4f01-adb5-26a02ccd679f"/>).
 </t>
 </list>
-In its simplest form, an RPC-over-RDMA version 2 message
-conveying an RPC message payload consists of
-a Transport stream
-followed immediately by
-a Payload stream
-transmitted together via a single RDMA Send.
-</t>
-<t>
-RPC-over-RDMA framing replaces all other RPC framing
-(such as TCP record marking)
-when used atop an RPC-over-RDMA association,
-even when the underlying RDMA protocol may itself
-be layered atop a transport with a defined RPC framing (such as TCP).
-</t>
-<t>
-However, it is possible for RPC-over-RDMA to be dynamically enabled
-on a connection
-in the course of negotiating the use of RDMA via a ULP exchange.
+The RPC-over-RDMA framing mechanism described in this section
+replaces all other RPC framing mechanisms.
+Connection peers use RPC-over-RDMA framing
+even when the underlying RDMA protocol runs
+on a transport type with well-defined RPC framing, such as TCP.
+However, a ULP can negotiate the use of RDMA,
+dynamically enabling the use of RPC-over-RDMA on a connection
+established on some other transport type.
 Because RPC framing delimits an entire RPC request or reply,
 the resulting shift in framing must occur between distinct RPC messages,
 and in concert with the underlying transport.
@@ -678,44 +670,40 @@ and in concert with the underlying transport.
  anchor="section:130ce79c-8b13-479e-8108-a943024047dD"
  title="Managing Receiver Resources">
 <t>
-The longevity of an RDMA connection mandates
-that sending endpoints respect the resource limits of peer receivers.
-To ensure messages can be sent and received reliably,
-there are two operational parameters for each connection.
-It is critical to provide RDMA Send flow control
-for an RDMA connection.
-If any pre-posted Receive buffer on the connection is not large enough
+If any pre-posted Receive buffer on the connection
+is not large enough to accept an incoming RDMA Send,
+the RDMA provider can terminate the connection.
+Likewise, if a pre-posted Receive buffer is not available
 to accept an incoming RDMA Send,
-or if a pre-posted Receive buffer is not available to accept an incoming RDMA Send,
-the RDMA connection can be terminated.
+the RDMA provider can terminate the connection.
+Therefore, a sender needs to respect the resource limits of its peer receiver
+to ensure the longevity of each connection.
+Two operational parameters communicate these limits between connection peers:
+flow control, and inline threshold.
 </t>
 
 <section
  anchor="section:45c67eb8-8dc6-47c3-8555-14270f1514bF"
- title="RPC-over-RDMA Version 2 Flow Control">
+ title="Flow Control">
 <t>
-Because RPC-over-RDMA requires reliable and in-order delivery
-of data payloads,
-RPC-over-RDMA transports MUST use
-the RDMA RC (Reliable Connected) Queue Pair (QP) type,
-which ensures in-transit data integrity
+RPC-over-RDMA requires reliable and in-order delivery of data payloads.
+Therefore, RPC-over-RDMA transports MUST use
+the RDMA RC (Reliable Connected) Queue Pair (QP) type.
+The use of an RC QP ensures
+in-transit data integrity
 and
-handles recovery from packet loss or misordering.
+proper recovery from packet loss or misordering.
 </t>
 <t>
-However, RPC-over-RDMA transports provide their own
-flow control mechanism to prevent a sender
-from overwhelming receiver resources.
+However, RPC-over-RDMA itself provides a flow control mechanism
+to prevent a sender from overwhelming receiver resources.
 RPC-over-RDMA transports employ
-an end-to-end credit-based flow control mechanism
-for this purpose
+end-to-end credit-based flow control for this purpose
 <xref target="CBFC"/>.
-Credit-based flow control was chosen because it is
-relatively simple,
-provides robust operation in the face of bursty traffic,
-automated management of receive buffer allocation,
+Credit-based flow control is relatively simple, providing
+robust operation in the face of bursty traffic
 and
-excellent buffer utilization.
+automated management of receive buffer allocation.
 </t>
 
 <section
@@ -724,14 +712,16 @@ excellent buffer utilization.
 <t>
 An RPC-over-RDMA version 2 credit is
 the capability to receive one RPC-over-RDMA version 2 message.
-This enables RPC-over-RDMA version 2 to support asymmetrical operation,
-where a message in one direction might be matched by zero, one, or multiple
-messages in the other direction.
+This arrangement enables RPC-over-RDMA version 2 to
+support asymmetrical operation,
+where a message in one direction might trigger zero, one, or multiple
+messages in the other direction in response.
 </t>
 <t>
 To achieve this,
-credits are assigned to each connection peer's posted Receive buffers.
-Each Requester has a set of Receive credits, and
+each posted Receive buffer on both connection peers receives one credit.
+Each Requester has a set of Receive credits,
+and
 each Responder has a set of Receive credits.
 These credit values are managed independently of one another.
 </t>
@@ -741,28 +731,21 @@ Section 7 of
 requires that the 32-bit field containing the credit grant is the
 third word in the transport header.
 To conform with that requirement,
-the two independent credit values are encoded into a single
+senders encode the two independent credit values into a single
 32-bit field in the fixed portion of the transport header.
-After the field is XDR decoded, the receiver takes the low-order
-two bytes as the number of credits that are newly granted by the sender,
-and
-the high-order two bytes as the maximum number of credits that
+At the receiver, the low-order two bytes are the number of credits
+that are newly granted by the sender.
+The granted credit value MUST NOT be zero
+since such a value would result in deadlock.
+The high-order two bytes are the maximum number of credits that
 can be outstanding at the sender.
 </t>
 <t>
-In this approach, then, there are requester credits,
-sent in messages from the requester to the responder;
-and responder credits,
-sent in messages from the responder to the requester.
-</t>
-<t>
-A sender MUST NOT send RDMA messages
-in excess of the receiver's granted credit limit.
-If the granted value is exceeded,
-the RDMA layer may signal an error,
+A sender must avoid posting more RDMA Send messages than
+the receiver's granted credit limit.
+If the sender exceeds the granted value,
+the RDMA provider might signal an error,
 possibly terminating the connection.
-The granted value MUST NOT be zero,
-since such a value would result in deadlock.
 </t>
 <t>
 The granted credit values MAY be adjusted
@@ -782,20 +765,21 @@ the responsibility of each RPC-over-RDMA version 2 implementation.
  anchor="section:f6348562-97f8-4413-96d7-bde3ff57b375"
  title="Asynchronous Credit Grants">
 <t>
-A protocol convention is provided to enable one peer
+A special protocol convention enables one peer
 to refresh its credit grant to the other peer
-without sending a data payload.
+without sending a payload.
 Messages of this type can also act as a keep-alive ping.
 See
 <xref target="section:1c401555-4b7d-4e35-a9a3-8aa14228170e"/>
 for information about this convention.
 </t>
 <t>
-To prevent transport deadlock,
-receivers MUST always be in a position to receive one such
-credit grant update message, in addition to payload-bearing messages.
-One way a receiver can do this is to post one extra Receive more than
-the credit value it granted.
+Receivers MUST always be in a position to receive
+one such credit grant update message,
+in addition to payload-bearing messages,
+to prevent transport deadlock.
+One way a receiver can do this is to post one more RDMA Receive
+than the credit value the receiver granted.
 </t>
 </section>
 
@@ -807,24 +791,25 @@ the credit value it granted.
 <t>
 An "inline threshold" value is the largest message size
 (in octets) that can be conveyed in one direction between
-peer implementations using RDMA Send and Receive operations.
-The inline threshold value is effectively
-the smaller of the largest number of bytes the sender can post via a single RDMA Send operation
-and
-the largest number of bytes the receiver can accept via a single RDMA Receive operation.
-Each connection has two inline threshold values:
-one for messages flowing from Requester-to-Responder,
-referred to as the "call inline threshold",
-and
-one for messages flowing from Responder-to-Requester,
-referred to as the "reply inline threshold".
-Inline threshold values can be advertised to peers
-via Transport Properties.
+peer implementations using RDMA Send and Receive channel operations.
+An inline threshold value is less than the largest number of octets
+the sender can post in a single RDMA Send operation.
+It is also less than the largest number of octets
+the receiver can reliably accept via a single RDMA Receive operation.
 </t>
 <t>
-Receiver implementations MUST support inline thresholds of 4096 bytes.
+Each connection has two inline threshold values.
+There is one for messages flowing from Requester-to-Responder,
+referred to as the "call inline threshold",
+and one for messages flowing from Responder-to-Requester,
+referred to as the "reply inline threshold."
+</t>
+<t>
+Peers can advertise their inline threshold values
+via RPC-over-RDMA version 2 Transport Properties (see
+<xref target="section:86248e99-ca60-478a-8aff-3fb387410077"/>).
 In the absence of an exchange of Transport Properties,
-senders and receivers MUST assume both connection inline thresholds are 4096 bytes.
+connection peers MUST assume both inline thresholds are 4096 octets.
 </t>
 </section>
 
@@ -832,40 +817,44 @@ senders and receivers MUST assume both connection inline thresholds are 4096 byt
  anchor="section:9563f1f0-28a7-48e1-a752-e842575c6539"
  title="Initial Connection State">
 <t>
-When an RPC-over-RDMA version 2 client establishes a
-connection to a server, its first order of business is to
-determine the server's highest supported protocol version.
+When an RPC-over-RDMA version 2 client establishes
+a connection to a server,
+its first order of business is
+to determine the server's highest supported protocol version.
 </t>
 <t>
-Upon connection establishment a client MUST NOT send
-more than a single RPC-over-RDMA message at a
-time until it receives a valid non-error RPC-over-RDMA message
+Upon connection establishment, a client MUST send
+only a single RPC-over-RDMA message until
+it receives a valid RPC-over-RDMA message
 from the server that grants client credits.
 </t>
 <t>
-The second word of each transport header is used to convey
+The second word of each transport header conveys
 the transport protocol version.
-In the interest of simplicity, we refer to that word as
-rdma_vers even though in the RPC-over-RDMA version 2
-XDR definition it is described as rdma_start.rdma_vers.
+In the interest of clarity,
+the current document refers to that word as rdma_vers
+even though in the RPC-over-RDMA version 2 XDR definition,
+it appears as rdma_start.rdma_vers.
 </t>
 <t>
-First, the client sends a single valid RPC-over-RDMA message
+Immediately after the client establishes a connection,
+it sends a single valid RPC-over-RDMA message
 with the value two (2) in the rdma_vers field.
-Because the server might support only RPC-over-RDMA
-version 1, this initial message MUST NOT be larger than the
-version 1 default inline threshold of 1024 bytes.
+Because the server might support
+only RPC-over-RDMA version 1,
+this initial message MUST NOT be larger than
+the version 1 default inline threshold of 1024 octets.
 </t>
 
 <section
  anchor="section:8db4c54e-c1ce-43ba-93b4-031e829960f5"
  title="Server Does Support RPC-over-RDMA Version 2">
 <t>
-If the server does support RPC-over-RDMA version 2,
+If the server supports RPC-over-RDMA version 2,
 it sends RPC-over-RDMA messages back to the client
 with the value two (2) in the rdma_vers field.
-Both peers may use the default inline threshold value
-for RPC-over-RDMA version 2 connections (4096 bytes).
+Both peers may assume the default inline threshold value
+for RPC-over-RDMA version 2 connections (4096 octets).
 </t>
 </section>
 
@@ -874,27 +863,29 @@ for RPC-over-RDMA version 2 connections (4096 bytes).
  title="Server Does Not Support RPC-over-RDMA Version 2">
 <t>
 If the server does not support RPC-over-RDMA version 2,
-it MUST send an RPC-over-RDMA message to the client with the
-same XID, with RDMA2_ERROR in the rdma_start.rdma_htype field,
+it MUST send an RPC-over-RDMA message to the client
+with an XID that matches the client's first message,
+RDMA2_ERROR in the rdma_start.rdma_htype field,
 and with the error code RDMA2_ERR_VERS.
-This message also reports a range of protocol versions that
-the server supports.
-To continue operation, the client selects a protocol
-version in the range of server-supported versions for
-subsequent messages on this connection.
+This message also reports the range
+of RPC-over-RDMA protocol versions that the server supports.
+To continue operation, the client selects
+a protocol version in that range
+for subsequent messages on this connection.
 </t>
 <t>
-If the connection is lost immediately after an
-RDMA2_ERROR / RDMA2_ERR_VERS message is received,
-a client can avoid a possible version negotiation loop
-when re-establishing another connection by assuming
-that particular server does not support RPC-over-RDMA version 2.
-A client can assume the same situation (no server support
-for RPC-over-RDMA version 2) if the initial negotiation message
-is lost or dropped.
-Once the negotiation exchange is complete,
+If the connection is dropped immediately after an
+RDMA2_ERROR/RDMA2_ERR_VERS message is received,
+the client should try to avoid a version negotiation loop
+when re-establishing another connection.
+It can assume that the server
+does not support RPC-over-RDMA version 2.
+A client can assume the same situation
+(i.e., no server support for RPC-over-RDMA version 2)
+if the initial negotiation message is lost or dropped.
+Once the version negotiation exchange is complete,
 both peers may use the default inline threshold value
-for the transport protocol version that has been selected.
+for the negotiated transport protocol version.
 </t>
 </section>
 
@@ -902,10 +893,10 @@ for the transport protocol version that has been selected.
  anchor="section:1ffe4c69-b516-476a-bba7-41863709f48d"
  title="Client Does Not Support RPC-over-RDMA Version 2">
 <t>
-If the server supports the RPC-over-RDMA protocol version
-used in the first RPC-over-RDMA message received from a client,
-it MUST use that protocol version in all subsequent messages
-it sends on that connection.
+The server examines the RPC-over-RDMA protocol version
+used in the first RPC-over-RDMA message it receives.
+If it supports this protocol version,
+it MUST use it in all subsequent messages it sends on that connection.
 The client MUST NOT change the protocol version
 for the duration of the connection.
 </t>
@@ -920,8 +911,10 @@ for the duration of the connection.
  title="XDR Encoding with Chunks">
 <t>
 When a DDP capability is available,
-the transport places the contents of one or more XDR data items
-directly into the receiver's memory,
+an RDMA provider can place the contents
+of one or more XDR data items
+directly into a receiver's memory.
+It can do this
 separately from the transfer of other parts of the containing XDR stream.
 </t>
 
@@ -929,9 +922,9 @@ separately from the transfer of other parts of the containing XDR stream.
  anchor="section:0e225040-d15f-4e9a-a0c3-afa115bb12c7"
  title="Reducing an XDR Stream">
 <t>
-RPC-over-RDMA version 2 provides a mechanism for
-moving part of an RPC message via a data transfer distinct
-from an RDMA Send/Receive pair.
+RPC-over-RDMA version 2 provides a mechanism
+for moving part of an RPC message via a data transfer
+distinct from an RDMA Send/Receive pair.
 The sender removes one or more XDR data items from the Payload stream.
 These items are conveyed via other mechanisms,
 such as one or more RDMA Read or Write operations.
@@ -939,46 +932,38 @@ As the receiver decodes an incoming message,
 it skips over directly placed data items.
 </t>
 <t>
-The portion of an XDR stream that is split out and moved separately
-is referred to as a "chunk".
-In some contexts,
-data in an RPC-over-RDMA header that describes these split out regions of memory
-may also be referred to as a "chunk".
+We refer to a data item that a sender removes from a Payload stream
+to transmit separately as a "reduced" data item.
+After a sender has finished removing XDR data items from a Payload stream,
+we refer to it as a "reduced" Payload stream.
+The data object in a transport header that
+describes memory regions containing reduced data items
+is known as a "chunk."
 </t>
-<t>
-A Payload stream after chunks have been removed
-is referred to as a "reduced" Payload stream.
-Likewise, a data item that has been removed
-from a Payload stream to be transferred separately
-is referred to as a "reduced" data item.
-</t>
+
 </section>
 
 <section
  anchor="section:155d7e5e-821b-485a-9b68-1248b7e35743"
  title="DDP-Eligibility">
 <t>
-Not all XDR data items benefit from DDP.
+Not all XDR data items benefit from Direct Data Placement.
 For example, small data items
 or
 data items that require XDR unmarshaling by the receiver
 do not benefit from DDP.
-In addition, it is impractical for receivers to prepare
-for every possible XDR data item in a protocol to be transferred in a chunk.
+Moreover, it is impractical for receivers to prepare for every possible XDR data item in a protocol to appear in a chunk.
 </t>
 <t>
-To maintain practical interoperability on an RPC-over-RDMA transport,
-a determination must be made of which few XDR data items in each ULP
-are allowed to use DDP.
-</t>
-<t>
-This is done in additional specifications that describe how ULPs employ DDP.
-A "ULB specification" identifies which specific individual XDR data items
-in a ULP MAY be transferred via DDP.
-Such data items are referred to as "DDP-eligible".
-All other XDR data items MUST NOT be reduced.
-Detailed requirements for ULBs are provided in
+Determining which data items are DDP-eligible is done
+in additional specifications that describe how ULPs employ DDP.
+A "ULB specification" identifies which XDR data items
+a peer MAY transfer using DDP.
+Such data items are known as "DDP-eligible."
+Senders MUST NOT reduce any other XDR data items.
+Detailed requirements for ULB specifications appear in
 <xref target="section:9e003b83-66b5-43d7-b9ef-0f271c8d301b"/>.
+of the current document.
 </t>
 </section>
 
@@ -988,9 +973,9 @@ Detailed requirements for ULBs are provided in
 <t>
 When encoding a Payload stream that contains a DDP-eligible data item,
 a sender may choose to reduce that data item.
-When it chooses to do so, the sender does not place the item into the
-Payload stream.
-Instead, the sender records in the RPC-over-RDMA Transport header
+When it chooses to do so, the sender does not place the item
+into the Payload stream.
+Instead, the sender records in the transport header
 the location and size of the memory region containing that data item.
 </t>
 <t>
@@ -1003,20 +988,20 @@ place results in that memory region.
 </t>
 <t>
 An "RDMA segment", or "plain segment",
-is an RPC-over-RDMA Transport header data object
-that contains the precise coordinates of a contiguous memory region
-that is to be conveyed separately from the Payload stream.
-Plain segments contain the following information:
+is a transport header data object
+that contains the precise coordinates of a contiguous memory region.
+This region is conveyed separately from the Payload stream.
+Each RDMA segment contains the following information:
 <list style="hanging">
-<t hangText="Handle"><vspace blankLines="0"/>
-Steering tag (STag) or R_key generated by registering this memory with the RDMA provider.
+<t hangText="Handle:">
+A steering Tag (STag) or R_key generated by registering this memory with the RDMA provider.
 </t>
-<t hangText="Length"><vspace blankLines="0"/>
+<t hangText="Length:">
 The length of the RDMA segment's memory region, in octets.
 An "empty segment" is an RDMA segment
 with the value zero (0) in its length field.
 </t>
-<t hangText="Offset"><vspace blankLines="0"/>
+<t hangText="Offset:">
 The offset or beginning memory address of the RDMA segment's memory region.
 </t>
 </list>
@@ -1031,20 +1016,20 @@ for further discussion.
  title="Chunks">
 <t>
 In RPC-over-RDMA version 2,
-a "chunk" refers to a portion of the Payload stream
+a "chunk" refers to a portion of an RPC message
 that is moved independently
-of the RPC-over-RDMA Transport header and Payload stream.
-Chunk data is removed from the sender's Payload stream,
-transferred via separate operations,
-and then reinserted into the receiver's Payload stream
-to form a complete RPC message.
+of the Payload stream.
+The sender removes chunk data from the Payload stream,
+transfers it via separate operations,
+and then the receiver reinserts it into the received Payload stream
+to reconstruct the complete RPC message.
 </t>
 <t>
-Each chunk is comprised of RDMA segments.
-Each RDMA segment represents a single contiguous piece of that chunk.
+Each chunk consists of RDMA segments.
+Each RDMA segment represents a piece of a chunk that is contiguous in memory.
 A Requester MAY divide a chunk into RDMA segments
-using any boundaries that are convenient.
-The length of a chunk is exactly
+using any convenient boundaries.
+The length of a chunk is precisely
 the sum of the lengths of the RDMA segments that comprise it.
 </t>
 <t>
@@ -1062,20 +1047,20 @@ before using them in RDMA operations.
  anchor="section:2b8d1299-b521-4198-b99c-25b4e344b8bb"
  title="Counted Arrays">
 <t>
-If a chunk contains a counted array data type,
-the count of array elements MUST remain in the Payload stream,
-while the array elements MUST be moved to the chunk.
+If a chunk is to contain a counted array data type,
+the count of array elements MUST remain in the Payload stream.
+The sender MUST move the array elements into the chunk.
 For example, when encoding an opaque byte array as a chunk,
-the count of bytes stays in the Payload stream,
-while the bytes in the array are removed from the Payload stream
-and transferred within the chunk.
+the count of bytes stays in the Payload stream.
+The sender removes the bytes in the array from the Payload stream
+and places them in the chunk.
 </t>
 <t>
 Individual array elements appear in a chunk
 in their entirety.
 For example, when encoding an array of arrays as a chunk,
-the count of items in the enclosing array stays in the Payload stream,
-but each enclosed array, including its item count,
+the count of items in the enclosing array stays in the Payload stream.
+But each enclosed array, including its item count,
 is transferred as part of the chunk.
 </t>
 </section>
@@ -1085,8 +1070,8 @@ is transferred as part of the chunk.
  title="Optional-Data">
 <t>
 If a chunk contains an optional-data data type,
-the "is present" field MUST remain in the Payload stream,
-while the data, if present, MUST be moved to the chunk.
+the "is present" field MUST remain in the Payload stream.
+The sender MUST move the data, if present, to the chunk.
 </t>
 </section>
 
@@ -1094,8 +1079,8 @@ while the data, if present, MUST be moved to the chunk.
  anchor="section:5ae887e6-fd9d-4a9f-a298-925b87a6a5b2"
  title="XDR Unions">
 <t>
-A union data type MUST NOT be made DDP-eligible,
-but one or more of its arms MAY be DDP-eligible,
+A union data type MUST NOT be made DDP-eligible.
+However, one or more of its arms MAY be made DDP-eligible,
 subject to the other requirements in this section.
 </t>
 </section>
@@ -1106,15 +1091,15 @@ subject to the other requirements in this section.
 <t>
 Except in special cases (covered in
 <xref target="section:d9731520-bdde-4a1b-9f54-9901d5c57648"/>),
-a chunk MUST contain exactly one XDR data item.
-This makes it straightforward to reduce variable-length data items
-without affecting the XDR alignment of data items in the Payload stream.
+a chunk MUST contain only one XDR data item.
+This restriction makes it straightforward to reduce variable-length data items
+without affecting the XDR alignment of other data items in the Payload stream.
 </t>
 <t>
-When a variable-length XDR data item is reduced,
-the sender MUST remove XDR roundup padding for that data item
-from the Payload stream so that data items remaining
-in the Payload stream begin on four-byte alignment.
+When a sender reduces a variable-length XDR data item,
+data items remaining in the Payload stream MUST remain on four-byte alignment.
+Therefore, the sender always removes XDR roundup padding
+for that data item from the Payload stream.
 </t>
 </section>
 
@@ -1125,46 +1110,41 @@ in the Payload stream begin on four-byte alignment.
  title="Read Chunks">
 <t>
 A "Read chunk" represents an XDR data item
-that is to be pulled from the Requester to the Responder.
+that the Responder pulls from the Requester.
 A Read chunk is a list of one or more RDMA read segments.
-Each RDMA read segment consists of a Position field followed by a plain segment.
+Each RDMA read segment consists of a Position field
+followed by an RDMA segment, as defined in
+<xref target="section:8966c401-1714-413c-9384-b1f71f0a920d"/>.
 <list style="hanging">
-<t hangText="Position"><vspace blankLines="0"/>
+<t hangText="Position:">
 The byte offset in the unreduced Payload stream
-where the receiver reinserts the data item conveyed in a chunk.
-The Position value MUST be computed
+where the receiver reinserts the data item conveyed in the chunk.
+The Requester MUST compute the Position value
 from the beginning of the unreduced Payload stream,
 which begins at Position zero.
-All RDMA read segments belonging to the same Read chunk have the same value
-in their Position field.
+All RDMA read segments belonging to the same Read chunk
+have the same value in their Position field.
 </t>
 </list>
 </t>
 <t>
 While constructing an RPC Call message,
-a Requester registers memory regions that contain data to be transferred
-via RDMA Read operations.
+a Requester registers memory regions containing data items
+intended for RDMA Read operations.
 It advertises the coordinates of these regions
-in the RPC-over-RDMA Transport header of the RPC Call message.
+by adding Read chunks to the transport header of the RPC Call message.
 </t>
 <t>
 After receiving an RPC Call message sent via an RDMA Send operation,
 a Responder transfers the chunk data from the Requester using RDMA Read operations.
-The Responder reconstructs the transferred chunk data
-by concatenating the contents of each RDMA segment in list order
-into the received Payload stream at the Position value recorded in
-that RDMA segment.
-</t>
-<t>
-Put another way, the Responder inserts the first RDMA segment
-in a Read chunk into the Payload stream at the byte offset indicated
-by its Position field.
-RDMA segments whose Position field value match this offset
-are concatenated afterwards,
+The Responder inserts the first RDMA segment in a Read chunk
+into the Payload stream at the byte offset indicated by its Position field.
+The Responder concatenates RDMA segments
+whose Position field value matches this offset
 until there are no more RDMA segments at that Position value.
 </t>
 <t>
-The Position field in a read segment
+The Position field in an RDMA read segment
 indicates where the containing Read chunk starts in the Payload stream.
 The value in this field MUST be a multiple of four.
 All segments in the same Read chunk share the same Position value,
@@ -1175,16 +1155,13 @@ even if one or more of the RDMA segments have a non-four-byte-aligned length.
  anchor="section:5f4cc5f7-325d-479c-b592-6e93979431d0"
  title="Decoding Read Chunks">
 <t>
-While decoding a received Payload stream,
-whenever the XDR offset in the Payload stream
-matches that of a Read chunk,
-the Responder initiates an RDMA Read to pull the chunk's data content
-into registered local memory.
-</t>
-<t>
-The Responder acknowledges its completion of use of Read chunk source buffers
-when it sends an RPC Reply message to the Requester.
-The Requester may then release Read chunks advertised in the request.
+The Responder initiates an RDMA Read
+to pull a Read chunk's data content
+into registered local memory
+whenever the XDR offset in the Payload stream matches that of a Read chunk.
+The Responder acknowledges that it is finished with Read chunk source buffers
+when it sends the corresponding RPC Reply message to the Requester.
+The Requester may then release Read chunks advertised in the RPC-over-RDMA Call.
 </t>
 </section>
 
@@ -1193,8 +1170,9 @@ The Requester may then release Read chunks advertised in the request.
  title="Read Chunk Roundup">
 <t>
 When reducing a variable-length argument data item,
-the Requester MUST NOT include the data item's XDR roundup
-padding in the chunk itself.
+the Requester MUST NOT include
+the data item's XDR roundup padding
+in the chunk itself.
 The chunk's total length MUST be the same as the encoded length of the data item.
 </t>
 </section>
@@ -1208,39 +1186,39 @@ The chunk's total length MUST be the same as the encoded length of the data item
 While constructing an RPC Call message,
 a Requester prepares memory regions
 in which to receive DDP-eligible result data items.
-A "Write chunk" represents an XDR data item that is to be pushed
-from a Responder to a Requester.
-It is made up of an array of zero or more plain segments.
+A "Write chunk" represents an XDR data item
+that a Responder is to push to a Requester.
+It consists of an array of zero or more plain segments.
 </t>
 <t>
-Write chunks are provisioned by a Requester long
-before the Responder has prepared the reply Payload stream.
+A Requester provisions Write chunks
+long before the Responder has prepared the reply message.
 A Requester often does not know the actual length
 of the result data items to be returned,
 since the result does not yet exist.
-Thus, it MUST register Write chunks long enough
+Thus, it MUST provision Write chunks large enough
 to accommodate the maximum possible size of each returned data item.
 </t>
 <t>
-In addition, the XDR position of DDP-eligible data items
+Note that the XDR position of DDP-eligible data items
 in the reply's Payload stream is not predictable
 when a Requester constructs an RPC Call message.
 Therefore, RDMA segments in a Write chunk do not have a Position field.
 </t>
 <t>
 For each Write chunk provided by a Requester,
-the Responder pushes one data item to the Requester,
-filling the chunk contiguously and in segment array order
-until that data item has been completely written
-to the Requester.
+the Responder pushes DDP-eligible one data item to the Requester.
+It fills the chunk contiguously and in segment array order
+until the Responder has written that data item to the Requester in its entirety.
 The Responder MUST copy the segment count
 and all segments from the Requester-provided Write chunk
-into the RPC Reply message's Transport header.
+into the RPC Reply message's transport header.
 As it does so, the Responder updates each segment length field
-to reflect the actual amount of data that is being returned in that segment.
+to reflect the actual amount of data returned in that segment.
 The Responder then sends the RPC Reply message via an RDMA Send operation.
 </t>
-<t>An "empty Write chunk" is a Write chunk with a zero segment count.
+<t>
+An "empty Write chunk" is a Write chunk with a zero segment count.
 By definition, the length of an empty Write chunk is zero.
 An "unused Write chunk" has a non-zero segment count,
 but all of its segments are empty segments.
@@ -1281,46 +1259,43 @@ the same as the encoded length of the result data item.
  title="Message Format">
 <t>
 Because a Responder is required to have previously posted
-recieve resources, RPC/RDMA version 2 provides several
-ways of conveying an RPC/RDMA message.
-A sender chooses the specific format for a message
-among several factors:
+receive resources, RPC-over-RDMA version 2 provides
+several ways to convey an RPC-over-RDMA message.
+A sender chooses
+the specific format for a message among several factors:
 <list style="symbols">
 <t>
 The existence of DDP-eligible data items in the RPC message
 </t>
 <t>
-The size of the RPC message to be transported
+The size of the RPC message
 </t>
 <t>
 The direction of the RPC message (i.e., Call or Reply)
 </t>
 <t>
-The hardware resources that are available
+The available hardware resources
 </t>
 <t>
-The arrangement of the sink memory buffers
+The arrangement of source and sink memory buffers
 </t>
 </list>
-The following subsections describe in detail how each format 
-is constructued.
+The following subsections describe in detail how
+Requesters and Responders
+construct each message format.
 </t>
 
 <section
  anchor="section:13a871a4-554f-4e3c-89ba-c5a75929f01E"
  title="Simple Format">
 <t>
-Since all RPC messages conveyed via RPC-over-RDMA version 2
-require at least one RDMA Send operation,
-the most efficient way to send an RPC message
+All RPC messages conveyed via RPC-over-RDMA version 2
+require at least one RDMA Send operation to convey.
+Thus, the most efficient way to send an RPC message
 that is smaller than the inline threshold
 is to append the Payload stream directly to the Transport stream.
-An RPC-over-RDMA header with a small RPC Call or Reply
-message immediately following is transferred using a single
-RDMA Send operation.
-When no chunks are present,
-Calls and Replies are constructed the same way, and
-no other operations are needed.
+When no chunks are present, senders construct Calls and Replies the same way,
+and no other operations are needed.
 </t>
 
 <section
@@ -1328,28 +1303,30 @@ no other operations are needed.
  title="Simple Format with Chunks">
 <t>
 If DDP-eligible data items are present in a Payload stream,
-a sender MAY reduce some or all of these items by removing them
-from the Payload stream.
+a sender MAY reduce some or all of these items,
+removing them from the Payload stream.
 The sender then uses a separate mechanism to transfer the reduced data items.
-The Transport stream with the reduced Payload stream immediately
-following is then transferred using a single RDMA Send operation.
+The Transport stream with the reduced Payload stream immediately following it
+is then transferred using one RDMA Send operation.
 </t>
 <t>
-When chunks are present, 
-Calls are handled differently than Replies.
+When chunks are present,
+senders construct Calls differently than Replies.
 <list style="hanging">
-<t hangText="Simple Call"><vspace blankLines="0"/>
+<t hangText="Simple Call:">
 After receiving the Transport and Payload streams
-of an RPC Call message accompanied by Read chunks,
-the Responder uses RDMA Read operations to move reduced data items in Read chunks.
-RPC/RDMA Replies never convey Read chunks.
+of an RPC Call message with Read chunks,
+the Responder uses RDMA Read operations to move
+the reduced data items contained in Read chunks.
+RPC-over-RDMA Calls can carry Write chunks
+for the Responder to use when sending the matching Reply.
 </t>
 <t hangText="Simple Reply"><vspace blankLines="0"/>
-Before sending the Transport and Payload streams of an RPC Reply message
-containing Write chunks, the Responder uses RDMA Write operations
-to move reduced data items in Write and Reply chunks.
-RPC/RDMA Calls can carry provisioned but unused Write chunks
-for the Responder to use for the sending matching Reply.
+The Responder uses RDMA Write operations
+to move reduced data items contained in Write chunks.
+Afterward, it sends the Transport and Payload streams
+of the RPC Reply message using one RDMA Send.
+RPC-over-RDMA Replies always carry an empty Read chunk list.
 </t>
 </list>
 </t>
@@ -1419,46 +1396,46 @@ for the Responder to use for the sending matching Reply.
  anchor="section:bda7bc14-2a3d-4224-873c-855912218987"
  title="Continued Format">
 <t>
-A sender can choose to split a message payload over multiple
-RPC-over-RDMA messages.
-The Payload stream of each RPC-over-RDMA message contains
-a part of the RPC message.
-The receiver reconstitutes the RPC message by concatenating
-the Payload streams of the sequence
-of RPC-over-RDMA messages together.
-A Sender MAY split an RPC message payload on any convenient
-boundary.
+For various reasons,
+a sender can choose to split a message payload
+over multiple RPC-over-RDMA messages.
+The Payload stream of each RPC-over-RDMA message
+contains a part of the RPC message.
+The receiver reconstructs the original RPC message
+by concatenating in sequence the Payload stream
+of each RPC-over-RDMA message.
+A Sender MAY split an RPC message payload on any convenient boundary.
 </t>
 
 <section
  anchor="section:3b102dbf-81b2-4e0f-bb4b-d238db83ab44"
  title="Continued Format with Chunks">
 <t>
-When no chunks are present,
-Calls and Replies are constructed the same way.
-However, if DDP-eligible data items are present in a Payload stream,
-a sender MAY reduce some or all of these items by removing them
-from the Payload stream.
+If DDP-eligible data items are present in the Payload stream,
+a sender MAY reduce some or all of these items,
+removing them from the Payload stream.
 The sender then uses a separate mechanism to transfer the reduced data items.
-The Transport stream with the reduced Payload stream immediately
-following is then transferred using a single RDMA Send operation.
+The Transport stream with the reduced Payload stream immediately following it
+is then transferred using one RDMA Send operation.
 </t>
 <t>
-As with Simple Format messages, when chunks are present, 
-Calls are handled differently than Replies.
+As with Simple Format messages, when chunks are present,
+senders construct Calls differently than Replies.
 <list style="hanging">
 <t hangText="Continued Call"><vspace blankLines="0"/>
 After receiving the Transport and Payload streams
-of an RPC Call message accompanied by Read chunks,
-the Responder uses RDMA Read operations to move reduced data items in Read chunks.
-RPC/RDMA Replies never convey Read chunks.
+of an RPC Call message with Read chunks,
+the Responder uses RDMA Read operations to move
+the reduced data items contained in Read chunks.
+RPC-over-RDMA Calls can carry Write chunks
+for the Responder to use when sending the matching Reply.
 </t>
 <t hangText="Continued Reply"><vspace blankLines="0"/>
-Before sending the Transport and Payload streams of an RPC Reply message
-containing Write chunks, the Responder uses RDMA Write operations
-to move reduced data items in Write and Reply chunks.
-RPC/RDMA Calls can carry provisioned but unused Write chunks
-for the Responder to use for the sending matching Reply.
+The Responder uses RDMA Write operations
+to move reduced data items contained in Write chunks.
+Afterward, it sends the Transport and Payload streams
+of the RPC Reply message using multiple RDMA Sends.
+RPC-over-RDMA Replies always carry an empty Read chunk list.
 </t>
 </list>
 </t>
@@ -1545,54 +1522,62 @@ for the Responder to use for the sending matching Reply.
  anchor="section:d9731520-bdde-4a1b-9f54-9901d5c57648"
  title="Special Format">
 <t>
-If there are no DDP-eligible data items in the Payload stream,
-or the Payload stream is still too large after it has been reduced,
-the sender uses either Message Continuation,
-or it can use RDMA Read or Write operations to convey the
-entire RPC message.
-The latter mechanism is referred to as a "Special Format" message.
+Sometimes,
+after DDP-eligible data items have been removed,
+a Payload stream is still too large
+to send using only RDMA Send operations.
+In those cases, the sender can use RDMA Read or Write operations
+to convey the entire RPC message.
+We refer to this as a "Special Format" message.
 </t>
 <t>
 To transmit a Special Format Message,
-the sender conveys only the Transport stream
+the sender transmits only the Transport stream
 with an RDMA Send operation.
-The Payload stream is not included in the Send buffer in this instance.
+The sender does not include the Payload stream in the send buffer.
 Instead, the Requester provides chunks that the Responder
 uses to move the Payload stream.
-Like other formats, because chunks are present,
-Calls are handled differently than Replies.
-<list style="hanging">
-<t hangText="Special Format Call"><vspace blankLines="0"/>
-The Requester provides a Read chunk
-that contains the RPC Call message's Payload stream.
-Every RDMA read segment in this chunk MUST contain zero in its Position field.
-This type of chunk is known as a "Position Zero Read chunk".
-</t>
-<t hangText="Special Format Reply"><vspace blankLines="0"/>
-The Requester provisions a single Write chunk in advance,
-known as the "Reply chunk",
-that will contain the RPC Reply message's Payload stream.
-The Requester sizes the Reply chunk to accommodate the maximum expected
-reply size for that upper-layer operation.
-</t>
-</list>
-Though the purpose of a Special Format Message is to handle large RPC messages,
-Requesters MAY use a Special Format Message at any time to convey an RPC Call message.
 </t>
 <t>
-A Responder chooses which Format to use based on the chunks provided
-by the Requester.
-If Write chunks were provided and the Responder has a DDP-eligible result,
+Because chunks are always present in Special Format messages,
+the sender always handles Calls and Replies differently.
+<list style="hanging">
+<t hangText="Special Call"><vspace blankLines="0"/>
+The Requester provides a Read chunk
+that contains the RPC Call message's Payload stream.
+Every read segment in this chunk MUST contain zero (0) in its Position field.
+This type of Read chunk is known as a "Position Zero Read chunk."
+</t>
+<t hangText="Special Reply"><vspace blankLines="0"/>
+The Requester provisions a single Write chunk in advance,
+known as a "Reply chunk",
+in which the Responder places the RPC Reply message's Payload stream.
+The Requester sizes the Reply chunk to accommodate
+the maximum expected reply size for that upper-layer operation.
+</t>
+</list>
+One purpose of a Special Format Message is to handle large RPC messages.
+However, Requesters MAY use a Special Format Message
+at any time to convey an RPC Call message.
+</t>
+<t>
+When it has alternatives,
+a Responder chooses which Format to use based on the chunks
+provided by the Requester.
+If a Requester provided a Write chunk
+and
+the Responder has a DDP-eligible result,
 it first reduces the reply Payload stream.
-If a Reply chunk was provided and the reduced Payload stream
-is larger than the reply inline threshold,
+If a Requester provided a Reply chunk
+and
+the reduced Payload stream is larger than the reply inline threshold,
 the Responder MUST use the Requester-provided Reply chunk for the reply.
 </t>
 <t>
-XDR data items may appear in these special chunks
+XDR data items may appear in these chunks
 without regard to their DDP-eligibility.
 As these chunks contain a Payload stream,
-such chunks MUST include appropriate XDR roundup padding
+they MUST include appropriate XDR roundup padding
 to maintain proper XDR alignment of their contents.
 </t>
 
