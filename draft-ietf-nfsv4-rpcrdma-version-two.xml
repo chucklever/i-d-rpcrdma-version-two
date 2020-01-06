@@ -1634,30 +1634,19 @@ to maintain proper XDR alignment of their contents.
  anchor="section:86248e99-ca60-478a-8aff-3fb387410077"
  title="Transport Properties">
 <t>
-RPC-over-RDMA version 2 provides a mechanism
-for connection endpoints
-to communicate information about implementation properties,
-enabling compatible endpoints to optimize data transfer.
-Initially only a small set of transport properties are defined
-and a single operation is provided to exchange transport properties
-(see
+RPC-over-RDMA version 2 enables connection endpoints
+to exchange information about implementation properties.
+Compatible endpoints use this information to optimize data transfer.
+Initially, only a small set of transport properties are defined.
+The protocol provides a single message type
+to exchange transport properties (see
 <xref target="section:07e8c178-62df-46a7-a57e-dcf107821d93"/>).
 </t>
 <t>
-Both the set of transport properties and the operations used to
-communicate may be extended.
-Within RPC-over-RDMA version 2, all such extensions are OPTIONAL.
-For information about existing transport properties, see Sections
-<xref
- target="section:d5ac12f6-6735-48f3-b4ba-b44a19ff9298"
- pageno="false"
- format="counter"/>
-through
-<xref
- target="section:943010bd-c342-46b7-9fcd-df746437dd6f"
- pageno="false"
- format="counter"/>.
-For discussion of extensions to the set of transport properties, see
+Both the set of transport properties and the operations used
+to communicate them may be extended.
+Within RPC-over-RDMA version 2, such extensions are OPTIONAL.
+A discussion of extending the set of transport properties appears in
 <xref target="section:a355adad-f03b-41a6-94a8-4128b10301bb"/>.
 </t>
 
@@ -1665,25 +1654,14 @@ For discussion of extensions to the set of transport properties, see
  anchor="section:d5ac12f6-6735-48f3-b4ba-b44a19ff9298"
  title="Transport Properties Model">
 <t>
-A basic set of receiver and sender properties is specified in this document.
-An extensible approach is used, allowing new properties to be defined
-in future Standards Track documents.
+The current document specifies a basic set of receiver and sender properties.
+Such properties are specified using
+a code point that identifies the particular transport property
+and
+a nominally opaque array containing the XDR encoding of the property.
 </t>
 <t>
-Such properties are specified using:
-<list style="symbols">
-<t>
-A code point identifying the particular transport property being specified.
-</t>
-<t>
-A nominally opaque array which contains within it the XDR encoding
-of the specific property indicated by the associated code point.
-</t>
-</list>
-</t>
-<t>
-The following XDR types are used by operations that deal with
-transport properties:
+The following XDR types handle transport properties:
 <figure align="left">
 <artwork xml:space="preserve" align="left">
 &lt;CODE BEGINS&gt;
@@ -1704,38 +1682,39 @@ typedef uint32 rpcrdma2_propsubset&lt;&gt;;
 </figure>
 </t>
 <t>
-An rpcrdma2_propid specifies a particular transport property.
-In order to facilitate XDR extension of the set of properties
-by concatenating XDR definition files,
-specific properties are defined as const values
-rather than as elements in an enum.
+The rpcrdma2_propid type specifies a distinct transport property.
+The property code points are defined as const values rather than
+elements in an enum type
+to enable the extension by concatenating XDR definition files.
 </t>
 <t>
-An rpcrdma2_propval specifies a value of a particular transport
-property with the particular property identified by rdma_which,
-while the associated value of that property is contained within rdma_data.
+The rpcrdma2_propval type carries the value of a transport property.
+The rdma_which field identifies the particular property,
+and
+the rdma_data field contains the associated value of that property.
+A zero-length rdma_data field represents
+the default value of the property specified by rdma_which.
 </t>
 <t>
-An rdma_data field which is of zero length is interpreted as
-indicating the default value or the property indicated by rdma_which.
-</t>
-<t>
-While rdma_data is defined as opaque within the XDR,
-the contents are interpreted (except when of length zero)
-using the XDR typedef associated with the property specified by rdma_which.
-As a result, when rpcrdma2_propval does not conform to that typedef,
-the receiver is REQUIRED to return the error RDMA2_ERR_BAD_XDR
-using the header type RDMA2_ERROR as described in
+Although the rdma_data field is opaque,
+receivers interpret its contents using the XDR type
+associated with the property specified by rdma_which.
+When the contents of the rdma_data field
+do not conform to that XDR type,
+the receiver MUST return the error RDMA2_ERR_BAD_XDR
+using the header type RDMA2_ERROR,
+as described in Section
 <xref target="section:b1d23e5c-31df-483f-adb7-25430b5de38d"/>.
+</t>
+<t>
 For example, the receiver of a message
 containing a valid rpcrdma2_propval returns this error
-if the length of rdma_data is such that it extends beyond
-the bounds of the message being transferred.
-</t>
-<t>
-In cases in which the rpcrdma2_propid specified by rdma_which is
-understood by the receiver, the receiver also MUST report the error
-RDMA2_ERR_BAD_XDR if either of the following occur:
+if the length of rdma_data is greater than
+the length of the transferred message.
+Also, when the receiver recognizes
+the rpcrdma2_propid contained in rdma_which,
+it MUST report the error RDMA2_ERR_BAD_XDR
+if either of the following occurs:
 <list style="symbols">
 <t>
 The nominally opaque data within rdma_data is not valid when
@@ -1746,23 +1725,24 @@ The length of rdma_data is insufficient to contain the data
 represented by the property-associated typedef.
 </t>
 </list>
-Note that no error is to be reported if rdma_which is unknown to the receiver.
-In that case, that rpcrdma2_propval is not processed and processing continues
-using the next rpcrdma2_propval, if any.
+A receiver does not report an error if it does not recognize
+the value contained in rdma_which.
+In that case, the receiver does not process that rpcrdma2_propval.
+Processing continues with the next rpcrdma2_propval, if any.
 </t>
 <t>
-A rpcrdma2_propset specifies a set of transport properties.
-No particular ordering of the rpcrdma2_propval items within it is imposed.
+The rpcrdma2_propset type specifies a set of transport properties.
+The protocol does not impose a particular ordering of the rpcrdma2_propval items within it.
 </t>
 <t>
-A rpcrdma2_propsubset identifies a subset of the properties in a
-previously specified rpcrdma2_propset.
+The rpcrdma2_propsubset type identifies
+a subset of the properties in a rpcrdma2_propset.
 Each bit in the mask denotes a particular element in a previously
 specified rpcrdma2_propset.
 If a particular rpcrdma2_propval is at position N in the array,
 then bit number N mod 32 in word N div 32 specifies whether
-that particular rpcrdma2_propval is included in the defined subset.
-Words beyond the last one specified are treated as containing zero.
+the defined subset includes that particular rpcrdma2_propval.
+Words beyond the last one specified are assumed to contain zero.
 </t>
 </section>
 
@@ -1770,37 +1750,30 @@ Words beyond the last one specified are treated as containing zero.
  anchor="section:943010bd-c342-46b7-9fcd-df746437dd6f"
  title="Current Transport Properties">
 <t>
-Although the set of transport properties may be extended,
-a basic set of transport properties is defined in
-<xref target="table:99d0e7cc-da81-4f16-9bd0-471f806bc0b6"/>.
-</t>
-<t>
-In that table, the columns contain the following information:
+<xref target="table:99d0e7cc-da81-4f16-9bd0-471f806bc0b6"/>
+specifies a basic set of transport properties.
+The columns contain the following information:
 <list style="symbols">
 <t>
-The column labeled "Property" identifies the transport property
-described by the current row.
+The column labeled "Property" contains a name
+of the transport property described by the current row.
 </t>
 <t>
-The column labeled "Code" specifies the rpcrdma2_propid value used
-to identify this property.
+The column labeled "Code" specifies the code point
+that identifies this property.
 </t>
 <t>
-The column labeled "XDR type" gives the XDR type of the data used
-to communicate the value of this property.
+The column labeled "XDR type" gives the XDR type
+of the data used to communicate the value of this property.
 This data type overlays the data portion
-of the nominally opaque field rdma_data in a rpcrdma2_propval.
+of the nominally opaque rdma_data field.
 </t>
 <t>
-The column labeled "Default" gives the default value for the
-property which is to be assumed by those who do not receive,
-or are unable to interpret,
-information about the actual value of the property.
+The column labeled "Default" gives the default value for the property.
 </t>
 <t>
-The column labeled "Sec" indicates the section within this
-document that explains the semantics and use of this transport
-property.
+The column labeled "Section" indicates the section within the current
+document that explains the use of this property.
 </t>
 </list>
 </t>
@@ -1812,7 +1785,7 @@ property.
 <ttcol align="left">Code</ttcol>
 <ttcol align="left">XDR type</ttcol>
 <ttcol align="left">Default</ttcol>
-<ttcol align="left">Sec</ttcol>
+<ttcol align="left">Section</ttcol>
 <c>Maximum Send Size</c>
 <c>1</c>
 <c>uint32</c>
@@ -1873,12 +1846,11 @@ property.
  anchor="section:0a985ff5-a5c1-477f-8932-517be34ccf65"
  title="Maximum Send Size">
 <t>
-The Maximum Send Size specifies the maximum size, in octets,
-of Send payloads.
-The endpoint sending this value ensures that it will not
-transmit a Send WR payload larger than this size,
-allowing the endpoint receiving this value to size its
-Receive buffers appropriately.
+The value of this property specifies
+the maximum size, in octets, of Send payloads.
+The endpoint receiving this value
+can size its Receive buffers
+based on the value of this property.
 <figure align="left">
 <artwork xml:space="preserve" align="left">
 &lt;CODE BEGINS&gt;
@@ -1896,12 +1868,8 @@ typedef uint32 rpcrdma2_prop_sbsiz;
  anchor="section:5101b1f1-b1ad-4b6b-9fa4-d6fa324ffc0d"
  title="Receive Buffer Size">
 <t>
-The Receive Buffer Size specifies the minimum size, in octets,
-of pre-posted receive buffers.
-It is the responsibility of the endpoint sending this value
-to ensure that its pre-posted receive buffers are at least the size specified,
-allowing the endpoint receiving this value to send messages
-that are of this size.
+The value of this property specifies
+the minimum size, in octets, of pre-posted receive buffers.
 <figure align="left">
 <artwork xml:space="preserve" align="left">
 &lt;CODE BEGINS&gt;
@@ -1914,25 +1882,27 @@ typedef uint32 rpcrdma2_prop_rbsiz;
 </figure>
 </t>
 <t>
-A sender may use his knowledge of the receiver's buffer size to
-determine when the message to be sent will fit in the preposted
-receive buffers that the receiver has set up.
-In particular,
+A sender can subsequently use this value to
+determine when a message to be sent fits in
+pre-posted receive buffers that the receiver has set up.
+In particular:
 <list style="symbols">
 <t>
-Requesters may use the value to determine when it is necessary to
-provide a Position Zero Read chunk or Message Continuation
-when sending a request.
+Requesters may use the value to determine when to provide
+a Position Zero Read chunk
+or
+use Message Continuation
+when sending a Call.
 </t>
 <t>
-Requesters may use the value to determine when it is necessary to
-provide a Reply chunk when sending a request, based on the maximum
-possible size of the reply.
+Requesters may use the value to determine when
+to provide a Reply chunk when sending a Call,
+based on the maximum possible size of the Reply.
 </t>
 <t>
-Responders may use the value to determine when it is necessary,
-given the actual size of the reply, to actually use a Reply chunk
-provided by the requester.
+Responders may use the value to determine when
+to use a Reply chunk provided by the Requester,
+given the actual size of a Reply.
 </t>
 </list>
 </t>
@@ -1942,7 +1912,8 @@ provided by the requester.
  anchor="section:14ed280d-521c-410c-a190-cf891be53900"
  title="Maximum RDMA Segment Size">
 <t>
-The Maximum RDMA Segment Size specifies the maximum size, in octets,
+The value of this property specifies
+the maximum size, in octets,
 of an RDMA segment this endpoint is prepared to send or receive.
 <figure align="left">
 <artwork xml:space="preserve" align="left">
@@ -1961,8 +1932,9 @@ typedef uint32 rpcrdma2_prop_rssiz;
  anchor="section:98fc720d-6263-4a52-ae89-d2469b982512"
  title="Maximum RDMA Segment Count">
 <t>
-The Maximum RDMA Segment Count specifies the maximum number of
-RDMA segments that can appear in a requester's transport header.
+The value of this property specifies
+the maximum number of RDMA segments
+that can appear in a requester's transport header.
 <figure align="left">
 <artwork xml:space="preserve" align="left">
 &lt;CODE BEGINS&gt;
@@ -1980,16 +1952,17 @@ typedef uint32 rpcrdma2_prop_rcsiz;
  anchor="section:6ace2d7f-044b-491f-97ea-5760345a2e8f"
  title="Reverse Request Support">
 <t>
-The value of this property is used to indicate a client implementation's
-readiness to accept and process messages that are part
-of reverse direction RPC requests.
+The value of this property specifies
+a client implementation's readiness to process
+messages that are part of reverse direction RPC requests.
 <figure align="left">
 <artwork xml:space="preserve" align="left">
 &lt;CODE BEGINS&gt;
 
 const uint32 RDMA_RVREQSUP_NONE = 0;
-const uint32 RDMA_RVREQSUP_INLINE = 1;
-const uint32 RDMA_RVREQSUP_GENL = 2;
+const uint32 RDMA_RVREQSUP_SIMPLE = 1;
+const uint32 RDMA_RVREQSUP_CONT = 2;
+const uint32 RDMA_RVREQSUP_GENL = 3;
 
 const uint32 RDMA2_PROPID_BRS = 5;
 typedef uint32 rpcrdma2_prop_brs;
@@ -2002,33 +1975,41 @@ typedef uint32 rpcrdma2_prop_brs;
 Multiple levels of support are distinguished:
 <list style="symbols">
 <t>
-The value RDMA2_RVREQSUP_NONE indicates that receipt of reverse
-direction requests and replies is not supported.
+The value RDMA2_RVREQSUP_NONE indicates
+that the sender does not support reverse direction messages at all.
 </t>
 <t>
-The value RDMA2_RVREQSUP_INLINE indicates that receipt of reverse
-direction requests or replies is only supported using inline
-messages and that use of explicit RDMA operations
-for reverse direction messages is not supported.
+The value RDMA2_RVREQSUP_SIMPLE indicates
+that the sender supports using only Simple Format messages without chunks
+for reverse direction messages.
 </t>
 <t>
-The value RDMA2_RVREQSUP_GENL that receipt of reverse direction
-requests or replies is supported in the same ways that forward
-direction requests or replies typically are.
+The value RDMA2_RVREQSUP_CONT indicates
+that the sender supports using either
+Simple Format without chunks
+or
+Continued Format messages without chunks
+for reverse direction messages.
+</t>
+<t>
+The value RDMA2_RVREQSUP_GENL indicates
+that the sender supports reverse direction messages
+in the same way as forward direction messages.
 </t>
 </list>
 </t>
 <t>
-When information about this property is not provided,
-the support level of servers can be inferred
-from the reverse direction requests that they issue,
-assuming that issuing a request implicitly indicates support
-for receiving the corresponding reply.
-On this basis, support for receiving inline replies
-can be assumed when requests without
-Read chunks, Write chunks, or Reply chunks are issued,
-while requests with any of these elements allow the client to assume
-that general support for reverse direction replies is present on the server.
+When a peer does not provide this property,
+it can infer the support level
+from the reverse direction requests that the remote issues.
+</t>
+<t>
+Issuing a Call indicates support for receiving the corresponding Reply.
+On this basis, support for receiving Simple Replies without chunks
+can be assumed when Calls without any chunks are issued.
+Reverse direction Calls with any of these elements
+allow the client to assume that general support
+for reverse direction Replies is present on the server.
 </t>
 </section>
 
@@ -2036,11 +2017,11 @@ that general support for reverse direction replies is present on the server.
  anchor="section:5f63e1b6-8d24-453b-b18b-b98ad66f3671"
  title="Host Authentication Message">
 <t>
-The value of this transport property is used
-as part of an exchange of host authentication material.
-This property can accommodate authentication handshakes that
-require multiple challenge-response interactions, and
-potentially large amounts of material.
+The value of this transport property enables
+the exchange of host authentication material.
+This property can accommodate authentication handshakes
+that require multiple challenge-response interactions
+and potentially large amounts of material.
 <figure align="left">
 <artwork xml:space="preserve" align="left">
 &lt;CODE BEGINS&gt;
@@ -2053,7 +2034,7 @@ typedef opaque rpcrdma2_prop_hostauth&lt;&gt;;
 </figure>
 </t>
 <t>
-When this property is not provided, the peer(s) remain unauthenticated.
+When this property is not present, the peer(s) remain unauthenticated.
 Local security policy on each peer determines
 whether the connection is permitted to continue.
 </t>
@@ -3242,9 +3223,10 @@ together with the file common.x, obtained from this document.
 /// typedef uint32 rpcrdma2_prop_brs;
 /// typedef opaque rpcrdma2_prop_hostauth&lt;&gt;;
 ///
-/// const uint32 RDMA_RVREQSUP_NONE = 0;
-/// const uint32 RDMA_RVREQSUP_INLINE = 1;
-/// const uint32 RDMA_RVREQSUP_GENL = 2;
+/// const uint32 RDMA2_RVREQSUP_NONE = 0;
+/// const uint32 RDMA2_RVREQSUP_SIMPLE = 1;
+/// const uint32 RDMA2_RVREQSUP_CONT = 1;
+/// const uint32 RDMA2_RVREQSUP_GENL = 3;
 ///
 /// /* FILE ENDS: common.x; */
 
