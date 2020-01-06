@@ -1256,9 +1256,9 @@ the same as the encoded length of the result data item.
 
 <section
  anchor="section:740e5b29-8c88-40ab-9506-69635d9a8167"
- title="Message Format">
+ title="Payload Format">
 <t>
-Because a Responder is required to have previously posted
+Because each receiver is required to have previously posted
 receive resources, RPC-over-RDMA version 2 provides
 several ways to convey an RPC-over-RDMA message.
 A sender chooses
@@ -1282,7 +1282,7 @@ The arrangement of source and sink memory buffers
 </list>
 The following subsections describe in detail how
 Requesters and Responders
-construct each message format.
+format RPC-over-RDMA message payloads.
 </t>
 
 <section
@@ -1404,7 +1404,7 @@ contains a part of the RPC message.
 The receiver reconstructs the original RPC message
 by concatenating in sequence the Payload stream
 of each RPC-over-RDMA message.
-A Sender MAY split an RPC message payload on any convenient boundary.
+A sender MAY split an RPC message payload on any convenient boundary.
 </t>
 
 <section
@@ -1531,7 +1531,7 @@ to convey the entire RPC message.
 We refer to this as a "Special Format" message.
 </t>
 <t>
-To transmit a Special Format Message,
+To transmit a Special Format message,
 the sender transmits only the Transport stream
 with an RDMA Send operation.
 The sender does not include the Payload stream in the send buffer.
@@ -1556,8 +1556,8 @@ The Requester sizes the Reply chunk to accommodate
 the maximum expected reply size for that upper-layer operation.
 </t>
 </list>
-One purpose of a Special Format Message is to handle large RPC messages.
-However, Requesters MAY use a Special Format Message
+One purpose of a Special Format message is to handle large RPC messages.
+However, Requesters MAY use a Special Format message
 at any time to convey an RPC Call message.
 </t>
 <t>
