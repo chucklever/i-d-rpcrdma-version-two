@@ -2921,67 +2921,27 @@ and presents an error to the RPC consumer.
  anchor="section:bf53e759-d97f-487d-a5e2-9b8153db1803"
  title="XDR Protocol Definition">
 <t>
-This section contains a description of the core features of
-the RPC-over-RDMA version 2 protocol expressed in the XDR language
+This section contains a description of the core features
+of the RPC-over-RDMA version 2 protocol
+expressed in the XDR language
 <xref target="RFC4506"/>.
-</t>
-<t>
-Because of the need to provide for protocol extensibility
-without modifying an existing XDR definition,
-this description has some important structural differences
-from the corresponding XDR description for RPC-over-RDMA version 1,
-which appears in
-<xref target="RFC8166"/>.
-</t>
-<t>
-This description is divided into three parts:
-<list style="symbols">
-<t>
-A code component license which appears in
-<xref target="section:aaab9699-eae3-46ca-a1d5-a8776a5ecb7d"/>.
-</t>
-<t>
-An XDR description of the structures that are generally available
-for use by transport header types including both those defined in
-this document and those that may be defined as extensions.
-This includes definitions of the chunk-related structures
-derived from RPC-over-RDMA version 1,
-the transport property model introduced in this document,
-and a definition of the transport header prefixes that precede the
-various transport header types.
-This appears in
-<xref target="section:b25ffcfc-511f-4383-8025-4a68cfcb4f49"/>.
-</t>
-<t>
-An XDR description of the transport header types defined in this document,
-including those derived from RPC-over-RDMA version 1
-and those introduced in RPC-over-RDMA version 2.
-This appears in
-<xref target="section:84e950a5-c842-4d19-b56d-0458c3e219b2"/>.
-</t>
-</list>
-</t>
-<t>
-This description is provided in a way that makes it simple
-to extract into ready-to-compile form.
-To enable the combination of this description with the descriptions
-of subsequent extensions to RPC-over-RDMA version 2,
-the extracted description can be combined with similar descriptions
-published later, or those descriptions can be compiled separately.
-Refer to
-<xref target="section:a288b3e6-5e73-412d-91e8-f87c031cb05b"/>
-for details.
+It organizes the description to make it simple
+to extract into a form that is
+ready to compile
+or
+combine with similar descriptions published later
+as extensions to RPC-over-RDMA version 2.
 </t>
 
 <section
  anchor="section:aaab9699-eae3-46ca-a1d5-a8776a5ecb7d"
  title="Code Component License">
 <t>
-Code components extracted from this document must include the
-following license text.
-When the extracted XDR code is combined with other complementary
-XDR code which itself has an identical license, only a single
-copy of the license text need be preserved.
+Code Components extracted from the current document
+must include the following license text.
+When combining the extracted XDR code
+with other XDR code which has an identical license,
+only a single copy of the license text needs to be retained.
 <figure align="left">
 <artwork xml:space="preserve" align="left">
 &lt;CODE BEGINS&gt;
@@ -3037,12 +2997,12 @@ copy of the license text need be preserved.
 
 <section
  anchor="section:a288b3e6-5e73-412d-91e8-f87c031cb05b"
- title="Extraction and Use of XDR Definitions">
+ title="Extraction of the XDR Definition">
 <t>
-The reader can apply the following sed script to this
-document to produce a machine-readable XDR description of
-the RPC-over-RDMA version 2 protocol without any OPTIONAL
-extensions.
+Implementers can apply the following sed script
+to the current document to produce
+a machine-readable XDR description
+of the base RPC-over-RDMA version 2 protocol.
 <figure align="left">
 <artwork xml:space="preserve" align="left">
 &lt;CODE BEGINS&gt;
@@ -3054,9 +3014,10 @@ sed -n -e 's:^ */// ::p' -e 's:^ *///$::p'
 </figure>
 </t>
 <t>
-That is, if this document is in a file called
-"spec.txt" then the reader can do the following to extract
-an XDR description file and store it in the file rpcrdma-v2.x.
+That is, if this document is in a file called "spec.txt",
+then implementers can do the following
+to extract an XDR description file
+and store it in the file rpcrdma-v2.x.
 <figure align="left">
 <artwork xml:space="preserve" align="left">
 &lt;CODE BEGINS&gt;
@@ -3070,9 +3031,9 @@ sed -n -e 's:^ */// ::p' -e 's:^ *///$::p' \
 </t>
 <t>
 Although this file is a usable description of the base protocol,
-when extensions are to supported, it may be desirable to divide into
-multiple files.
-The following script can be used for that purpose:
+when extensions are to be supported,
+it may be desirable to divide the description into multiple files.
+The following script achieves that purpose:
 <figure align="left">
 <artwork xml:space="preserve" align="left">
 &lt;CODE BEGINS&gt;
@@ -3101,36 +3062,39 @@ close(OUT);
 </figure>
 </t>
 <t>
-Running the above script will result in two files:
+Running the above script results in two files:
 <list style="symbols">
 <t>
-The file common.x, containing the license plus the common XDR
-definitions which need to be made available to both the base
-operations and any subsequent extensions.
+The file common.x, containing the license
+plus the shared XDR definitions
+that need to be made available
+to both the base protocol and any subsequent extensions.
 </t>
 <t>
-The file baseops.x containing the XDR definitions for the base
-operations, defined in this document.
+The file baseops.x containing the XDR definitions
+for the base protocol defined in this document.
 </t>
 </list>
 </t>
 <t>
-Optional extensions to RPC-over-RDMA version 2,
+Extensions to RPC-over-RDMA version 2,
 published as Standards Track documents,
-will have similar means of providing XDR that describes
-those extensions.
-Once XDR for all desired extensions is also extracted,
-it can be appended to the XDR description file extracted
-from this document to produce a consolidated XDR description
-file reflecting all extensions selected for an RPC-over-RDMA
-implementation.
+should have similarly structured XDR definitions.
+Once an implementer has extracted
+the XDR for all desired extensions
+and
+the base XDR definition contained in the current document,
+she can concatenate them to produce
+a consolidated XDR definition
+that reflects the set of extensions
+selected for her RPC-over-RDMA version 2 implementation.
 </t>
 <t>
 Alternatively, the XDR descriptions can be compiled separately.
-In this case the combination of common.x and baseops.x serves to
-define the base transport, while using as XDR descriptions for
-extensions, the XDR from the document defining that extension,
-together with the file common.x, obtained from this document.
+In that case, the combination of common.x and baseops.x
+defines the base transport.
+The combination of common.x and the XDR description
+of each extension produces a full XDR definition of that extension.
 </t>
 </section>
 
@@ -3339,85 +3303,68 @@ together with the file common.x, obtained from this document.
 
 <section
  anchor="section:5541f0da-efbb-4431-af9c-6f82aa773963"
- title="Use of the XDR Description Files">
+ title="Use of the XDR Description">
 <t>
-The three files common.x and baseops.x,
+The files common.x and baseops.x,
 when combined with the XDR descriptions for extension defined later,
 produce a human-readable and compilable description
 of the RPC-over-RDMA version 2 protocol with the included extensions.
 </t>
 <t>
-Although this XDR description can be useful in generating code
-to encode and decode the transport and payload streams,
-there are elements of the structure of RPC-over-RDMA version 2
-which are not expressible within the XDR language as currently defined.
-This requires implementations that use the output of the XDR processor
-to provide additional code to bridge the gaps.
+Although this XDR description can generate encoders and decoders
+for the Transport and Payload streams,
+there are elements of the operation of RPC-over-RDMA version 2
+that cannot be expressed within the XDR language.
+Implementations that use the output of an automated XDR processor
+need to provide additional code to bridge these gaps.
 <list style="symbols">
 <t>
-The values of transport properties are represented
-within XDR as opaque values.
-However, the actual structures of each
-of the properties are represented by XDR typedefs,
-with the selection of the appropriate typedef described by text in
-this document.
-The determination of the appropriate typedef is not specified by XDR,
-which does not possess the facilities necessary for that determination
-to be specified in an extensible way.
-<vspace blankLines="1"/>
-This is similar to the way in which NFSv4 attributes are handled
-<xref target="RFC7530"/>
-<xref target="RFC5661"/>.
-As in that case, implementations that need to encode and decode
-these nominally opaque entities need to use the protocol description
-to determine the actual XDR representation that underlays the
-items described as opaque.
+The Transport stream is not a single XDR object.
+Instead, the header prefix is one XDR data item,
+and the rest of the header is a separate XDR data item.
+<xref target="table:b5c31bf9-d623-4957-97db-29fc1d416cb8"/>
+expresses the mapping between the header type in the header prefix
+and
+the XDR object representing the header type.
 </t>
 <t>
-The transport stream is not represented as a single XDR object.
-Instead, the header prefix is described by one XDR object  while
-the rest of the header is described as another XDR object with
-the mapping between the header type in the header prefix and the
-XDR object representing the header type represented by tables
-contained in this document, with additional mappings being
-specifiable by a later extension document.
-<vspace blankLines="1"/>
-This situation is similar to that in which RPC message headers
-contain program and procedure numbers, so that the XDR for
-those request and replies can be used to encode and decode the
-associated messages without requiring that all be present in a
-single XDR specification.
-As in that case, implementations need to use the header specification
-to select the appropriate XDR-generated code to be used
-in message processing.
+The relationship between
+the Transport stream
+and
+the Payload stream
+is not specified using XDR.
+Comments within the XDR text
+make clear where transported messages,
+described by their own XDR definitions,
+need to appear.
+Such data is opaque to the transport.
 </t>
 <t>
-The relationship between the transport stream and the payload
-stream is not specified in the XDR itself,
-although comments within the XDR text make clear
-where transported messages, described by their own XDR, need to appear.
-Such data by its nature is opaque to the transport,
-although its form differs XDR opaque arrays.
-<vspace blankLines="1"/>
-Potential extensions allowing continuation of RPC messages
-across transport message boundaries will require that message
-assembly facilities, not specifiable within XDR, also be part
-of transport implementations.
+Continuation of RPC messages across transport message boundaries
+requires that message assembly facilities
+not specifiable within XDR are part of transport implementations.
+</t>
+<t>
+Transport properties are constant integer values.
+<xref target="table:99d0e7cc-da81-4f16-9bd0-471f806bc0b6"/>
+expresses the mapping between
+each property's code point
+and
+the XDR typedef that represents the structure of the property's value.
+XDR does not possess the facility to express that mapping in an extensible way.
 </t>
 </list>
 </t>
 <t>
-To summarize, the role of XDR in this specification
-is more limited than for protocols which are themselves XDR programs,
-where the totality of the protocol is expressible within the
-XDR paradigm established for that purpose.
-This more limited role reflects the fact that XDR lacks facilities
-to represent the embedding of transported material
-within the transport framework.
-In addition, the need to cleanly accommodate extensions
+The role of XDR in RPC-over-RDMA specifications
+is more limited than for protocols
+where the totality of the protocol is expressible within XDR.
+XDR lacks the facility to represent
+the embedding of XDR-encoded payload material.
+Also, the need to cleanly accommodate extensions
 has meant that those using rpcgen in their applications
-need to take a more active role in providing the facilities that
-cannot be expressed within XDR.
+need to take an active role to provide
+the facilities that cannot be expressed within XDR.
 </t>
 </section>
 
