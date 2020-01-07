@@ -3374,28 +3374,27 @@ the facilities that cannot be expressed within XDR.
  anchor="section:e914de0a-05f3-4e14-a067-fb49a4f9b0ad"
  title="RPC Bind Parameters">
 <t>
-In setting up a new RDMA connection,
-the first action by an RPC client is to obtain a transport address
-for the RPC server.
+Before establishing a new connection,
+an RPC client obtains a transport address for the RPC server.
 The means used to obtain this address
 and to open an RDMA connection is dependent
-on the type of RDMA transport,
+on the type of RDMA transport
 and is the responsibility of each RPC protocol binding
 and its local implementation.
 </t>
 <t>
-RPC services normally register with a portmap or rpcbind service
+RPC services typically register with a portmap or rpcbind service
 <xref target="RFC1833"/>,
 which associates an RPC Program number with a service address.
 This policy is no different with RDMA transports.
-However, a different and distinct service address (port number)
-might sometimes be required for ULP operation with RPC-over-RDMA.
+However, a distinct service address (port number)
+is sometimes required for operation on RPC-over-RDMA.
 </t>
 <t>
 When mapped atop the iWARP transport
 <xref target="RFC5040"/>
 <xref target="RFC5041"/>,
-which uses IP port addressing due to its layering on TCP and/or SCTP,
+which uses IP port addressing due to its layering on TCP or SCTP,
 port mapping is trivial
 and consists merely of issuing the port in the connection process.  
 The NFS/RDMA protocol service
@@ -3429,21 +3428,23 @@ under the netid (or netids) defined in
 <xref target="RFC8166"/>.
 An RPC-over-RDMA-aware RPC client can then
 resolve its desired service to a mappable port
-and proceed to connect.
-This is the most flexible and compatible approach
+and
+proceed to connect.
+This method is the most flexible and compatible approach
 for those upper layers that are defined to use the rpcbind service.
 </t>
-<t>A second possibility is to have the RPC server's portmapper
+<t>
+A second possibility is to have the RPC server's portmapper
 register itself on the RDMA interconnect at a "well-known" service address
 (on UDP or TCP, this corresponds to port 111).
-An RPC client could connect to this service address
+An RPC client can connect to this service address
 and
 use the portmap protocol to obtain a service address
-in response to a program number;
-e.g., an iWARP port number or an InfiniBand GID.
+in response to a program number
+(e.g., an iWARP port number or an InfiniBand GID).
 </t>
 <t>
-Alternately, the RPC client could simply connect
+Alternately, an RPC client can connect
 to the mapped well-known port for the service itself,
 if it is appropriately defined.
 By convention, the NFS/RDMA service,
@@ -3451,12 +3452,9 @@ when operating atop such an InfiniBand fabric,
 uses the same 20049 assignment as for iWARP.
 </t>
 </list>
-</t>
-<t>
 Historically, different RPC protocols have taken different approaches
-to their port assignment.
-Therefore, the specific method is left
-to each RPC-over-RDMA-enabled ULB and is not addressed in this document.
+to their port assignments.
+The current document leaves the specific method for each RPC-over-RDMA-enabled ULB.
 </t>
 <t>
 <xref target="RFC8166"/>
