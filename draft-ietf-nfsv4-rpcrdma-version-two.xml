@@ -3498,7 +3498,7 @@ Readers are advised to note that other implementations may exist.
 </t>
 <t>
 At this time, no known implementations of the protocol
-described in this document exist.
+described in the current document exist.
 </t>
 </section>
 
@@ -3513,27 +3513,24 @@ described in this document exist.
 A primary consideration is the protection of the integrity and confidentiality
 of host memory by an RPC-over-RDMA transport.
 The use of an RPC-over-RDMA transport protocol MUST NOT introduce vulnerabilities
-to system memory contents nor to memory owned by user processes.
-</t>
-<t>
-It is REQUIRED that any RDMA provider used for RPC transport
-be conformant to the requirements of
+to system memory contents nor memory owned by user processes.
+Any RDMA provider used for RPC transport MUST conform
+to the requirements of
 <xref target="RFC5042"/>
-in order to satisfy these protections.
-These protections are provided by the RDMA layer specifications,
-and in particular, their security models.
+to satisfy these protections.
 </t>
 
 <section
  anchor="section:2ca69bb1-1d40-4226-a375-face55cf0108"
  title="Protection Domains">
 <t>
-The use of Protection Domains to limit the exposure of memory regions
+The use of a Protection Domain to limit the exposure of memory regions
 to a single connection is critical.
-Any attempt by an endpoint not participating in that connection to reuse memory handles
-needs to result in immediate failure of that connection.
-Because ULP security mechanisms rely on this aspect of Reliable connected behavior,
-strong authentication of remote endpoints is recommended.
+Any attempt by an endpoint not participating in that connection
+to reuse memory handles needs to result in immediate failure of that connection.
+Because ULP security mechanisms rely
+on this aspect of Reliable Connected behavior,
+implementations SHOULD cryptographically authenticate connection endpoints.
 </t>
 </section>
 
@@ -3541,13 +3538,13 @@ strong authentication of remote endpoints is recommended.
  anchor="section:35460fd7-b8e5-4c95-901c-fbe827b61966"
  title="Handle (STag) Predictability">
 <t>
-Unpredictable memory handles should be used
-for any operation requiring advertised memory regions.
-Advertising a continuously registered memory region
-allows a remote host to read or write to that region even
-when an RPC involving that memory is not under way.
-Therefore, implementations should avoid advertising persistently
-registered memory.
+Implementations should use unpredictable memory handles
+for any operation requiring exposed memory regions.
+Exposing a continuously registered memory region
+allows a remote host to read or write to that region
+even when an RPC involving that memory is not underway.
+Therefore, implementations should avoid
+the use of persistently registered memory.
 </t>
 </section>
 
@@ -3556,22 +3553,23 @@ registered memory.
  title="Memory Protection">
 <t>
 Requesters should register memory regions for remote access
-only when they are about to be the target of an RPC operation that involves an RDMA Read or Write.
+only when they are about to be the target of an RPC transaction
+that involves an RDMA Read or Write.
 </t>
 <t>
-Registered memory regions should be invalidated
+Requesters should invalidate memory regions
 as soon as related RPC operations are complete.
-Invalidation and DMA unmapping of memory regions
-should be complete before message integrity checking
-is done and before the RPC consumer is allowed to continue
-execution and use or alter the contents of a memory region.
+Invalidation and DMA unmapping of memory regions should complete
+before the receiver checks message integrity,
+and
+before the RPC consumer can use or alter the contents of the exposed memory region.
 </t>
 <t>
-An RPC transaction on a Requester might be
-terminated before a reply arrives if the RPC consumer exits unexpectedly
-(for example, it is signaled or a segmentation fault occurs).
-When an RPC terminates abnormally, memory regions associated with that RPC should be invalidated appropriately
-before the regions are released to be reused for other purposes on the Requester.
+An RPC transaction on a Requester can terminate
+before a Reply arrives, for example,
+if the RPC consumer is signaled, or a segmentation fault occurs.
+When an RPC terminates abnormally, memory regions associated with that RPC
+should be invalidated before the Requester reuses those regions for other purposes.
 </t>
 </section>
 
@@ -3580,38 +3578,51 @@ before the regions are released to be reused for other purposes on the Requester
  title="Denial of Service">
 <t>
 A detailed discussion of denial-of-service exposures
-that can result from the use of an RDMA transport is found
-in Section 6.4 of
+that can result from the use of an RDMA transport
+appears in Section 6.4 of
 <xref target="RFC5042"/>.
 </t>
 <t>
-A Responder is not obliged to pull Read chunks that are unreasonably large.
-The Responder can use an RDMA2_ERROR response to terminate RPCs with unreadable Read chunks.
-If a Responder transmits more data than a Requester is prepared to receive in a Write or Reply chunk,
-the RDMA Network Interface Cards (RNICs) typically terminate the connection.
+A Responder is not obliged to pull unreasonably large Read chunks.
+A Responder can use an RDMA2_ERROR response
+to terminate RPCs with unreadable Read chunks.
+If a Responder transmits more data than
+a Requester is prepared to receive in a Write or Reply chunk,
+the RDMA provider typically terminates the connection.
 For further discussion, see
 <xref target="section:b1d23e5c-31df-483f-adb7-25430b5de38d"/>.
-Such repeated chunk errors can deny service
+Such repeated connection termination can deny service
 to other users sharing the connection from the errant Requester.
 </t>
 <t>
 An RPC-over-RDMA transport implementation is not responsible
 for throttling the RPC request rate,
 other than to keep the number of concurrent RPC transactions
-at or under the number of credits granted per connection.
-This is explained in <xref target="section:45c67eb8-8dc6-47c3-8555-14270f1514bF"/>.
-A sender can trigger a self denial of service by exceeding the credit grant repeatedly.
+at or under the number of credits granted per connection (see
+<xref target="section:45c67eb8-8dc6-47c3-8555-14270f1514bF"/>).
+A sender can trigger a self-denial of service
+by exceeding the credit grant repeatedly.
 </t>
 <t>
-When an RPC has been canceled due to a signal or premature exit of an application process,
-a Requester typically invalidates the RPC's Write and Reply chunks.
-Invalidation prevents the subsequent arrival of the Responder's reply
-from altering the memory regions associated with those chunks after the memory has been reused.
+When an RPC transaction terminates due to
+a signal
+or
+premature exit of an application process,
+a Requester should invalidate the RPC's Write and Reply chunks.
+Invalidation prevents the subsequent arrival of the Responder's Reply
+from altering the memory regions associated with those chunks
+after the Requester has released that memory.
 </t>
-<t>On the Requester, a malfunctioning application or a malicious user can create a situation
-where RPCs are continuously initiated and then aborted,
-resulting in Responder replies that terminate the underlying RPC-over-RDMA connection repeatedly.
-Such situations can deny service to other users sharing the connection from that Requester.
+<t>
+On the Requester,
+a malfunctioning application
+or
+a malicious user
+can create a situation where RPCs initiate and abort continuously,
+resulting in Responder replies that terminate
+the underlying RPC-over-RDMA connection repeatedly.
+Such situations can deny service to other users
+sharing the connection from that Requester.
 </t>
 </section>
 
@@ -3628,37 +3639,45 @@ message authentication (rpc_gss_svc_none),
 per-message integrity checking (rpc_gss_svc_integrity),
 and
 per-message confidentiality (rpc_gss_svc_privacy)
-in the layer above the RPC-over-RDMA transport.
-The latter two services require significant computation
-and movement of data on each endpoint host.
+in a layer above the RPC-over-RDMA transport.
+The integrity and privacy services require
+significant computation and movement of data
+on each endpoint host.
 Some performance benefits enabled by RDMA transports can be lost.
 </t>
 
 <section
  anchor="section:ca56ff24-b218-455a-9faf-c8f7c17bf26c"
- title="RPC-over-RDMA Protection at Lower Layers">
+ title="RPC-over-RDMA Protection at Other Layers">
 <t>
-For any RPC transport, utilizing RPCSEC_GSS integrity or privacy services
+For any RPC transport,
+utilizing RPCSEC_GSS integrity or privacy services
 has performance implications.
-Protection below the RPC transport is often more appropriate
-in performance-sensitive deployments,
+Protection below the RPC implementation is often
+a better choice in performance-sensitive deployments,
 especially if it, too, can be offloaded.
-Certain configurations of IPsec can be co-located in RDMA hardware,
-for example, without change to RDMA consumers and little loss of data movement efficiency.
+Certain implementations of IPsec can be co-located in RDMA hardware,
+for example,
+without change to RDMA consumers
+and
+with little loss of data movement efficiency.
 Such arrangements can also provide a higher degree of privacy
-by hiding endpoint identity or altering the frequency at which messages are exchanged,
+by hiding endpoint identity
+or
+altering the frequency at which messages are exchanged,
 at a performance cost.
 </t>
 <t>
-The use of protection in a lower layer MAY be negotiated
-through the use of an RPCSEC_GSS security flavor defined in
+Implementations MAY negotiate the use of protection
+in another layer through the use of
+an RPCSEC_GSS security flavor defined in
 <xref target="RFC7861"/>
-in conjunction with the Channel Binding mechanism
+in conjunction with
+the Channel Binding mechanism
 <xref target="RFC5056"/>
-and IPsec Channel Connection Latching
+and
+IPsec Channel Connection Latching
 <xref target="RFC5660"/>.
-Use of such mechanisms is REQUIRED where integrity or confidentiality
-is desired and where efficiency is required.
 </t>
 </section>
 
@@ -3667,8 +3686,8 @@ is desired and where efficiency is required.
  title="RPCSEC_GSS on RPC-over-RDMA Transports">
 <t>
 Not all RDMA devices and fabrics support the above protection mechanisms.
-Also, per-message authentication is still required
-on NFS clients where multiple users access NFS files.
+Also, NFS clients, where multiple users can access NFS files,
+still require per-message authentication.
 In these cases, RPCSEC_GSS can protect NFS traffic conveyed on RPC-over-RDMA connections.
 </t>
 <t>
@@ -3677,15 +3696,11 @@ By observing the conventions described in this section,
 an RPC-over-RDMA transport can convey RPCSEC_GSS-protected RPC messages interoperably.
 </t>
 <t>
-As part of the ONC RPC protocol,
-protocol elements of RPCSEC_GSS that appear in the Payload stream of an RPC-over-RDMA message
-(such as control messages exchanged as part of
-establishing
-or
-destroying a security context
-or
-data items that are part of RPCSEC_GSS authentication material)
-MUST NOT be reduced.
+Senders MUST NOT reduce protocol elements of RPCSEC_GSS
+that appear in the Payload stream of an RPC-over-RDMA message.
+Such elements include control messages
+exchanged as part of establishing or destroying a security context,
+or data items that are part of RPCSEC_GSS authentication material.
 </t>
 
 <section
@@ -3695,8 +3710,8 @@ MUST NOT be reduced.
 Some NFS client implementations use a separate connection
 to establish a Generic Security Service (GSS) context for NFS operation.
 Such clients use TCP and the standard NFS port (2049) for context establishment.
-To enable the use of RPCSEC_GSS with NFS/RDMA,
-an NFS server MUST also provide a TCP-based NFS service on port 2049.
+Therefore, an NFS server MUST also provide
+a TCP-based NFS service on port 2049 to enable the use of RPCSEC_GSS with NFS/RDMA.
 </t>
 </section>
 
@@ -3704,30 +3719,39 @@ an NFS server MUST also provide a TCP-based NFS service on port 2049.
  anchor="section:77AA4781-E811-4B0D-8704-F96CCD4888DF"
  title="RPC-over-RDMA with RPCSEC_GSS Authentication">
 <t>
-The RPCSEC_GSS authentication service has no impact on the DDP-eligibility
-of data items in a ULP.
+The RPCSEC_GSS authentication service has no impact
+on the DDP-eligibility of data items in a ULP.
 </t>
 <t>
-However, RPCSEC_GSS authentication material appearing in an RPC message header
-can be larger than, say, an AUTH_SYS authenticator.
+However, RPCSEC_GSS authentication material
+appearing in an RPC message header can be larger than, say,
+an AUTH_SYS authenticator.
 In particular, when an RPCSEC_GSS pseudoflavor is in use,
 a Requester needs to accommodate a larger RPC credential
-when marshaling RPC Call messages and needs to provide for a maximum size RPCSEC_GSS verifier
+when marshaling RPC Calls
+and
+needs to provide for a maximum size RPCSEC_GSS verifier
 when allocating reply buffers and Reply chunks.
 </t>
-<t>RPC messages, and thus Payload streams,
-are made larger as a result.
-ULP operations that fit in a Simple Format message when a simpler form of authentication is in use
+<t>
+RPC messages, and thus Payload streams,
+are larger on average as a result.
+ULP operations that fit in a Simple Format message
+when a simpler form of authentication is in use
 might need to be reduced or conveyed via a Special Format message
 when RPCSEC_GSS authentication is in use.
-It is more likely that a Requester provides both a Read list and a Reply chunk
-in the same RPC-over-RDMA Transport header to convey a Special Format Call
+It is therefore more likely that a Requester provides
+both a Read list and a Reply chunk
+in the same RPC-over-RDMA Transport header
+to convey a Special Format Call
 and provision a receptacle for a Special Format Reply.
 </t>
 <t>
-In addition to this cost, the XDR encoding and decoding
-of each RPC message using RPCSEC_GSS authentication
-requires host compute resources to construct the GSS verifier.
+In addition to this cost,
+the XDR encoding and decoding of each RPC message
+using RPCSEC_GSS authentication
+requires per-message host compute resources
+to construct the GSS verifier.
 </t>
 </section>
 
@@ -3736,44 +3760,51 @@ requires host compute resources to construct the GSS verifier.
  title="RPC-over-RDMA with RPCSEC_GSS Integrity or Privacy">
 <t>
 The RPCSEC_GSS integrity service enables endpoints
-to detect modification of RPC messages in flight.
-The RPCSEC_GSS privacy service prevents all but the intended recipient
+to detect the modification of RPC messages in flight.
+The RPCSEC_GSS privacy service prevents
+all but the intended recipient
 from viewing the cleartext content of RPC arguments and results.
 RPCSEC_GSS integrity and privacy services are end-to-end.
 They protect RPC arguments and results from application to server endpoint, and back.
 </t>
 <t>
 The RPCSEC_GSS integrity and encryption services operate
-on whole RPC messages after they have been XDR encoded for transmit,
+on whole RPC messages after they have been XDR encoded,
 and before they have been XDR decoded after receipt.
-Both sender and receiver endpoints use intermediate buffers
-to prevent exposure of encrypted data or unverified cleartext data to RPC consumers.
-After verification, encryption, and message wrapping has been performed,
-the transport layer MAY use RDMA data transfer between these intermediate buffers.
+Connection endpoints use intermediate buffers
+to prevent exposure of encrypted
+or
+unverified cleartext data to RPC consumers.
+After a sender has
+verified,
+encrypted,
+and
+wrapped a message,
+the transport layer MAY use RDMA data transfer
+between these intermediate buffers.
 </t>
 <t>
 The process of reducing a DDP-eligible data item removes
 the data item
 and
 its XDR padding
-from the encoded Payload stream.
-XDR padding of a reduced data item is not transferred in a normal RPC-over-RDMA message.
-After reduction, the Payload stream contains fewer octets than the whole XDR stream did beforehand.
+from an encoded Payload stream.
+In a non-protected RPC-over-RDMA message,
+a reduced data item does not include XDR padding.
+After reduction, the Payload stream contains fewer octets
+than the whole XDR stream did beforehand.
 XDR padding octets are often zero bytes, but they don't have to be.
-Thus, reducing DDP-eligible items affects the result of message integrity verification or encryption.
+Thus, reducing DDP-eligible items affects
+the result of message integrity verification and encryption.
 </t>
 <t>
 Therefore, a sender MUST NOT reduce a Payload stream
 when RPCSEC_GSS integrity or encryption services are in use.
-Effectively, no data item is DDP-eligible in this situation,
-and Formats with chunks cannot be used.
+Effectively, no data item is DDP-eligible in this situation.
+Senders can use only Simple and Continued Formats without chunks,
+or Special Format.
 In this mode, an RPC-over-RDMA transport operates
 in the same manner as a transport that does not support DDP.
-</t>
-<t>
-When an RPCSEC_GSS integrity or privacy service is in use,
-a Requester provides both a Read list and a Reply chunk in the same RPC-over-RDMA header
-to convey a Special Format Call and provision a receptacle for a Special Format Reply.
 </t>
 </section>
 
@@ -3781,32 +3812,37 @@ to convey a Special Format Call and provision a receptacle for a Special Format 
  anchor="section:0cddd345-064a-4c96-b251-17afce70219f"
  title="Protecting RPC-over-RDMA Transport Headers">
 <t>
-Like the base fields in an ONC RPC message (XID, call direction, and so on),
-the contents of an RPC-over-RDMA message's Transport stream
-are not protected by RPCSEC_GSS.
-This exposes XIDs, connection credit limits, and chunk lists
-(but not the content of the data items they refer to)
-to malicious behavior,
-which could redirect data that is transferred by the RPC-over-RDMA message,
-result in spurious retransmits, or trigger connection loss.
+Like the header fields in an RPC message
+(e.g., the xid and mtype fields),
+RPCSEC_GSS does not protect the RPC-over-RDMA Transport stream.
+XIDs, connection credit limits, and chunk lists
+(though not the content of the data items they refer to)
+are exposed to malicious behavior,
+which can redirect data that is transferred by the RPC-over-RDMA message,
+result in spurious retransmits,
+or
+trigger connection loss.
 </t>
 <t>
-In particular, if an attacker alters
-the information contained in the chunk lists of an RPC-over-RDMA Transport header,
+In particular,
+if an attacker alters the information
+contained in the chunk lists of an RPC-over-RDMA Transport header,
 data contained in those chunks can be redirected
 to other registered memory regions on Requesters.
-An attacker might alter the arguments of RDMA Read and RDMA Write operations
-on the wire to similar effect.
-If such alterations occur, the use of RPCSEC_GSS integrity or privacy services
-enable a Requester to detect unexpected material in a received RPC message.
+An attacker might alter the arguments
+of RDMA Read and RDMA Write operations on the wire
+to gain a similar effect.
+If such alterations occur,
+the use of RPCSEC_GSS integrity or privacy services
+enables a Requester to detect unexpected material in a received RPC message.
 </t>
 <t>
-Encryption at lower layers, as described in
-<xref target="section:ca56ff24-b218-455a-9faf-c8f7c17bf26c"/>
+Encryption at other layers, as described in
+<xref target="section:ca56ff24-b218-455a-9faf-c8f7c17bf26c"/>,
 protects the content of the Transport stream.
-To address attacks on RDMA protocols themselves,
 RDMA transport implementations should conform to
-<xref target="RFC5042"/>.
+<xref target="RFC5042"/>
+to address attacks on RDMA protocols themselves.
 </t>
 </section>
 
@@ -3818,18 +3854,23 @@ RDMA transport implementations should conform to
  anchor="section:3b0e673b-98d7-436d-bd6f-180180503df6"
  title="Transport Properties">
 <t>
-Like other fields that appear in each RPC-over-RDMA header,
-property information is sent in the clear on the fabric
-with no integrity protection, making it vulnerable to
-man-in-the-middle attacks.
+Like other fields that appear in the Transport stream,
+transport properties are sent in the clear with no integrity protection,
+making them vulnerable to man-in-the-middle attacks.
 </t>
 <t>
-For example, if a man-in-the-middle were to change the value of
-the Receive buffer size or the Requester Remote Invalidation boolean,
-it could reduce connection performance or trigger loss of connection.
-Repeated connection loss can impact performance or even prevent a
-new connection from being established. Recourse is to deploy on a
-private network or use link-layer encryption.
+For example, if a man-in-the-middle were to change the value
+of the Receive buffer size, it could
+reduce connection performance
+or
+trigger loss of connection.
+Repeated connection loss can impact performance
+or
+even prevent a new connection from being established.
+The recourse is to
+deploy on a private network
+or
+use transport layer encryption.
 </t>
 </section>
 
@@ -3837,15 +3878,19 @@ private network or use link-layer encryption.
  anchor="section:c85be87e-4f2b-4caf-8ae5-acdaa972a9f9"
  title="Host Authentication">
 <t>
+[ cel: This subsection is unfinished. ]
+</t>
+<t>
 Wherein we use the relevant sections of
 <xref target="RFC3552"/>
-to analyze the addition of host authentication to this
-RPC-over-RDMA transport.
+to analyze the addition of host authentication
+to this RPC-over-RDMA transport.
 </t>
 <t>
 The authors refer readers to Appendix C of
-<xref target="RFC8446"/> for information on how to
-design and test a secure authentication handshake implementation.
+<xref target="RFC8446"/>
+for information on how to design and test
+a secure authentication handshake implementation.
 </t>
 </section>
 
