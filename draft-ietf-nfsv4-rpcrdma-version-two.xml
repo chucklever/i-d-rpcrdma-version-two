@@ -3927,6 +3927,36 @@ possibly through use of a translation service as described in
  title="Informative References">
 
 <reference
+ anchor="I-D.ietf-nfsv4-rpc-tls">
+<front>
+<title>Towards Remote Procedure Call Encryption By Default</title>
+<author initials="C" surname="Lever" fullname="Chuck Lever">
+<organization />
+</author>
+<author initials="T" surname="Myklebust" fullname="Trond Myklebust">
+<organization />
+</author>
+<date month="November" day="17" year="2019"/>
+<abstract>
+<t>
+This document describes a mechanism that,
+through the use of opportunistic Transport Layer Security (TLS),
+enables encryption of in-transit Remote Procedure Call (RPC) transactions
+while interoperating with ONC RPC implementations
+that do not support this mechanism.
+This document updates RFC 5531.
+</t>
+</abstract>
+</front>
+<seriesInfo
+ name="Internet-Draft"
+ value="draft-ietf-nfsv4-rpc-tls-04"/>
+<format
+ type="TXT"
+ target="http://www.ietf.org/internet-drafts/draft-ietf-nfsv4-rpc-tls-04.txt"/>
+</reference>
+
+<reference
  anchor="IBA">
 <front>
 <title>InfiniBand Architecture Specification Volume 1</title>
@@ -4808,7 +4838,7 @@ the sender can use Message Continuation to avoid having to register memory.
 <t>
 For the general operation of NFS on open networks,
 we eventually intend to rely on RPC-on-TLS
-[cel: citation needed]
+<xref target="I-D.ietf-nfsv4-rpc-tls"/>
 to provide cryptographic authentication of the two ends of each connection.
 In turn, this can improve the trustworthiness of AUTH_SYS-style user identities
 that flow on TCP, which are not cryptographically protected.
