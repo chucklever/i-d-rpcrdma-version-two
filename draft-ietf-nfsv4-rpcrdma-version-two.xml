@@ -1934,7 +1934,7 @@ typedef uint32 rpcrdma2_prop_rssiz;
 <t>
 The value of this property specifies
 the maximum number of RDMA segments
-that can appear in a requester's transport header.
+that can appear in a Requester's transport header.
 <figure align="left">
 <artwork xml:space="preserve" align="left">
 &lt;CODE BEGINS&gt;
@@ -2303,7 +2303,7 @@ as the value of the associated RPC message's msg_type field.
 </t>
 <t>
 When no RPC message payload is present,
-a requester MUST set the value of RPCRDMA2_F_RESPONSE
+a Requester MUST set the value of RPCRDMA2_F_RESPONSE
 to reflect how the receiver is to interpret the
 rdma_xid field.
 </t>
@@ -2772,7 +2772,7 @@ the Responder MUST
 set the rdma_err field to RDMA2_ERR_SEGMENTS
 and
 set the rdma_max_segments field
-to the maximum number of segments the responder can process.
+to the maximum number of segments the Responder can process.
 The Requester can reconstruct the Call and resend it.
 If the Requester does not resend the Call,
 it MUST terminate this RPC transaction with an error.
@@ -2803,7 +2803,7 @@ using Message Continuation
 and
 the Reply does not fit in the Reply chunk,
 the Responder MUST set the rdma_err field to RDMA2_ERR_REPLY_RESOURCE.
-The responder MUST set the rdma_length_needed
+The Responder MUST set the rdma_length_needed
 to the number of Reply chunk bytes needed to convey the reply.
 <vspace blankLines="1"/>
 The Requester can reconstruct the Call with more reply resources
@@ -2887,7 +2887,7 @@ the combination of the provided Write chunk list
 and
 Reply chunk
 is not adequate to convey a Reply,
-the responder SHOULD use Message Continuation (see
+the Responder SHOULD use Message Continuation (see
 <xref target="section:fb299673-74f3-4f01-adb5-26a02ccd679f"/>)
 to send that Reply.
 If even that is not possible,
@@ -4817,13 +4817,13 @@ The purpose of Message Continuation is
 to provide relief in several essential cases:
 <list style="symbols">
 <t>
-If a requester finds that it is inefficient
+If a Requester finds that it is inefficient
 to convey a moderately-sized data payload using Read chunks,
 the Requester can use Message Continuation to send the RPC Call.
 </t>
 <t>
 If a Requester has provided insufficient Reply chunk space
-for a responder to send an RPC Reply,
+for a Responder to send an RPC Reply,
 the Responder can use Message Continuation to send the RPC Reply.
 </t>
 <t>
@@ -4883,7 +4883,7 @@ They may persist for the life of an RPC-over-RDMA connection
 or even longer.
 </t>
 <t>
-An RPC-over-RDMA requester can provide
+An RPC-over-RDMA Requester can provide
 more than one STag in a transport header.
 It may provide
 a combination of dynamically- and persistently-registered STags in one RPC message,
@@ -4894,7 +4894,7 @@ may be invalidated remotely.
 </t>
 <t>
 There is no transport-level mechanism
-by which a responder can determine
+by which a Responder can determine
 how a Requester-provided STag was registered,
 nor whether it is eligible to be invalidated remotely.
 A Requester that mixes persistently- and dynamically-registered STags in one RPC,
@@ -4921,7 +4921,7 @@ eligible for direct data placement.
 <t>
 When chunks are present in a reverse direction RPC request,
 Remote Invalidation enables the Responder
-to trigger invalidation of a requester's STags
+to trigger invalidation of a Requester's STags
 as part of sending an RPC Reply,
 the same way as is done in the forward direction.
 </t>
