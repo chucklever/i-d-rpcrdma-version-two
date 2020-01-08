@@ -4040,44 +4040,49 @@ Credit-Based Flow Control for ATM Networks: Credit Update Protocol, Adaptive Cre
  anchor="section:9e003b83-66b5-43d7-b9ef-0f271c8d301b"
  title="ULB Specifications">
 <t>
-An Upper-Layer Protocol (ULP) is typically defined
-independently of any particular RPC transport.
-An Upper-Layer Binding (ULB) specification provides guidance
-that helps the ULP interoperate correctly and efficiently
-over a particular transport.
+Typically, an Upper-Layer Protocol (ULP) is defined
+without regard to a particular RPC transport.
+An Upper-Layer Binding (ULB) specification
+provides guidance that helps a ULP interoperate
+correctly and efficiently over a particular transport.
 For RPC-over-RDMA version 2, a ULB may provide:
 <list style="symbols">
 <t>
 A taxonomy of XDR data items that are eligible for DDP
 </t>
 <t>
-Constraints on which upper-layer procedures may be reduced and on
-how many chunks may appear in a single RPC request
+Constraints on which upper-layer procedures
+a sender may reduce,
+and
+on how many chunks may appear in a single RPC message
 </t>
 <t>
-A method for determining the maximum size of the reply Payload
+A method enabling a Requester to determine
+the maximum size of the reply Payload
 stream for all procedures in the ULP
 </t>
 <t>
-An rpcbind port assignment for operation of the RPC Program and
-Version on an RPC-over-RDMA transport
+An rpcbind port assignment for the RPC Program and Version
+when operating on the particular transport
 </t>
 </list>
-Each RPC Program and Version tuple that utilizes RPC-over-RDMA
-version 2 needs to have a ULB specification.
+Each RPC Program and Version tuple that operates
+on RPC-over-RDMA version 2 needs to have a ULB specification.
 </t>
 
 <section
  anchor="section:2f2b32a4-d78a-45f0-b6a3-fa0e2d34a97b"
  title="DDP-Eligibility">
 <t>
-An ULB designates some XDR data items as eligible for DDP.
-As an RPC-over-RDMA message is formed,
-DDP-eligible data items can be removed from the Payload stream
-and placed directly in the receiver's memory.
-An XDR data item should be considered for DDP-eligibility if there is
-a clear benefit to moving the contents of the item directly from the
-sender's memory to the receiver's memory.
+A ULB designates specific XDR data items as eligible for DDP.
+As a sender constructs an RPC-over-RDMA message,
+it can remove DDP-eligible data items from the Payload stream
+so that the RDMA provider can place them
+directly in the receiver's memory.
+An XDR data item should be considered for DDP-eligibility
+if there is a clear benefit to moving the contents
+of the item directly from the sender's memory
+to the receiver's memory.
 </t>
 <t>
 Criteria for DDP-eligibility include:
@@ -4088,7 +4093,7 @@ often much larger than typical inline thresholds.
 </t>
 <t>
 If the XDR data item is a result, its maximum size must be
-predictable in advance by the requester.
+predictable in advance by the Requester.
 </t>
 <t>
 Transport-level processing of the XDR data item is not needed.
@@ -4103,31 +4108,31 @@ or
 to enable the data item to be accessed.
 </t>
 <t>
-The XDR data item does not contain DDP-eligible data items.
+The XDR data item itself does not contain DDP-eligible data items.
 </t>
 </list>
 </t>
 <t>
 In addition to defining the set of data items that are DDP-eligible,
-a ULB may also limit the use of chunks to particular upper-layer
-procedures.
+a ULB may limit the use of chunks
+to particular upper-layer procedures.
 If more than one data item in a procedure is DDP-eligible,
-the ULB may also limit the number of chunks that a requester
-can provide for a particular upper-layer procedure.
+the ULB may limit the number of chunks
+that a Requester can provide for a particular upper-layer procedure.
 </t>
 <t>
-Senders MUST NOT reduce data items that are not DDP-eligible.
-Such data items MAY, however, be moved as part of a Position Zero Read
-chunk or a Reply chunk.
+Senders never reduce data items that are not DDP-eligible.
+Such data items can, however, be part of a Special Format payload.
 </t>
 <t>
 The programming interface by which an upper-layer implementation
-indicates the DDP-eligibility of a data item to the RPC transport is
-not described by this specification.
-The only requirements are that
-the receiver can re-assemble the transmitted RPC-over-RDMA message
-into a valid XDR stream, and that DDP-eligibility rules specified
-by the ULB are respected.
+indicates the DDP-eligibility of a data item to the RPC transport
+is not described by this specification.
+The only requirements are
+that the receiver can re-assemble
+the transmitted RPC-over-RDMA message into a valid XDR stream
+and
+that DDP-eligibility rules specified by the ULB are respected.
 </t>
 <t>
 There is no provision to express DDP-eligibility within the XDR
@@ -4138,21 +4143,20 @@ The only definitive specification of DDP-eligibility is a ULB.
 In general, a DDP-eligibility violation occurs when:
 <list style="symbols">
 <t>
-A requester reduces a non-DDP-eligible argument data item.
-The Responder MUST NOT process this RPC Call message and MUST report
-the violation as described in
+A Requester reduces a non-DDP-eligible argument data item.
+The Responder reports the violation as described in
 <xref target="section:b1d23e5c-31df-483f-adb7-25430b5de38d"/>.
 </t>
 <t>
 A Responder reduces a non-DDP-eligible result data item.
-The requester MUST terminate the pending RPC transaction
-and report an appropriate permanent error to the RPC consumer.
+The Requester terminates the pending RPC transaction
+and reports an appropriate permanent error to the RPC consumer.
 </t>
 <t>
 A Responder does not reduce a DDP-eligible result data item into
 an available Write chunk.
-The requester MUST terminate the pending RPC transaction
-and report an appropriate permanent error to the RPC consumer.
+The Requester terminates the pending RPC transaction
+and reports an appropriate permanent error to the RPC consumer.
 </t>
 </list>
 </t>
@@ -4163,12 +4167,12 @@ and report an appropriate permanent error to the RPC consumer.
  title="Maximum Reply Size">
 <t>
 When expecting small and moderately-sized Replies,
-a requester should typically rely on Message Continuation
-rather than
-provisioning a Reply chunk.
+a Requester should rely on Message Continuation
+rather than provision a Reply chunk.
 For each ULP procedure where there is no clear Reply size maximum
-and the maximum can be large,
-the ULB should specify a dependable means for determining the maximum Reply size.
+and the maximum can be substantial,
+the ULB should specify a dependable means
+for determining the maximum Reply size.
 </t>
 </section>
 
@@ -4178,29 +4182,29 @@ the ULB should specify a dependable means for determining the maximum Reply size
 <t>
 There may be other details provided in a ULB.
 <list style="symbols">
+A ULB may recommend
+inline threshold values
+or
+other transport-related parameters
+for RPC-over-RDMA version 2 connections bearing that ULP.
 <t>
-An ULB may recommend inline threshold values or other transport-related
-parameters for RPC-over-RDMA version 2 connections bearing that ULP.
 </t>
 <t>
-An ULP may provide a means to communicate these transport-related
-parameters between peers.
-Note that RPC-over-RDMA version 2 does not specify any mechanism
-for changing any transport-related parameter after a connection
-has been established and the initial transport properties
-have been exchanged.
+A ULP may provide a means to communicate transport-related parameters
+between peers.
 </t>
 <t>
-Multiple ULPs may share a single RPC-over-RDMA version 2
-connection when their ULBs allow the use of RPC-over-RDMA version 2
-and the rpcbind port assignments for the Protocols allow
-connection sharing.
+Multiple ULPs may share
+a single RPC-over-RDMA version 2 connection when
+their ULBs allow the use of RPC-over-RDMA version 2
+and
+the rpcbind port assignments for those protocols permit connection sharing.
 In this case, the same transport parameters (such as inline threshold)
-apply to all Protocols using that connection.
+apply to all ULPs using that connection.
 </t>
 </list>
-Each ULB needs to be designed to allow correct interoperation without
-regard to the transport parameters actually in use.
+Each ULB needs to be designed to allow correct interoperation
+without regard to the transport parameters actually in use.
 Furthermore, implementations of ULPs must be designed
 to interoperate correctly
 regardless of the connection parameters in effect on a connection.
@@ -4212,14 +4216,20 @@ regardless of the connection parameters in effect on a connection.
  title="ULP Extensions">
 <t>
 An RPC Program and Version tuple may be extensible.
-For instance, there may be a minor versioning scheme
-that is not reflected in the RPC version number,
+For instance,
+the RPC version number may not reflect a ULP minor versioning scheme,
 or
-the ULP may allow additional features to be
-specified after the original RPC Program specification was ratified.
+the ULP may allow the specification of additional features
+after the publication of the original RPC Program specification.
 ULBs are provided for interoperable RPC Programs and Versions by
 extending existing ULBs to reflect the changes made necessary by each
 addition to the existing XDR.
+</t>
+<t>
+[ cel:
+The final sentence is unclear, and may be inaccurate.
+I believe I copied this section directly from RFC 8166.
+Is there more to be said, now that we have some experience? ]
 </t>
 </section>
 
