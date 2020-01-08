@@ -4182,12 +4182,12 @@ for determining the maximum Reply size.
 <t>
 There may be other details provided in a ULB.
 <list style="symbols">
+<t>
 A ULB may recommend
 inline threshold values
 or
 other transport-related parameters
 for RPC-over-RDMA version 2 connections bearing that ULP.
-<t>
 </t>
 <t>
 A ULP may provide a means to communicate transport-related parameters
@@ -4237,187 +4237,176 @@ Is there more to be said, now that we have some experience? ]
 
 <section
  anchor="section:84e1ffc4-d916-4eb4-9fd8-a8218d084503"
- title="Extending the Version 2 Protocol">
+ title="Extending RPC-over-RDMA Version 2">
 <t>
 This Appendix is not addressed to protocol implementers,
-but rather to authors of documents that intend to extend
-the protocol described earlier in this document.
+but rather to authors of documents that intend
+to extend the protocol specified in the current document.
 </t>
 <t>
-Subsequent RPC-over-RDMA versions are free to change the protocol
-in any way they choose as long as they leave unchanged those fields
-identified as "fixed for all versions" in Section 4.2.1 of
-<xref target="RFC8166"/>.
-</t>
-<t>
-Such changes might involve deletion or major re-organization of
-existing transport headers.
-However, the need for interoperability between adjacent versions
-will often limit the scope of changes that can be made in a single version.
-</t>
-<t>
-In some cases it may prove desirable to transition to a new version
-by using the extension features described for use with RPC-over-RDMA version 2,
-by continuing the same basic extension model but allowing header types
-and properties that were OPTIONAL in one version to become REQUIRED
-in the subsequent version.
-</t>
-<t>
-RPC-over-RDMA version 2 is designed to be extensible
-in a way that enables the addition of OPTIONAL features
-that may subsequently be converted to REQUIRED status
-in a future protocol version.
-The protocol may be extended by Standards Track documents
-in a way analogous to that provided for Network File
-System Version 4 as described in
-<xref target="RFC8178"/>.
-</t>
-<t>
-This form of extensibility enables limited extensions
-to the base RPC-over-RDMA version 2 protocol presented
-in this document so that new optional capabilities
-can be introduced without a protocol version change,
+RPC-over-RDMA version 2 extensibility facilitates
+limited extensions to the base protocol
+presented in the current document
+so that new optional capabilities can be introduced
+without a protocol version change,
 while maintaining robust interoperability
 with existing RPC-over-RDMA version 2 implementations.
-The design allows extensions to be
-defined, including the definition of new protocol elements, without
-requiring modification or recompilation of the existing XDR.
+It allows extensions to be defined,
+including the definition of new protocol elements,
+without requiring modification or recompilation
+of the XDR for the base protocol.
 </t>
 <t>
-A Standards Track document introduces each set of such protocol elements.
-Together these elements are considered an OPTIONAL feature.
-Each implementation is either aware of all the protocol
-elements introduced by that feature or is aware of none of them.
-</t>
-<t>
-Documents describing extensions to RPC-over-RDMA version 2 should
-contain:
+Standards Track documents may introduce extensions
+to the base RPC-over-RDMA version 2 protocol in two ways:
 <list style="symbols">
 <t>
-An explanation of the purpose and use of each new protocol element added.
+They may introduce new OPTIONAL transport header types.
+<xref target="section:d4650151-40f0-4e85-8755-02c38cf8f444"/>
+covers such transport header types.
+</t>
+<t>
+They may define new OPTIONAL transport properties.
+<xref target="section:a355adad-f03b-41a6-94a8-4128b10301bb"/>
+describes such transport properties.
+</t>
+</list>
+</t>
+<t>
+These documents may also add the following sorts
+of ancillary protocol elements to the protocol
+to support the addition of
+new transport properties and header types:
+<list style="symbols">
+<t>
+They may create new error codes, as described in
+<xref target="section:c2f5e937-d612-4e3a-a380-e0b15261f6a0"/>.
+</t>
+<t>
+They may define new flags to use within the rdma_flags field,
+as discussed in
+<xref target="section:55a1749d-702c-48e4-b78c-0db392692c09"/>.
+</t>
+</list>
+</t>
+<t>
+New capabilities can be
+proposed
+and
+developed
+independently of each other.
+Implementers can choose among them,
+making it straightforward
+to create
+and
+document
+experimental features
+and then bring them through the standards process.
+</t>
+
+<section
+ anchor="section:1c2304a3-0dc6-4ca1-b710-77a7b07f3d19"
+ title="Documentation Requirements">
+<t>
+As described earlier,
+a Standards Track document introduces a set of new protocol elements.
+Together these elements are considered an OPTIONAL feature.
+Each implementation is either
+aware of all the protocol elements introduced by that feature
+or
+is aware of none of them.
+</t>
+<t>
+Documents specifying extensions to RPC-over-RDMA version 2 should contain:
+<list style="symbols">
+<t>
+An explanation of the purpose and use of each new protocol element.
 </t>
 <t>
 An XDR description including all of the new protocol elements,
 and a script to extract it.
 </t>
 <t>
-A description of interactions with existing extensions.
-<vspace blankLines="1"/>
-This includes possible requirements of other OPTIONAL features
-to be present for new protocol elements to work,
-or that a particular level of support
-for an OPTIONAL facility is required for the new extension to work.
+A discussion of interactions with other extensions.
+This discussion includes
+requirements for other OPTIONAL features to be present,
+or
+that a particular level of support for an OPTIONAL facility is required.
 </t>
 </list>
 </t>
 <t>
-Implementers combine the XDR descriptions of the new features they
-intend to use with the XDR description of the base protocol in this
-document.
-This may be necessary to create a valid XDR input file
-because extensions are free to use XDR types defined in the base
-protocol, and later extensions may use types defined by earlier
-extensions.
+Implementers combine the XDR descriptions
+of the new features they intend to use
+with
+the XDR description of the base protocol in the current document.
+This combination is necessary to create a valid XDR input file
+because extensions are
+free to use XDR types defined in the base protocol,
+and
+later extensions may use types defined by earlier extensions.
 </t>
 <t>
 The XDR description for the RPC-over-RDMA version 2 base protocol
 combined with that for any selected extensions
-should provide an adequate human-readable description
+should provide a human-readable and compilable definition
 of the extended protocol.
 </t>
-<t>
-The base protocol specified in this document may be extended within
-RPC-over-RDMA version 2 in two ways:
-<list style="symbols">
-<t>
-New OPTIONAL transport header types may be introduced by later
-Standards Track documents.
-Such transport header types will be documented as described in
-<xref target="section:d4650151-40f0-4e85-8755-02c38cf8f444"/>.
-</t>
-<t>
-New OPTIONAL transport properties may be defined in later
-Standards Track documents.
-Such transport properties will be documented as described in
-<xref target="section:a355adad-f03b-41a6-94a8-4128b10301bb"/>.
-</t>
-</list>
-</t>
-<t>
-The following sorts of ancillary  protocol elements may be added
-to the protocol to support the addition of new transport properties
-and header types.
-<list style="symbols">
-<t>
-New error codes may be created as described in
-<xref target="section:c2f5e937-d612-4e3a-a380-e0b15261f6a0"/>.
-</t>
-<t>
-New flags to use within the rdma_flags field may be created as described in
-<xref target="section:55a1749d-702c-48e4-b78c-0db392692c09"/>.
-</t>
-</list>
-</t>
-<t>
-New capabilities can be proposed and developed independently of each other,
-and implementers can choose among them.
-This makes it straightforward to create and document experimental features
-and then bring them through the standards process.
-</t>
+</section>
 
 <section
  anchor="section:d4650151-40f0-4e85-8755-02c38cf8f444"
  title="Adding New Header Types to RPC-over-RDMA Version 2">
 <t>
-New transport header types are to defined in a manner similar to
-the way existing ones are described in Sections
-<xref target="section:9af0d451-2ef3-454f-adb9-827664ccc39c"
+New transport header types are defined similar to Sections
+<xref
+ format="counter"
  pageno="false"
- format="counter"/>
+ target="section:9af0d451-2ef3-454f-adb9-827664ccc39c"/>
 through
-<xref target="section:07e8c178-62df-46a7-a57e-dcf107821d93"
+<xref
+ format="counter"
  pageno="false"
- format="counter"/>.
-Specifically what is needed is:
+ target="section:07e8c178-62df-46a7-a57e-dcf107821d93"/>.
+In particular, what is needed is:
 <list style="symbols">
 <t>
 A description of the function and use of the new header type.
 </t>
 <t>
-A complete XDR description of the new header type including a description
-of the use of all fields within the header.
+A complete XDR description of the new header type.
 </t>
 <t>
-A description of how errors are reported, including the definition
-of a mechanism for reporting errors when the error is outside the
-available choices already available in the base protocol or in
-other existing extensions.
+A description of how receivers report errors,
+including mechanisms for reporting errors
+outside the available choices already available
+in the base protocol or other extensions.
 </t>
 <t>
 An indication of whether a Payload stream must be present,
-and a description of its contents and how such payload streams
-are used to construct RPC messages for processing.
+and a description of its contents
+and
+how receivers use such Payload streams to reconstruct RPC messages.
 </t>
 </list>
 </t>
 <t>
-In addition, there needs to be additional documentation that is made
-necessary due to the Optional status of new transport header types.
+There needs to be additional documentation that is made necessary
+due to the OPTIONAL status of new transport header types:
 <list style="symbols">
 <t>
-Information about constraints on support for the new header types should
-be provided.
-For example, if support for one header type is implied
-or foreclosed by another one,
-this needs to be documented.
+The document should discuss constraints on support for the new header types.
+For example, if support for one header type is implied or foreclosed
+by another one, this needs to be documented.
 </t>
 <t>
-A preferred method by which a sender should determine whether the peer
-supports a particular header type needs to be provided.
-While it is always possible for a send a test invocation
-of a particular header type to see if support is available,
-when more efficient means are available
-(e.g. the value of a transport property,
+The document should describe the preferred method
+by which a sender determines whether its peer
+supports a particular header type.
+It is always possible to send a test invocation
+of a particular header type to see if support is available.
+However, when more efficient means are available
+(e.g., the value of a transport property),
 this should be noted.
 </t>
 </list>
@@ -4428,15 +4417,16 @@ this should be noted.
  anchor="section:55a1749d-702c-48e4-b78c-0db392692c09"
  title="Adding New Header Flags to the Protocol">
 <t>
-New flag bits are to defined in a manner similar to
-the way existing ones are described in Sections
-<xref target="section:4e23391c-b6a8-46b1-a399-c86f754b51bc"
+New flag bits are to be defined similarly to Sections
+<xref
+ format="counter"
  pageno="false"
- format="counter"/>
+ target="section:4e23391c-b6a8-46b1-a399-c86f754b51bc"/>
 and
-<xref target="section:fb299673-74f3-4f01-adb5-26a02ccd679f"
+<xref
  pageno="false"
- format="counter"/>.
+ format="counter"
+ target="section:fb299673-74f3-4f01-adb5-26a02ccd679f"/>.
 Each new flag definition should include:
 <list style="symbols">
 <t>
@@ -4446,26 +4436,24 @@ An XDR description of the new flag.
 A description of the function and use of the new flag.
 </t>
 <t>
-An indication for which header types the flag value is meaningful
+An indication for which header types the flag value is meaningful,
 and
 for which header types it is an error to set the flag or to leave it unset.
 </t>
 <t>
-A means to determine whether receivers are prepared
+A means to determine whether peers are prepared
 to receive transport headers with the new flag set.
 </t>
 </list>
 </t>
 <t>
-In addition, there needs to be additional documentation that is made
-necessary due to the Optional status of new transport header types.
+There needs to be additional documentation that is made necessary
+due to the OPTIONAL status of new flags:
 <list style="symbols">
 <t>
-Information about constraints on support for the new flags should
-be provided.
-For example, if support for one flag is implied
-or foreclosed by another one,
-this needs to be documented.
+The document should discuss constraints on support for the new flags.
+For example, if support for one flag is implied or foreclosed
+by another one, this needs to be documented.
 </t>
 </list>
 </t>
@@ -4475,76 +4463,58 @@ this needs to be documented.
  anchor="section:a355adad-f03b-41a6-94a8-4128b10301bb"
  title="Adding New Transport properties to the Protocol">
 <t>
-The set of transport properties is designed to be extensible.
-As a result, once new properties are defined in standards track documents,
-the operations defined in this document may reference these new
-transport properties, as well as the ones described in this document.
-</t>
-<t>
-A standards track document defining a new transport property should
-include the following information paralleling that provided in this
-document for the transport properties defined herein.
+A Standards Track document defining a new transport property
+should include the following information
+paralleling that provided in this document
+for the transport properties defined herein:
 <list style="symbols">
 <t>
-The rpcrdma2_propid value used to identify this property.
+The rpcrdma2_propid value identifying the new property.
 </t>
 <t>
-The XDR typedef specifying the form in which the property value is
-communicated.
+The XDR typedef specifying the structure of its property value.
 </t>
 <t>
-A description of the transport property that is communicated by
-the sender of RDMA2_CONNPROP.
+A description of the new property.
 </t>
 <t>
-An explanation of how this knowledge could be used by the
-peer receiving this information.
+An explanation of how the receiver can use this information.
+</t>
+<t>
+The default value if a peer never receives the new property.
 </t>
 </list>
 </t>
 <t>
-The definition of transport property structures is such as to make it
-easy to assign unique values.
-There is no requirement that a continuous set of values be used and
-implementations should not rely on all such values being small integers.
-A unique value should be selected when the defining document is first
-published as an internet draft.
-When the document becomes a standards track document,
-the working group should ensure that:
-<list style="symbols">
-<t>
-rpcrdma2_propid values specified in the document do not conflict
-with those currently assigned or in use by other pending working
-group documents defining transport properties.
+There is no requirement that propid assignments
+occur in a continuous range of values.
+Implementations should not rely on all such values being small integers.
 </t>
 <t>
-rpcrdma2_propid values specified in the document do not conflict
-with the range reserved for experimental use, as defined in
-Section 8.2.
+Before the defining Standards Track document is published,
+the nfsv4 Working Group should select a unique propid value, and ensure that:
+<list style="symbols">
+<t>
+rpcrdma2_propid values specified in the document do not conflict with
+those currently assigned
+or
+in use by other pending working group documents defining transport properties.
+</t>
+<t>
+rpcrdma2_propid values specified in the document do not conflict with
+the range reserved for experimental use,
+as defined in Section 8.2.
+<vspace blankLines="1"/>
+[ cel: There is no section 8.2. ]
+<vspace blankLines="1"/>
+[ cel: Should we request the creation of an IANA registry for propid values? ].
 </t>
 </list>
 </t>
 <t>
-Documents defining new properties fall into a number of categories.
-<list style="symbols">
-<t>
-Those defining new properties and explaining (only) how they
-affect use of existing message types.
-</t>
-<t>
-Those defining new OPTIONAL message types and new properties
-applicable to the operation of those new message types.
-</t>
-<t>
-Those defining new OPTIONAL message types and new properties
-applicable both to new and existing message types.
-</t>
-</list>
-</t>
-<t>
-When additional transport properties are proposed, the review of the
-associated standards track document should deal with possible
-security issues raised by those new transport properties.
+When a Standards Track document proposes additional transport properties,
+reviewers should deal with possible security issues
+exposed by those new transport properties.
 </t>
 </section>
 
@@ -4552,33 +4522,26 @@ security issues raised by those new transport properties.
  anchor="section:c2f5e937-d612-4e3a-a380-e0b15261f6a0"
  title="Adding New Error Codes to the Protocol">
 <t>
-New error codes to be returned when using new header types
-may be introduced in the same Standards Track document
-that defines the new header type.
-Cases in which a new error code is to be returned
-by an existing header type can be accommodated
-by defining the new error code
-in the same Standards Track document that defines
-the new transport property.
+The same Standards Track document that defines a new header type
+may introduce new error codes used to support it.
+A Standards Track document may similarly define
+new error codes that an existing header type can return.
 </t>
 <t>
-For error codes that do not require that additional error
-information be returned with them,
-the existing RDMA_ERR2 header can be used to report the new error.
-The new error code is set as the value of rdma_err with
-the result that the default switch arm of the rpcrdma2_error
-(i.e. void) is selected.
+For error codes that do not require
+the return of additional information,
+a peer can use the existing RDMA_ERR2 header type to report the new error.
+The sender sets the new error code
+as the value of rdma_err with the result
+that the default switch arm of the rpcrdma2_error (i.e., void) is selected.
 </t>
 <t>
-For error codes that do require the return of additional error-related
-information together with the error, a new header type should be defined
-for the purpose of returning the error together with needed additional
-information.
-It should be documented just like any other new header type.
-</t>
-<t>
-When a new header type is sent, the sender needs to be prepared to accept
-header types necessary to report associated errors.
+For error codes that do require
+the return of related information together with the error,
+a new header type should be defined that returns the error
+together with the related information.
+The sender of a new header type needs to be prepared
+to accept header types necessary to report associated errors.
 </t>
 </section>
 
