@@ -2405,9 +2405,7 @@ struct rpcrdma2_chunk_lists {
 </figure>
 </t>
 <t>
-For the most part, this structure parallels
-its RPC-over-RDMA version 1 equivalent.
-That is, the rdma_reads, rdma_writes, rdma_reply fields provide,
+The rdma_reads, rdma_writes, rdma_reply fields provide,
 respectively, the chunks used to
 read a Special Format Call
 or
@@ -2415,38 +2413,9 @@ pull directly placed data from the Requester;
 the chunks used
 to push directly placed response data into the Requester's memory;
 and the chunk used to push a long Reply into the Requester's memory.
-</t>
-
-<section
- anchor="section:ac98f12c-4662-48f5-a18d-48e652f0d4d7"
- title="Chunks and Chunk Lists">
-<t>
-The chunks and chunk list structures follow the same rules as in
-Section 3.4 of
-<xref target="RFC8166"/>,
-with these exceptions:
-[ cel: We might be better off copying in Section 3.4 of RFC 8166. ]
-<list style="symbols">
-<t>
-In RPC-over-RDMA version 1,
-there were cases where XDR padding was allowed to appear in
-a reduced XDR data item.
-In RPC-over-RDMA version 2, Requesters and Responders MUST NOT
-include XDR padding in reduced Read and Write chunks.
-Special Format chunks MUST include all XDR padding.
-</t>
-<t>
-If the Requester has not provided a Reply chunk
-and the actual size of the Reply is larger than
-the connection's inline threshold,
-the Responder MUST use Message Continuation.
-Even if the Requester has provided adequate Reply resources,
-the Responder MAY use Message Continuation to send the Reply.
-These requirements makes it unnecessary
-for RPC-over-RDMA version 2 Requesters
-to have perfect reply size estimation.
-</t>
-</list>
+See
+<xref target="section:cfa8877c-b905-455d-b420-bf7a4a7f7829"/>
+for further details on how a sender constructs chunks.
 </t>
 </section>
 
@@ -2482,8 +2451,6 @@ it uses RDMA Send With Invalidate to transmit the RPC Reply.
 It MUST use the value in the corresponding Call's rdma_inv_handle field
 to construct the Send With Invalidate Work Request.
 </t>
-</section>
-
 </section>
 
 </section>
