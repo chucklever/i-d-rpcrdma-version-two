@@ -4285,7 +4285,6 @@ Credit-Based Flow Control for ATM Networks: Credit Update Protocol, Adaptive Cre
 <?rfc include="reference.RFC.5662.xml"?>
 <?rfc include="reference.RFC.7530.xml"?>
 <?rfc include="reference.RFC.8167.xml"?>
-<?rfc include="reference.RFC.8178.xml"?>
 </references>
 
 <section
