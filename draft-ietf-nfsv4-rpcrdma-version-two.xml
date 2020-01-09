@@ -2608,191 +2608,9 @@ union rpcrdma2_error switch (rpcrdma2_errcode rdma_err) {
 </figure>
 </t>
 <t>
-RPC-over-RDMA version 2 addresses error reporting
-in a fashion similar to RPC-over-RDMA version 1.
-See Section 5 of
-<xref target="RFC8166"/>
-for a full description of RPC-over-RDMA version 1 error reporting.
-</t>
-<t>
-[ cel: Consider copying in Section 5 of RFC 8166 here. ]
-</t>
-<t>
-Unless otherwise specified,
-the sender of an RDMA2_ERROR type message
-copies the values of the rdma_xid and rdma_vers fields
-from the incoming transport header that generated the error
-to the same fields in the RDMA2_ERROR response.
-</t>
-<t>
-The sender sets the rdma_htype field to RDMA2_ERROR,
-and sets the rdma_credit field to the credit grant values
-for this connection.
-</t>
-<t>
-Unless otherwise mentioned,
-the errors below are not meant
-for a Requester to send to a Responder.
-When a peer receives an RDMA2_ERROR message type
-with an unrecognized or unsupported value in its rdma_err field,
-it MUST drop the error message without processing it further.
-</t>
-<t>
-[ cel:
-At this point, I'm not sure all these extra error codes are going to be useful.
-How long does a Responder wait for a Requester to retry with a reconstructed call?
-Does the Responder just drop everything associated with that XID?
-How do we deal with non-idempotent requests?
-Instead, we should probably ensure that the error can leave the RPC transaction in a known state.
-Transport properties should enable the ability for implementations
-to communicate their chunk and segment limits before RPC payloads start flying over the connection. ]
-</t>
-<t>
-The sender of an RDMA2_ERROR message type constructs the message depending on the error condition, as follows:
-<list style="hanging">
-<t hangText="RDMA2_ERR_VERS"><vspace blankLines="0"/>
-A Responder uses this error to report that
-it does not support the RPC-over-RDMA version
-found in an incoming message's rdma_vers field.
-When constructing the error response,
-it sets the rdma_err field to RDMA2_ERR_VERS
-and
-fills in the rpcrdma2_err_vers structure with the RPC-over-RDMA versions it supports.
-The Responder MUST drop the incoming message without processing it further.
-</t>
-<t hangText="RDMA2_ERR_INVAL_HTYPE"><vspace blankLines="0"/>
-If a Responder recognizes the value in an incoming rdma_vers field,
-but it does not recognize the value in the rdma_htype field
-or
-does not support that header type,
-it MUST set the rdma_err field to RDMA2_ERR_INVAL_HTYPE.
-The Responder MUST drop the incoming message without processing it further.
-</t>
-<t hangText="RDMA2_ERR_INVAL_CONT"><vspace blankLines="0"/>
-If a receiver detects a problem with a message
-that is part of a sequence of continued messages,
-the receiver MUST set the rdma_err field to RDMA2_ERR_INVAL_CONT.
-See Section
-<xref target="section:fb299673-74f3-4f01-adb5-26a02ccd679f"/>
-for further details.
-</t>
-<t hangText="RDMA2_ERR_BAD_XDR"><vspace blankLines="0"/>
-If a Responder recognizes the values in the rdma_vers and rdma_htype fields,
-but it cannot parse the incoming transport header,
-it MUST set the rdma_err field to RDMA2_ERR_BAD_XDR.
-The Responder MUST drop the incoming message without processing it further.
-This error code has similar meaning
-as the error code value of ERR_CHUNK in RPC-over-RDMA version 1.
-</t>
-<t hangText="RDMA2_ERR_BAD_PROPVAL"><vspace blankLines="0"/>
-If a receiver recognizes the value in the rdma_which field,
-but it cannot parse the accompanying propval,
-it MUST set the rdma_err field to RDMA2_ERR_BAD_PROPVAL.
-The receiver advances to the next propset in the message
-without processing this propset further.
-</t>
-<t hangText="RDMA2_ERR_READ_CHUNKS"><vspace blankLines="0"/>
-If a Requester presents more DDP-eligible arguments
-than a Responder is prepared to Read,
-the Responder MUST
-set the rdma_err field to RDMA2_ERR_READ_CHUNKS
-and
-set the rdma_max_chunks field
-to the maximum number of Read chunks the Responder can process.
-If the Responder implementation cannot handle any Read chunks for a request,
-it MUST set the rdma_max_chunks to zero in this response.
-The Responder MUST drop the incoming message without processing it further.
-<vspace blankLines="1"/>
-The Requester can reconstruct the Call using
-Message Continuation
-or
-a Special Format payload
-and resend it.
-If the Requester does not resend the Call,
-it MUST terminate this RPC transaction with an error.
-</t>
-<t hangText="RDMA2_ERR_WRITE_CHUNKS"><vspace blankLines="0"/>
-If a Requester has constructed an RPC Call
-with more DDP-eligible results than
-the Responder is prepared to Write,
-the Responder MUST set the rdma_err field to RDMA2_ERR_WRITE_CHUNKS
-and
-set the rdma_max_chunks field
-to the maximum number of Write chunks the Responder can return.
-The Requester can reconstruct the Call
-with no Write chunks
-and
-a Reply chunk of appropriate size.
-If the Requester does not resend the Call,
-it MUST terminate this RPC transaction with an error.
-<vspace blankLines="1"/>
-If the Responder implementation cannot handle any Write chunks
-for a request
-and
-cannot send the Reply using Message Continuation,
-it MUST return a response of RDMA2_ERR_REPLY_RESOURCE instead (see below).
-</t>
-<t hangText="RDMA2_ERR_SEGMENTS"><vspace blankLines="0"/>
-If a Requester has constructed an RPC Call
-with a chunk that contains more segments than the Responder supports,
-the Responder MUST
-set the rdma_err field to RDMA2_ERR_SEGMENTS
-and
-set the rdma_max_segments field
-to the maximum number of segments the Responder can process.
-The Requester can reconstruct the Call and resend it.
-If the Requester does not resend the Call,
-it MUST terminate this RPC transaction with an error.
-</t>
-<t hangText="RDMA2_ERR_WRITE_RESOURCE"><vspace blankLines="0"/>
-If a Requester has provided a Write chunk
-that is not large enough to contain a DDP-eligible result,
-the Responder MUST set the rdma_err field to RDMA2_ERR_WRITE_RESOURCE.
-<vspace blankLines="1"/>
-The Responder MUST set the rdma_chunk_index field
-to point to the first Write chunk in the transport header
-that is too short,
-or to zero to indicate that it was not possible
-to determine which chunk is too small.
-Indexing starts at one (1), which represents the first Write chunk.
-The Responder MUST set the rdma_length_needed to the number of bytes
-needed in that chunk to convey the result data item.
-<vspace blankLines="1"/>
-The Requester can reconstruct the Call with more reply resources
-and resend it.
-If the Requester does not resend the Call
-(for instance, if the Responder set the index and length fields to zero),
-it MUST terminate this RPC transaction with an error.
-</t>
-<t hangText="RDMA2_ERR_REPLY_RESOURCE"><vspace blankLines="0"/>
-If a Responder cannot send an RPC Reply
-using Message Continuation
-and
-the Reply does not fit in the Reply chunk,
-the Responder MUST set the rdma_err field to RDMA2_ERR_REPLY_RESOURCE.
-The Responder MUST set the rdma_length_needed
-to the number of Reply chunk bytes needed to convey the reply.
-<vspace blankLines="1"/>
-The Requester can reconstruct the Call with more reply resources
-and resend it.
-If the Requester does not resend the Call
-(for instance, if the Responder set the length field to zero),
-it MUST terminate this RPC transaction with an error.
-</t>
-<t hangText="RDMA2_ERR_SYSTEM"><vspace blankLines="0"/>
-If some problem occurs on a Responder
-that does not fit into the above categories,
-the Responder MAY report it to the Requester
-by setting the rdma_err field to RDMA2_ERR_SYSTEM.
-<vspace blankLines="1"/>
-RDMA2_ERR_SYSTEM is a permanent error.
-The error does not indicate
-how much of the transaction the Responder has processed,
-nor does it indicate a recovery action for the Requester.
-A Requester that receives this error MUST terminate the RPC transaction
-associated with the XID value in the RDMA2_ERROR message's rdma_xid field.
-</t>
-</list>
+See
+<xref target="section:995a7597-4e89-48c3-b142-35b783ef1329"/>
+for details on the use of this header type.
 </t>
 </section>
 
@@ -2883,6 +2701,443 @@ and presents an error to the RPC consumer.
 </section>
 
 </section>
+
+<section
+ anchor="section:995a7597-4e89-48c3-b142-35b783ef1329"
+ title="Error Handling">
+<t>
+A receiver performs validity checks on ingress RPC-over-RDMA messages
+before it passes the conveyed RPC message to the RPC layer.
+For example, if an ingress message is not as long as
+the size of struct rpcrdma2_hdr_prefix (20 octets),
+the receiver cannot trust the value of the rdma_xid field.
+In this case, the receiver MUST silently discard the ingress message
+without processing it further, and without a response to the sender.
+</t>
+<t>
+However, in many other cases, the receiver needs to actively report
+a problem with the RPC-over-RDMA message to its sender.
+The RDMA2_ERROR message type is used for this purpose.
+To form an RDMA2_ERROR message type:
+<list style="symbols">
+<t>
+The rdma_xid field MUST contain the same XID
+that was in the rdma_xid field in the ingress request.
+</t>
+<t>
+The rdma_vers field MUST contain the same version
+that was in the rdma_vers field in the ingress request.
+</t>
+<t>
+The sender sets the rdma_credit field to the credit values in effect
+for this connection.
+</t>
+<t>
+The rdma_htype field MUST contain the value RDMA2_ERROR.
+</t>
+<t>
+The rdma_err field contains a value
+that reflects the type of error that occurred,
+as described in the subsections below.
+</t>
+</list>
+</t>
+<t>
+When a peer receives an RDMA2_ERROR message type
+with an unrecognized or unsupported value in its rdma_err field,
+it MUST silently discard the message without processing it further.
+</t>
+
+<section
+ anchor="section:c445fd74-d6c2-4f64-a215-844c84da4b6b"
+ title="Basic Transport Stream Parsing Errors">
+
+<section
+ anchor="section:4a5e9013-9c26-4776-afbd-95318cb2ea8a"
+ title="RDMA2_ERR_VERS">
+<t>
+When a Responder detects an RPC-over-RDMA header version
+that it does not support
+(the current document defines version 2),
+it MUST respond with an RDMA2_ERROR message type
+and
+set its rdma_err field to RDMA2_ERR_VERS.
+The Responder then fills in the rpcrdma2_err_vers structure
+with the RPC-over-RDMA versions it supports.
+The Responder MUST silently discard the ingress message
+without passing it to the RPC layer
+</t>
+<t>
+When a Requester receives this error,
+it uses the information in the rpcrdma2_err_vers structure
+to select an RPC-over-RDMA version that both peers support.
+A Requester MUST NOT subsequently send a message that uses
+a version that the Responder has indciated it does not support.
+RDMA2_ERR_VERS indicates a permanent error.
+Receipt of this error completes the RPC transaction
+associated with XID in the rdma_xid field.
+</t>
+</section>
+
+<section
+ anchor="section:9754ea3a-d237-41cf-9739-99843e11e524"
+ title="RDMA2_ERR_INVAL_HTYPE">
+<t>
+If a Responder recognizes the value in an ingress rdma_vers field,
+but it does not recognize the value in the rdma_htype field
+or
+does not support that header type,
+it MUST set the rdma_err field to RDMA2_ERR_INVAL_HTYPE.
+The Responder MUST silently discard the incoming message
+without passing it to the RPC layer.
+</t>
+<t>
+A Requester MUST NOT subsequently send a message that uses
+an htype that the Responder has indicated it does not support.
+RDMA2_ERR_INVAL_HTYPE indicates a permanent error.
+Receipt of this error completes the RPC transaction
+associated with XID in the rdma_xid field.
+</t>
+</section>
+
+<section
+ anchor="section:37afd7d4-5d72-4300-ad6d-95558cdd5e19"
+ title="RDMA2_ERR_INVAL_CONT">
+<t>
+If a Responder detects a problem with an ingress RPC-over-RDMA message
+that is part of a Message Continuation sequence,
+the Responder MUST set the rdma_err field to RDMA2_ERR_INVAL_CONT.
+<xref target="section:fb299673-74f3-4f01-adb5-26a02ccd679f"/>
+discusses the types of problems to watch for.
+The Responder MUST silently discard all ingress messages
+with an rdma_xid field that matches the failing message
+without reassembling the payload.
+</t>
+<t>
+RDMA2_ERR_INVAL_CONT indicates a permanent error.
+Receipt of this error completes the RPC transaction
+associated with XID in the rdma_xid field.
+</t>
+</section>
+
+</section>
+
+<section
+ anchor="section:932d8a55-30e3-412c-8b78-355606742861"
+ title="XDR Errors">
+<t>
+A receiver might encounter an XDR parsing error that
+prevents it from processing an ingress Transport stream.
+Examples of such errors include:
+<list style="symbols">
+<t>
+An invalid value in the rdma_proc field.
+</t>
+<t>
+An RDMA_NOMSG message where the
+Read list,
+Write list,
+and
+Reply chunk are marked not present.
+</t>
+<t>
+The value of the rdma_xid field does not match
+the value of the XID field in the accompanying RPC
+message.
+</t>
+</list>
+</t>
+<t>
+When a Responder receives a valid RPC-over-RDMA header
+but the Responder's ULP implementation cannot parse the RPC arguments
+in the RPC Call,
+the Responder returns an RPC Reply with status GARBAGE_ARGS,
+using an RDMA2_MSG message type.
+This type of parsing failure might be due to mismatches
+between chunk sizes or offsets
+and
+the contents of the Payload stream, for example.
+In this case, the error is permanent,
+but the Requester has no way to know how much processing
+the Responder has completed for this RPC transaction.
+</t>
+
+<section
+ anchor="section:90449e5c-e65a-48c0-80bf-e9080d67094e"
+ title="RDMA2_ERR_BAD_XDR">
+<t>
+If a Responder recognizes the values in the rdma_vers field,
+but it cannot otherwise parse the ingress Transport stream,
+it MUST set the rdma_err field to RDMA2_ERR_BAD_XDR.
+The Responder MUST silently discard the ingress message
+without passing it to the RPC layer.
+</t>
+<t>
+RDMA2_ERR_BAD_XDR indicates a permanent error.
+Receipt of this error completes the RPC transaction
+associated with XID in the rdma_xid field.
+</t>
+</section>
+
+<section
+ anchor="secction:4a3d9ac4-4083-46d1-99b4-76a0b1ac93bf"
+ title="RDMA2_ERR_BAD_PROPVAL">
+<t>
+If a receiver recognizes the value in an ingress rdma_which field,
+but it cannot parse the accompanying propval,
+it MUST set the rdma_err field to RDMA2_ERR_BAD_PROPVAL (see
+<xref target="section:d5ac12f6-6735-48f3-b4ba-b44a19ff9298"/>).
+The receiver MUST silently discard the ingress message
+without applying any of its property settings.
+</t>
+</section>
+
+</section>
+
+<section
+ anchor="section:87c5f543-7092-4faf-b13e-0e994e8023a7"
+ title="Responder RDMA Operational Errors">
+<t>
+In RPC-over-RDMA version 2,
+the Responder initiates RDMA Read and Write operations
+that target the Requester's memory.
+Problems might arise as the Responder attempts
+to use Requester-provided resources for RDMA operations.
+For example:
+<list style="symbols">
+<t>
+Usually, chunks can be validated only by using their contents to perform data transfers.
+If chunk contents are invalid
+(e.g., a memory region is no longer registered
+or
+a chunk length exceeds the end of the registered memory region),
+a Remote Access Error occurs.
+</t>
+<t>If a Requester's Receive buffer is too small,
+the Responder's Send operation completes with a Local Length Error.
+</t>
+<t>
+If the Requester-provided Reply chunk is too small
+to accommodate a large RPC Reply message,
+a Remote Access Error occurs.
+A Responder might detect this problem before attempting to write past the end of the Reply chunk.
+</t>
+</list>
+</t>
+<t>
+RDMA operational errors can be fatal to the connection.
+To avoid a retransmission loop and repeated connection loss that deadlocks the connection,
+once the Requester has re-established a connection,
+the Responder should send an RDMA2_ERROR response
+to indicate that no RPC-level reply is possible for that transaction.
+</t>
+
+<section
+ anchor="section:77a9225b-7b43-4899-b9d1-5df14310a144"
+ title="RDMA2_ERR_READ_CHUNKS">
+<t>
+If a Requester presents more DDP-eligible arguments
+than a Responder is prepared to Read,
+the Responder MUST
+set the rdma_err field to RDMA2_ERR_READ_CHUNKS
+and
+set the rdma_max_chunks field
+to the maximum number of Read chunks the Responder can process.
+If the Responder implementation cannot handle any Read chunks for a request,
+it MUST set the rdma_max_chunks to zero in this response.
+The Responder MUST silently discard the ingress message
+without processing it further.
+</t>
+<t>
+The Requester can reconstruct the Call using
+Message Continuation
+or
+a Special Format payload
+and resend it.
+If the Requester does not resend the Call,
+it MUST terminate this RPC transaction with an error.
+</t>
+</section>
+
+<section
+ anchor="section:61617957-ee18-4d10-bf47-3b932739eee4"
+ title="RDMA2_ERR_WRITE_CHUNKS">
+<t>
+If a Requester has constructed an RPC Call
+with more DDP-eligible results than
+the Responder is prepared to Write,
+the Responder MUST set the rdma_err field to RDMA2_ERR_WRITE_CHUNKS
+and
+set the rdma_max_chunks field
+to the maximum number of Write chunks the Responder can return.
+The Requester can reconstruct the Call
+with no Write chunks
+and
+a Reply chunk of appropriate size.
+If the Requester does not resend the Call,
+it MUST terminate this RPC transaction with an error.
+</t>
+<t>
+If the Responder implementation cannot handle any Write chunks
+for a request
+and
+cannot send the Reply using Message Continuation,
+it MUST return a response of RDMA2_ERR_REPLY_RESOURCE instead (see below).
+</t>
+</section>
+
+<section
+ anchor="section:ff471562-5a8f-4dbd-8f37-ac41c5587b93"
+ title="RDMA2_ERR_SEGMENTS">
+<t>
+If a Requester has constructed an RPC Call
+with a chunk that contains more segments than the Responder supports,
+the Responder MUST
+set the rdma_err field to RDMA2_ERR_SEGMENTS
+and
+set the rdma_max_segments field
+to the maximum number of segments the Responder can process.
+The Requester can reconstruct the Call and resend it.
+If the Requester does not resend the Call,
+it MUST terminate this RPC transaction with an error.
+</t>
+</section>
+
+<section
+ anchor="section:229512aa-cd65-4d5e-b66e-65a4ed3731cc"
+ title="RDMA2_ERR_WRITE_RESOURCE">
+<t>
+If a Requester has provided a Write chunk
+that is not large enough to contain a DDP-eligible result,
+the Responder MUST set the rdma_err field to RDMA2_ERR_WRITE_RESOURCE.
+<vspace blankLines="1"/>
+The Responder MUST set the rdma_chunk_index field
+to point to the first Write chunk in the transport header
+that is too short,
+or to zero to indicate that it was not possible
+to determine which chunk is too small.
+Indexing starts at one (1), which represents the first Write chunk.
+The Responder MUST set the rdma_length_needed to the number of bytes
+needed in that chunk to convey the result data item.
+</t>
+<t>
+The Requester can reconstruct the Call with more reply resources
+and resend it.
+If the Requester does not resend the Call
+(for instance, if the Responder set the index and length fields to zero),
+it MUST terminate this RPC transaction with an error.
+</t>
+</section>
+
+<section
+ anchor="section:7b2d20ad-072e-4b9c-8a16-e9a28009ae6b"
+ title="RDMA2_ERR_REPLY_RESOURCE">
+<t>
+If a Responder cannot send an RPC Reply
+using Message Continuation
+and
+the Reply does not fit in the Reply chunk,
+the Responder MUST set the rdma_err field to RDMA2_ERR_REPLY_RESOURCE.
+The Responder MUST set the rdma_length_needed
+to the number of Reply chunk bytes needed to convey the reply.
+<vspace blankLines="1"/>
+The Requester can reconstruct the Call with more reply resources
+and resend it.
+If the Requester does not resend the Call
+(for instance, if the Responder set the length field to zero),
+it MUST terminate this RPC transaction with an error.
+</t>
+</section>
+
+</section>
+
+<section
+ anchor="section:125537e3-1b73-465f-9602-c3986df297d6"
+ title="Other Operational Errors">
+<t>
+While a Requester is constructing an RPC Call message,
+an unrecoverable problem might occur
+that prevents the Requester from posting further RDMA Work Requests on behalf of that message.
+As with other transports,
+if a Requester is unable to construct and transmit an RPC Call,
+the associated RPC transaction fails immediately.
+</t>
+<t>
+After a Requester has received a Reply,
+if it is unable to invalidate a memory region due to an unrecoverable problem,
+the Requester MUST close the connection to protect that memory
+from Responder access before the associated RPC transaction is complete.
+</t>
+<t>
+While a Responder is constructing an RPC Reply message or error message,
+an unrecoverable problem might occur that prevents the Responder
+from posting further RDMA Work Requests on behalf of that message.
+If a Responder is unable to construct and transmit
+an RPC Reply
+or
+RPC-over-RDMA error message,
+the Responder MUST close the connection
+to signal to the Requester that a reply was lost.
+</t>
+
+<section
+ anchor="section:8a40d281-66fb-4f61-a686-190624aa4001"
+ title="RDMA2_ERR_SYSTEM">
+<t>
+If some problem occurs on a Responder
+that does not fit into the above categories,
+the Responder MAY report it to the Requester
+by setting the rdma_err field to RDMA2_ERR_SYSTEM.
+The Responder MUST silently discard the message(s)
+associated with the failing transaction
+without further processing.
+</t>
+<t>
+RDMA2_ERR_SYSTEM is a permanent error.
+This error does not indicate
+how much of the transaction the Responder has processed,
+nor does it indicate a particular recovery action for the Requester.
+A Requester that receives this error MUST terminate the RPC transaction
+associated with the XID value in the RDMA2_ERROR message's rdma_xid field.
+</t>
+</section>
+
+</section>
+
+<section
+ anchor="section:1b7beb7d-b694-4309-95ee-f81a05637ef6"
+ title="RDMA Transport Errors">
+<t>
+The RDMA connection and physical link
+provide some degree of error detection and retransmission.
+iWARP's Marker PDU Aligned (MPA) layer (when used over TCP),
+the Stream Control Transmission Protocol (SCTP),
+as well as the InfiniBand link layer
+<xref target="IBA"/>
+all provide Cyclic Redundancy Check (CRC) protection of RDMA payloads.
+CRC-class protection is a general attribute of such transports.
+</t>
+<t>
+Additionally, the RPC layer itself can accept errors
+from the transport and recover via retransmission.
+RPC recovery can typically handle
+complete loss and re-establishment of a transport connection.
+</t>
+<t>
+The details of reporting and recovery from RDMA link-layer errors
+are described in
+specific link-layer APIs and operational specifications
+and are outside the scope of this protocol specification.
+See
+<xref
+ target="section:912a2c09-95ec-4cb6-aa2b-2245726d9edf"/>
+for further discussion of RPC-level integrity schemes.
+</t>
+</section>
+
+</section>
+
+
 
 <section
  anchor="section:bf53e759-d97f-487d-a5e2-9b8153db1803"
@@ -3363,7 +3618,7 @@ When mapped atop the iWARP transport
 <xref target="RFC5041"/>,
 which uses IP port addressing due to its layering on TCP or SCTP,
 port mapping is trivial
-and consists merely of issuing the port in the connection process.  
+and consists merely of issuing the port in the connection process.
 The NFS/RDMA protocol service
 address has been assigned port 20049 by IANA, for both iWARP/TCP and
 iWARP/SCTP <xref target="RFC8267"/>.
@@ -3470,7 +3725,7 @@ described in the current document exist.
 </section>
 
 <section
- anchor="section:912A2C09-95EC-4CB6-AA2B-2245726D9EDF"
+ anchor="section:912a2c09-95ec-4cb6-aa2b-2245726d9edf"
  title="Security Considerations">
 
 <section
@@ -4936,12 +5191,22 @@ with an appropriate registration mechanism.
  title="Error Reporting Changes">
 <t>
 RPC-over-RDMA version 2 expands the repertoire of errors
-that connection peers may report.
-This change enables a peer
-to report overruns of specific resources
-and
-to avoid Requester retries or deadlocks
-when an error condition is permanent.
+that connection peers may report to each other.
+The goals of this expansion are:
+<list style="symbols">
+<t>
+To fill in details of peer recovery actions.
+</t>
+<t>
+To enable retrying certain conditions
+caused by mis-estimation of the maximum reply size.
+</t>
+<t>
+To minimize the likelihood of a Requester waiting forever for a Reply
+when there are communications problems that prevent the Responder
+from sending it.
+</t>
+</list>
 </t>
 </section>
 
