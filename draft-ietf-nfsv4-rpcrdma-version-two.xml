@@ -57,9 +57,10 @@ RPC-over-RDMA Version 2 Protocol
 
 <abstract>
 <t>
-This document specifies the second version of a protocol
-that conveys Remote Procedure Call (RPC) messages
-on transports capable of Remote Direct Memory Access (RDMA).
+This document specifies the second version
+of a transport protocol that conveys
+Remote Procedure Call (RPC) messages
+using Remote Direct Memory Access (RDMA).
 This version of the protocol is extensible.
 </t>
 </abstract>
