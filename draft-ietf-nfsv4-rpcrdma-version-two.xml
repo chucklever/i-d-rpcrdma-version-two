@@ -2617,6 +2617,7 @@ RPC-over-RDMA version 2 transport header.
 
 const RDMA2_F_RESPONSE           0x00000001;
 const RDMA2_F_MORE               0x00000002;
+const RDMA2_F_TPMORE             0x00000004;
 
 struct rpcrdma2_hdr_prefix
         struct rpcrdma_common       rdma_start;
@@ -2738,6 +2739,36 @@ or an out-of-band credit grant (see
 <xref target="section:f6348562-97f8-4413-96d7-bde3ff57b375"/>)
 to enable the sender to send
 the remaining messages in the sequence.
+</t>
+</section>
+
+<section
+ anchor="section:1b29ba98-8a84-45be-ae09-2b1ff96e490b"
+ title="RDMA2_F_TPMORE Flag">
+<t>
+The RDMA2_F_TPMORE flag indicates that the sender has
+additional Transport Properties to send
+in a subsequent RPC-over-RDMA message.
+If a peer receives any message type other than RDMA2_CONNPROP
+with the RDMA2_F_TPMORE flag set,
+it MUST respond with an RDMA2_ERROR message type
+whose rdma_err field contains RDMA2_ERR_INVAL_HTYPE,
+and then silently discard the ingress message without processing it.
+</t>
+<t>
+The RDMA2_F_TPDONE flag is clear in the final RDMA2_CONNPROP
+message type from this peer on this connection.
+If a peer receives an RDMA2_CONNPROP message type
+after it has received an RDMA2_CONNPROP message type
+with a clear RDMA2_F_TPDONE flag,
+it MUST respond with an RDMA2_ERROR message type
+whose rdma_err field contains RDMA2_ERR_INVAL_HTYPE,
+and then silently discard the ingress message without processing it.
+</t>
+<t>
+After both connection peers have indicated
+they have finished sending their Transport Properties,
+they may begin passing RPC traffic.
 </t>
 </section>
 
@@ -2994,10 +3025,15 @@ struct rpcrdma2_connprop {
 </figure>
 </t>
 <t>
-Each peer sends an RDMA2_CONNPROP message
+Each peer sends an RDMA2_CONNPROP message type
 as the first message after the client has established a connection.
 The size of this initial message is limited
 to the default inline threshold for the RPC-over-RDMA version that is in effect.
+If a peer has more or larger Transport Properties than can fit
+in the initial RDMA2_CONNPROP message type,
+it sets the RDMA2_F_TPMORE flag.
+The final RDMA2_CONNPROP message type the peer sends on that connection
+must have a clear RDMA2_F_TPMORE flag.
 </t>
 <t>
 A peer may encounter properties that it does not recognize or support.
@@ -3700,6 +3736,7 @@ of each extension produces a full XDR definition of that extension.
 ///
 /// const RDMA2_F_RESPONSE           0x00000001;
 /// const RDMA2_F_MORE               0x00000002;
+/// const RDMA2_F_TPMORE             0x00000004;
 ///
 /// struct rpcrdma2_hdr_prefix
 ///         struct rpcrdma_common       rdma_start;
