@@ -1796,8 +1796,8 @@ and
 also covers the disposition of the chunk lists.
 </t>
 <t>
-The server MUST clear the RPCRDMA2_F_RESPONSE flag in the rdma_flags field.
-It sets the RPCRDMA2_F_MORE flag in the rdma_flags field
+The server MUST clear the RDMA2_F_RESPONSE flag in the rdma_flags field.
+It sets the RDMA2_F_MORE flag in the rdma_flags field
 as described in
 <xref target="section:fb299673-74f3-4f01-adb5-26a02ccd679f"/>.
 </t>
@@ -1848,8 +1848,8 @@ and
 also covers the disposition of the chunk lists.
 </t>
 <t>
-The server MUST set the RPCRDMA2_F_RESPONSE flag in the rdma_flags field.
-It sets the RPCRDMA2_F_MORE flag in the rdma_flags field
+The server MUST set the RDMA2_F_RESPONSE flag in the rdma_flags field.
+It sets the RDMA2_F_MORE flag in the rdma_flags field
 as described in
 <xref target="section:fb299673-74f3-4f01-adb5-26a02ccd679f"/>.
 </t>
@@ -2615,8 +2615,8 @@ RPC-over-RDMA version 2 transport header.
 <artwork xml:space="preserve" align="left">
 &lt;CODE BEGINS&gt;
 
-const RPCRDMA2_F_RESPONSE           0x00000001;
-const RPCRDMA2_F_MORE               0x00000002;
+const RDMA2_F_RESPONSE           0x00000001;
+const RDMA2_F_MORE               0x00000002;
 
 struct rpcrdma2_hdr_prefix
         struct rpcrdma_common       rdma_start;
@@ -2630,9 +2630,9 @@ struct rpcrdma2_hdr_prefix
 <t>
 The rdma_flags field is new to RPC-over-RDMA version 2.
 Currently, the only flags defined within this word are the
-RPCRDMA2_F_RESPONSE flag
+RDMA2_F_RESPONSE flag
 and the
-RPCRDMA2_F_MORE flag.
+RDMA2_F_MORE flag.
 The other flags are reserved for future use as described in
 <xref target="section:55a1749d-702c-48e4-b78c-0db392692c09"/>.
 The sender MUST set reserved flags to zero,
@@ -2641,35 +2641,35 @@ and the receiver MUST ignore reserved flags.
 
 <section
  anchor="section:4e23391c-b6a8-46b1-a399-c86f754b51bc"
- title="RPCRDMA2_F_RESPONSE Flag">
+ title="RDMA2_F_RESPONSE Flag">
 <t>
-The RPCRDMA2_F_RESPONSE flag qualifies the value contained in the
+The RDMA2_F_RESPONSE flag qualifies the value contained in the
 transport header's rdma_xid field.
-The RPCRDMA2_F_RESPONSE flag enables a receiver to avoid
+The RDMA2_F_RESPONSE flag enables a receiver to avoid
 performing an XID lookup on incoming reverse direction Call messages.
 Therefore:
 <list style="symbols">
 <t>
 When the rdma_htype field has the value RDMA2_MSG or
-RDMA2_NOMSG, the value of the RPCRDMA2_F_RESPONSE flag MUST be the
+RDMA2_NOMSG, the value of the RDMA2_F_RESPONSE flag MUST be the
 same as the value of the associated RPC message's msg_type field.
 </t>
 <t>
 When the header type is anything else
 and
 a whole or partial RPC message payload is present,
-the value of the RPCRDMA2_F_RESPONSE flag MUST be the same
+the value of the RDMA2_F_RESPONSE flag MUST be the same
 as the value of the associated RPC message's msg_type field.
 </t>
 <t>
 When no RPC message payload is present,
-a Requester MUST set the value of RPCRDMA2_F_RESPONSE
+a Requester MUST set the value of RDMA2_F_RESPONSE
 to reflect how the receiver is to interpret the
 rdma_xid field.
 </t>
 <t>
 When the rdma_htype field has the value RDMA2_ERROR,
-the RPCRDMA2_F_RESPONSE flag MUST be set.
+the RDMA2_F_RESPONSE flag MUST be set.
 </t>
 </list>
 </t>
@@ -2677,17 +2677,17 @@ the RPCRDMA2_F_RESPONSE flag MUST be set.
 
 <section
  anchor="section:fb299673-74f3-4f01-adb5-26a02ccd679f"
- title="RPCRDMA2_F_MORE Flag">
+ title="RDMA2_F_MORE Flag">
 <t>
-The RPCRDMA2_F_MORE flag signifies that
+The RDMA2_F_MORE flag signifies that
 the RPC-over-RDMA message payload continues in the next message.
 </t>
 <t>
-When the sender asserts the RPCRDMA2_F_MORE flag,
+When the sender asserts the RDMA2_F_MORE flag,
 the receiver is to concatenate
 the data payload of the next received message
 to the end of the data payload of the received message.
-The sender clears the RPCRDMA2_F_MORE flag
+The sender clears the RDMA2_F_MORE flag
 in the final message in the sequence.
 </t>
 <t>
@@ -2701,7 +2701,7 @@ with the rdma_err field set to RDMA2_ERR_INVAL_CONT.
 </t>
 <t>
 If a peer receives an RPC-over-RDMA message
-with the RPCRDMA2_F_MORE flag set,
+with the RDMA2_F_MORE flag set,
 and the rdma_htype field does not contain
 the values RDMA2_MSG or RDMA2_CONNPROP,
 the receiver MUST drop the message
@@ -2712,9 +2712,9 @@ with the rdma_err field set to RDMA2_ERR_INVAL_CONT.
 </t>
 <t>
 The sender includes chunks only in the final message
-in a sequence, in which the RPCRDMA2_F_MORE flag is clear.
+in a sequence, in which the RDMA2_F_MORE flag is clear.
 If a peer receives an RPC-over-RDMA message
-with the RPCRDMA2_F_MORE flag set, and its chunk lists are not empty,
+with the RDMA2_F_MORE flag set, and its chunk lists are not empty,
 the receiver MUST drop the message
 without processing it further.
 If the receiver is a Responder, it MUST also
@@ -3698,8 +3698,8 @@ of each extension produces a full XDR definition of that extension.
 ///         uint32         rdma_htype;
 /// };
 ///
-/// const RPCRDMA2_F_RESPONSE           0x00000001;
-/// const RPCRDMA2_F_MORE               0x00000002;
+/// const RDMA2_F_RESPONSE           0x00000001;
+/// const RDMA2_F_MORE               0x00000002;
 ///
 /// struct rpcrdma2_hdr_prefix
 ///         struct rpcrdma_common       rdma_start;
