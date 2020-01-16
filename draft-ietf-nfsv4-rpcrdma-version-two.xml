@@ -2195,7 +2195,7 @@ document that explains the use of this property.
 <c>Reverse-Direction Support</c>
 <c>5</c>
 <c>uint32</c>
-<c>RDMA2_RVRSDIR_NONE</c>
+<c>0</c>
 <c>
 <xref target="section:6ace2d7f-044b-491f-97ea-5760345a2e8f"
  pageno="false"
