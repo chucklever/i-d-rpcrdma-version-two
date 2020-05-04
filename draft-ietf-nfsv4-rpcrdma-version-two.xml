@@ -4578,35 +4578,7 @@ possibly through use of a translation service as described in
 <references
  title="Informative References">
 
-<reference
- anchor="I-D.ietf-nfsv4-rpc-tls">
-<front>
-<title>Towards Remote Procedure Call Encryption By Default</title>
-<author initials="C" surname="Lever" fullname="Chuck Lever">
-<organization />
-</author>
-<author initials="T" surname="Myklebust" fullname="Trond Myklebust">
-<organization />
-</author>
-<date month="January" day="10" year="2020"/>
-<abstract>
-<t>
-This document describes a mechanism that,
-through the use of opportunistic Transport Layer Security (TLS),
-enables encryption of in-transit Remote Procedure Call (RPC) transactions
-while interoperating with ONC RPC implementations
-that do not support this mechanism.
-This document updates RFC 5531.
-</t>
-</abstract>
-</front>
-<seriesInfo
- name="Internet-Draft"
- value="draft-ietf-nfsv4-rpc-tls-05"/>
-<format
- type="TXT"
- target="http://www.ietf.org/internet-drafts/draft-ietf-nfsv4-rpc-tls-05.txt"/>
-</reference>
+<?rfc include="reference.I-D.ietf-nfsv4-rpc-tls"?>
 
 <reference
  anchor="IBA">
