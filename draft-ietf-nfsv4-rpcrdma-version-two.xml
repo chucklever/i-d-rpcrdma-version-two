@@ -2842,6 +2842,16 @@ it uses RDMA Send With Invalidate to transmit the RPC Reply.
 It MUST use the value in the corresponding Call's rdma_inv_handle field
 to construct the Send With Invalidate Work Request.
 </t>
+<t>
+A Responder MUST NOT use a Send With Invalidate Work Request when sending
+an RDMA2_ERROR header type (see 
+<xref target="section:b1d23e5c-31df-483f-adb7-25430b5de38d"/>),
+an RDMA2_CONNPROP header type (see
+<xref target="section:07e8c178-62df-46a7-a57e-dcf107821d93"/>),
+or
+an asynchronous credit grant (see
+<xref target="section:f6348562-97f8-4413-96d7-bde3ff57b375"/>).
+</t>
 </section>
 
 </section>
@@ -4880,15 +4890,15 @@ Is there more to be said, now that we have some experience? ]
  title="Extending RPC-over-RDMA Version 2">
 <t>
 This Appendix is not addressed to protocol implementers,
-but rather to authors of documents that intend
-to extend the protocol specified in the current document.
+but rather to authors of documents that
+extend the protocol specified in the current document.
 </t>
 <t>
 RPC-over-RDMA version 2 extensibility facilitates
 limited extensions to the base protocol
 presented in the current document
 so that new optional capabilities can be introduced
-without a protocol version change,
+without a protocol version change
 while maintaining robust interoperability
 with existing RPC-over-RDMA version 2 implementations.
 It allows extensions to be defined,
@@ -5027,6 +5037,11 @@ An indication of whether a Payload stream must be present,
 and a description of its contents
 and
 how receivers use such Payload streams to reconstruct RPC messages.
+</t>
+<t>
+As appropriate, a statement of
+whether a Responder may use Remote Invalidation
+when sending messages that contain the new header type.
 </t>
 </list>
 </t>
