@@ -359,13 +359,32 @@ while servers wait passively to accept incoming connection requests.
 </t>
 
 <section
+ anchor="section:7aafb376-73d8-4fa1-8888-97a02c9a58c1"
+ title="Transport Failure Recovery">
+<t>
+So that appropriate and timely recovery action can be taken,
+the transport implementation is responsible for notifying
+a Requester when an RPC Call or Reply was not able to be conveyed.
+Recovery can take the form of establishing a new connection,
+re-sending RPC Calls, or terminating RPC transactions pending
+on the Requester.
+</t>
+<t>
+For instance, a connection loss may occur after a Responder
+has received an RPC Call but before it can send the matching RPC Reply.
+Once the transport notifies the Requester of the connection loss,
+the Requester can re-send all pending RPC Calls on a fresh connection.
+</t>
+</section>
+
+<section
  anchor="section:2432566f-67e7-4f35-8ec4-9ed44cecd8cc"
  title="Forward Direction">
 <t>
 Traditionally, an RPC client acts as a Requester,
 while an RPC service acts as a Responder.
 The current document
-refers to this form of RPC message passing
+refers to this direction of RPC message passing
 as "forward-direction" operation.
 </t>
 </section>
@@ -376,11 +395,11 @@ as "forward-direction" operation.
 <t>
 The RPC specification
 <xref target="RFC5531"/>
-does not forbid passing RPC messages
+does not forbid performing RPC transactions
 in the other direction.
 An RPC service endpoint can act as a Requester,
 in which case an RPC client endpoint acts as a Responder.
-This form of message passing is known as
+This direction of RPC message passing is known as
 "reverse-direction" operation.
 </t>
 <t>
@@ -3142,19 +3161,34 @@ and presents an error to the RPC consumer.
  anchor="section:995a7597-4e89-48c3-b142-35b783ef1329"
  title="Error Handling">
 <t>
-A receiver performs validity checks on ingress RPC-over-RDMA messages
-before it passes the conveyed RPC message to the RPC layer.
-For example, if an ingress message is not as long as
+A receiver performs validity checks
+on each ingress RPC-over-RDMA message
+before it passes that message to the RPC layer.
+For example, if an ingress RPC-over-RDMA message is not as long as
 the size of struct rpcrdma2_hdr_prefix (20 octets),
 the receiver cannot trust the value of the rdma_xid field.
 In this case, the receiver MUST silently discard the ingress message
 without processing it further, and without a response to the sender.
 </t>
 <t>
-However, in many other cases, the receiver needs to actively report
-a problem with the RPC-over-RDMA message to its sender.
-The RDMA2_ERROR message type is used for this purpose.
-To form an RDMA2_ERROR message type:
+When a request
+(for instance, an RPC Call or a control plane operation)
+is made,
+typically an RPC consumer blocks while waiting for the response.
+Thus when an incoming message conveys a request
+and that request cannot be acted upon,
+the receiver of that request needs
+to report the problem to its sender
+in order to unblock waiters.
+Likewise, if, after processing a request,
+a sender is unable to transmit the response
+on an otherwise healthy connection,
+the sender needs to report that problem
+for the same reason.
+</t>
+<t>
+The RDMA2_ERROR header type is used for this purpose.
+To form an RDMA2_ERROR type header:
 <list style="symbols">
 <t>
 The rdma_xid field MUST contain the same XID
