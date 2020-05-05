@@ -111,24 +111,52 @@ Further, they implement a bulk data transfer service
 not provided by traditional network transports.
 Therefore, we treat RDMA as a novel transport type for RPC.
 </t>
+
+<section
+ anchor="section:3ade56d8-45ea-4ab5-b97c-da817d3e0033"
+ title="Design Goals">
 <t>
-The RPC-over-RDMA transport introduced in the current document
-can transparently support any RPC application.
-The current document describes mechanisms that
-enable further optimization of data transfer
+The general mission of RPC-over-RDMA transports is to
+leverage network hardware capabilities to
+reduce host CPU needs related to the transport of RPC messages.
+In particular, this includes
+mitigating host interrupt rates
+and
+limiting the necessity to copy RPC payload bytes on receivers.
+</t>
+<t>
+These hardware capabilities benefit both RPC clients and servers.
+On balance, however, the RPC-over-RDMA protocol design approach
+has been to bolster clients more than servers, as the client is
+typically where applications are most hungry for CPU resources.
+</t>
+<t>
+Additionally,
+RPC-over-RDMA transports are designed to
+support RPC applications transparently.
+However, such transports can also provide mechanisms
+that enable further optimization of data transfer
 when RPC applications are structured
 to exploit direct data placement.
-In this context, the Network File System (NFS) protocols,
-as described in
+In this context, the Network File System (NFS) family of protocols
+(as described in
 <xref target="RFC1094"/>,
 <xref target="RFC1813"/>,
 <xref target="RFC7530"/>,
 <xref target="RFC5661"/>,
-and subsequent NFSv4 minor versions,
+<xref target="RFC7862"/>,
+and subsequent NFSv4 minor versions)
 are all potential beneficiaries of RPC-over-RDMA.
+</t>
+<t>
 A complete problem statement appears in
 <xref target="RFC5532"/>.
 </t>
+</section>
+
+<section
+ anchor="section:0a2befc3-b5d7-468e-a48e-97c46a9c1b40"
+ title="Motivation for a New Version">
 <t>
 Storage administrators have broadly deployed
 the RPC-over-RDMA version 1 protocol specified in
@@ -181,6 +209,8 @@ improved credit-based flow control,
 and
 support for Remote Invalidation.
 </t>
+</section>
+
 </section>
 
 <section
@@ -4663,6 +4693,7 @@ Credit-Based Flow Control for ATM Networks: Credit Update Protocol, Adaptive Cre
 <?rfc include="reference.RFC.5661.xml"?>
 <?rfc include="reference.RFC.5662.xml"?>
 <?rfc include="reference.RFC.7530.xml"?>
+<?rfc include="reference.RFC.7862.xml"?>
 <?rfc include="reference.RFC.8167.xml"?>
 </references>
 
