@@ -1271,7 +1271,7 @@ for that data item from the Payload stream.
  title="Read Chunks">
 <t>
 A "Read chunk" represents an XDR data item
-that the Responder pulls from the Requester.
+that its receiver pulls from the sender.
 A Read chunk is a list of one or more RDMA read segments.
 Each RDMA read segment consists of a Position field
 followed by an RDMA segment, as defined in
@@ -1280,7 +1280,7 @@ followed by an RDMA segment, as defined in
 <t hangText="Position:">
 The byte offset in the unreduced Payload stream
 where the receiver reinserts the data item conveyed in the chunk.
-The Requester MUST compute the Position value
+The sender MUST compute the Position value
 from the beginning of the unreduced Payload stream,
 which begins at Position zero.
 All RDMA read segments belonging to the same Read chunk
@@ -1289,18 +1289,18 @@ have the same value in their Position field.
 </list>
 </t>
 <t>
-While constructing an RPC Call message,
-a Requester registers memory regions containing data items
+While constructing an RPC-over-RDMA message,
+the sender registers memory regions containing data items
 intended for RDMA Read operations.
-It advertises the coordinates of these regions
-by adding Read chunks to the transport header of the RPC Call message.
+It advertises the coordinates of these regions in Read chunks added
+to the transport header of the RPC-over-RDMA message.
 </t>
 <t>
-After receiving an RPC Call message sent via an RDMA Send operation,
-a Responder transfers the chunk data from the Requester using RDMA Read operations.
-The Responder inserts the first RDMA segment in a Read chunk
+The receiver of this message then pulls the chunk data from the sender
+using RDMA Read operations.
+The receiver inserts the first RDMA segment in a Read chunk
 into the Payload stream at the byte offset indicated by its Position field.
-The Responder concatenates RDMA segments
+The receiver concatenates RDMA segments
 whose Position field value matches this offset
 until there are no more RDMA segments at that Position value.
 </t>
@@ -1311,6 +1311,38 @@ The value in this field MUST be a multiple of four.
 All segments in the same Read chunk share the same Position value,
 even if one or more of the RDMA segments have a non-four-byte-aligned length.
 </t>
+
+<section
+ anchor="section:52130e02-8afb-4a36-ac38-64a4cb73b5bf"
+ title="The Read List">
+<t>
+Each RPC-over-RDMA message carries a list of RDMA read segments
+that make up the set of Read chunks for that message.
+When no RDMA Read operations are needed
+to complete the transmission of the message's Payload stream,
+the message's Read list is empty.
+This is typically the case for RPC Replies, for instance.
+</t>
+<t>
+If a Responder receives
+a Read list whose RDMA segment position values
+do not appear in monotonically increasing order,
+it MUST
+discard the message without processing it
+and
+respond with an RDMA2_ERROR message
+with the rdma_xid field set to the XID of the malformed message and
+the rdma_err field set to RDMA2_ERR_BAD_XDR.
+If a Requester receives
+a Read list whose RDMA segment position values
+do not appear in monotonically increasing order,
+it MUST
+discard the message without processing it
+and
+terminate the RPC transaction corresponds to the XID value
+in the rdma_xid field of the malformed message.
+</t>
+</section>
 
 <section
  anchor="section:5f4cc5f7-325d-479c-b592-6e93979431d0"
@@ -1386,6 +1418,18 @@ but all of its segments are empty segments.
 </t>
 
 <section
+ anchor="section:480387ae-1a7c-46b8-b310-8badb7b2a62b"
+ title="The Write List">
+<t>
+Each RPC-over-RDMA message carries a list of Write chunks.
+When no DDP-eligible data items are to appear
+in the Reply to an RPC transaction,
+the Requester provides an empty Write list in the RPC Call,
+and the Responder leaves the Write list empty in the matching RPC Reply.
+</t>
+</section>
+
+<section
  anchor="section:2e73c718-e091-4d41-a88a-0b28c84fbe5c"
  title="Decoding Write Chunks">
 <t>
@@ -1417,7 +1461,7 @@ the same as the encoded length of the result data item.
 
 <section
  anchor="section:740e5b29-8c88-40ab-9506-69635d9a8167"
- title="Payload Format">
+ title="Payload Formats">
 <t>
 Unlike RPC-over-TCP and RPC-over-UDP transports,
 RPC-over-RDMA transports are aware of the XDR encoding
@@ -1722,7 +1766,7 @@ This type of Read chunk is known as a "Position Zero Read chunk."
 The Requester provisions a single Write chunk in advance,
 known as a "Reply chunk",
 in which the Responder places the RPC Reply message's Payload stream.
-The Requester sizes the Reply chunk to accommodate
+The Requester provisions the Reply chunk to accommodate
 the maximum expected reply size for that upper-layer operation.
 </t>
 </list>
@@ -1749,6 +1793,25 @@ without regard to their DDP-eligibility.
 As these chunks contain a Payload stream,
 they MUST include appropriate XDR roundup padding
 to maintain proper XDR alignment of their contents.
+</t>
+<t>
+If a Responder receives an RPC-over-RDMA message
+that carries a Position Zero Read chunk
+and whose RDMA2_F_RESPONSE flag is clear
+but the message does not use the RDMA2_NOMSG header type,
+it MUST discard that message without processing it
+and
+respond with an RDMA2_ERROR message
+with the rdma_xid field set to the XID of the malformed message
+and the rdma_err field set to RDMA2_ERR_BAD_XDR.
+When a Requester receives an RPC-over-RDMA message
+that carries a Reply chunk
+and whose RDMA2_F_RESPONSE flag is set
+but the message does not use the RDMA2_NOMSG header type,
+it MUST discard that message without processing it
+and
+terminate the RPC transaction corresponding to the XID
+value in the message's rdma_xid field.
 </t>
 
 <section
@@ -2828,7 +2891,8 @@ they may begin passing RPC traffic.
  title="External Data Payloads">
 <t>
 The rpcrdma2_chunk_lists structure specifies
-how explicit RDMA operations convey the message payload.
+where to find the parts of the message payload
+that are to be conveyed via explicit RDMA operations.
 <figure align="left">
 <artwork xml:space="preserve" align="left">
 &lt;CODE BEGINS&gt;
@@ -2845,17 +2909,32 @@ struct rpcrdma2_chunk_lists {
 </figure>
 </t>
 <t>
-The rdma_reads, rdma_writes, rdma_reply fields provide,
-respectively, the chunks used to
-read a Special Format Call
-or
-pull directly placed data from the Requester;
-the chunks used
-to push directly placed response data into the Requester's memory;
-and the chunk used to push a long Reply into the Requester's memory.
-See
-<xref target="section:cfa8877c-b905-455d-b420-bf7a4a7f7829"/>
-for further details on how a sender constructs chunks.
+<list style="hanging">
+<t hangText="rdma_inv_handle:">
+The rdma_inv_handle field contains a 32-bit RDMA handle that
+the Responder should use in a Send With Invalidation operation.
+More detail is provided in
+<xref target="section:a957db67-a8fd-4886-b7a7-57382cfe3190"/>.
+</t>
+<t hangText="rdma_reads:">
+The rdma_reads field anchors a list of zero or more RDMA read segments
+(see
+<xref target="section:52130e02-8afb-4a36-ac38-64a4cb73b5bf"/>).
+</t>
+<t hangText="rdma_writes:">
+The rdma_writes field anchors a list of zero or more Write chunks
+(see
+<xref target="section:480387ae-1a7c-46b8-b310-8badb7b2a62b"/>).
+</t>
+<t hangText="rdma_reply:">
+The rdma_reply field is a list containing zero or one Reply chunk.
+The use of this chunk is explained further in
+<xref target="section:d9731520-bdde-4a1b-9f54-9901d5c57648"/>.
+</t>
+</list>
+The content of the chunk lists
+is determined by the message's Payload format, as explained in
+<xref target="section:740e5b29-8c88-40ab-9506-69635d9a8167"/>.
 </t>
 </section>
 
@@ -3012,6 +3091,22 @@ struct rpcrdma2_nomsg {
 In RPC-over-RDMA version 2,
 a sender should use Message Continuation
 as an alternative to using a Special Format message.
+</t>
+<t>
+When a Responder receives an RDMA2_NOMSG header type
+with a non-empty Read list
+that does not carry a Position Zero Read chunk,
+it MUST
+discard that message without processing it
+and
+send an RDMA2_ERROR message
+with the rdma_err field set to RDMA2_ERR_BAD_XDR.
+When a Requester receives an RDMA2_NOMSG header type
+with an empty Reply chunk,
+it discards that message
+and
+terminates the RPC transaction represented by the XID value
+in the rdma_xid field of the malformed message.
 </t>
 </section>
 
@@ -3302,13 +3397,6 @@ Examples of such errors include:
 <list style="symbols">
 <t>
 An invalid value in the rdma_proc field.
-</t>
-<t>
-An RDMA_NOMSG message where the
-Read list,
-Write list,
-and
-Reply chunk are marked not present.
 </t>
 <t>
 The value of the rdma_xid field does not match
@@ -4434,7 +4522,7 @@ ULP operations that fit in a Simple Format message
 when a simpler form of authentication is in use
 might need to be reduced or conveyed via a Special Format message
 when RPCSEC_GSS authentication is in use.
-It is therefore more likely that a Requester provides
+It is therefore more likely that a Requester provisions
 both a Read list and a Reply chunk
 in the same RPC-over-RDMA Transport header
 to convey a Special Format Call
