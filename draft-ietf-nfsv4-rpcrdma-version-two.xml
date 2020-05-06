@@ -2185,7 +2185,7 @@ When the contents of the rdma_data field
 do not conform to that XDR type,
 the receiver MUST return the error RDMA2_ERR_BAD_PROPVAL
 using the header type RDMA2_ERROR,
-as described in Section
+as described in
 <xref target="section:b1d23e5c-31df-483f-adb7-25430b5de38d"/>.
 </t>
 <t>
@@ -2480,7 +2480,7 @@ in the same way as forward-direction messages.
 </t>
 </list>
 When a peer does not provide this property,
-the default is the peer does not support 
+the default is the peer does not support
 reverse-direction operation.
 </t>
 </section>
@@ -2942,14 +2942,6 @@ is determined by the message's Payload format, as explained in
  anchor="section:a957db67-a8fd-4886-b7a7-57382cfe3190"
  title="Remote Invalidation">
 <t>
-A central addition relative to
-the corresponding RPC-over-RDMA version 1 rdma_header structures
-is the rdma_inv_handle field.
-This field enables remote invalidation
-of one Requester memory registration
-by using the RDMA Send With Invalidate operation.
-</t>
-<t>
 To solicit the use of Remote Invalidation,
 a Requester sets the value of the rdma_inv_handle field
 in an RPC Call's transport header
@@ -2972,7 +2964,7 @@ to construct the Send With Invalidate Work Request.
 </t>
 <t>
 A Responder MUST NOT use a Send With Invalidate Work Request when sending
-an RDMA2_ERROR header type (see 
+an RDMA2_ERROR header type (see
 <xref target="section:b1d23e5c-31df-483f-adb7-25430b5de38d"/>),
 an RDMA2_CONNPROP header type (see
 <xref target="section:07e8c178-62df-46a7-a57e-dcf107821d93"/>),
@@ -3058,10 +3050,10 @@ struct rpcrdma2_msg {
 <t>
 RDMA2_NOMSG conveys an entire RPC message payload
 using explicit RDMA operations.
-In particular, it is a Special Format Call
+In particular, it is referred to as a Special Format Call
 when the Responder reads the RPC payload from a memory area
 specified by a Position Zero Read chunk.
-It is a Special Format Reply
+It is referred to as a Special Format Reply
 when the Responder writes the RPC payload into a memory area
 specified by a Reply chunk.
 In both cases, the sender sets the rdma_xid field
