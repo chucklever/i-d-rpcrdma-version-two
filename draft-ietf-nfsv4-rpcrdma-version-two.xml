@@ -4164,14 +4164,15 @@ they MAY share the one defined in
 </t>
 </section>
 
-<!-- RFC Editor:
-Please remove the following section and the reference to RFC 7942
-before this document is published.
--->
-
 <section
  anchor="section:fd2f45e7-85fa-4863-a4cd-ea200878062f"
  title="Implementation Status">
+<t>
+RFC Editor:
+Please remove this section and the reference to
+<xref target="RFC7942"/>
+before this document is published.
+</t>
 <t>
 This section records the status of known implementations of the protocol
 defined by this specification at the time of posting of this Internet-Draft,
