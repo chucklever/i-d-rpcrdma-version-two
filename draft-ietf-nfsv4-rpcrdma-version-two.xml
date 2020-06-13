@@ -29,7 +29,7 @@ RPC-over-RDMA Version 2 Protocol
 
 <seriesInfo name="Internet-Draft" value="draft-ietf-nfsv4-rpcrdma-version-two-latest"/>
 
-<author initials="C.L." surname="Lever" fullname="Charles Lever" role="editor">
+<author initials="C." surname="Lever" fullname="Charles Lever" role="editor">
 <organization abbrev="Oracle">Oracle Corporation</organization>
 <address>
 <postal>
@@ -43,7 +43,7 @@ RPC-over-RDMA Version 2 Protocol
 </address>
 </author>
 
-<author initials="D.N." surname="Noveck" fullname="David Noveck">
+<author initials="D." surname="Noveck" fullname="David Noveck">
 <organization>NetApp</organization>
 <address>
 <postal>
@@ -1230,7 +1230,7 @@ a peer MAY transfer using DDP.
 Such data items are known as "DDP-eligible."
 Senders MUST NOT reduce any other XDR data items.
 Detailed requirements for ULB specifications appear in
-<xref target="section_9e003b83-66b5-43d7-b9ef-0f271c8d301b" format="default"/>.
+<xref target="section_9e003b83-66b5-43d7-b9ef-0f271c8d301b" format="default"/>
 of the current document.
 </t>
 </section>
@@ -2215,7 +2215,7 @@ until the RPC server indicates support for them.
 <t>
 Reverse-direction operations can use chunks,
 as defined in
-<xref target="section_c561e45c-fe88-47e3-bdfd-689d482fcad3" format="default"/>.
+<xref target="section_c561e45c-fe88-47e3-bdfd-689d482fcad3" format="default"/>
 for DDP-eligible data items or in Special payload formats.
 Reverse-direction chunks operate the same way
 as in forward-direction operation.
