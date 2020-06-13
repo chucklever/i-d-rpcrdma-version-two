@@ -1677,7 +1677,7 @@ When chunks are present,
 senders construct Calls differently than Replies.
 </t>
 <dl newline="true" spacing="normal">
-<dt>Simple Call:</dt>
+<dt>Simple Call</dt>
 <dd>
 After receiving the Transport and Payload streams
 of an RPC Call message with Read chunks,
@@ -2215,7 +2215,7 @@ until the RPC server indicates support for them.
 <t>
 Reverse-direction operations can use chunks,
 as defined in
-<xref target="section_c561e45c-fe88-47e3-bdfd-689d482fcad3" format="default"/>
+<xref target="section_c561e45c-fe88-47e3-bdfd-689d482fcad3" format="default"/>,
 for DDP-eligible data items or in Special payload formats.
 Reverse-direction chunks operate the same way
 as in forward-direction operation.
