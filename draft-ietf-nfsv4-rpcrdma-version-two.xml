@@ -1018,13 +1018,14 @@ the responsibility of each RPC-over-RDMA version 2 implementation.
  toc="default">
 <name>Asynchronous Credit Grants</name>
 <t>
-A special protocol convention enables one peer
+A special header type enables one peer
 to refresh its credit grant to the other peer
-without sending a payload.
-Messages of this type can also act as a keep-alive ping.
+without sending an RPC payload.
+A receiving peer can use this when the sender's credit grant
+is exhausted in the midst of a stream of continued messages.
 See
-<xref target="section_1c401555-4b7d-4e35-a9a3-8aa14228170e" format="default"/>
-for information about this convention.
+<xref target="section_d7b171ca-326d-45ed-bfa6-eca86ae4a62e" format="default"/>
+for information about this header type.
 </t>
 <t>
 Receivers MUST always be in a position to receive
@@ -2834,6 +2835,17 @@ document that explains the use of this header type.
 <xref target="section_07e8c178-62df-46a7-a57e-dcf107821d93" format="counter"/>
 </td>
 </tr>
+
+<tr>
+<td align="left">Grant Credits</td>
+<td align="left">6</td>
+<td align="left">void</td>
+<td align="left">No</td>
+<td align="left">
+<xref target="section_d7b171ca-326d-45ed-bfa6-eca86ae4a62e" format="counter"/>
+</td>
+</tr>
+
 </tbody>
 </table>
 <t>
@@ -3372,6 +3384,8 @@ remote peer.
 </t>
 <sourcecode name="" type="xdr" markers="true">
 <![CDATA[
+const rpcrdma2_proc RDMA2_CONNPROP = 5;
+
 struct rpcrdma2_connprop {
         rpcrdma2_propset rdma_props;
 };
@@ -3392,6 +3406,29 @@ must have a clear RDMA2_F_TPMORE flag.
 A peer may encounter properties that it does not recognize or support.
 In such cases, the receiver ignores unsupported properties
 without generating an error response.
+</t>
+</section>
+
+<section
+ anchor="section_d7b171ca-326d-45ed-bfa6-eca86ae4a62e"
+ numbered="true"
+ toc="default">
+<name>RDMA2_GRANT: Grant Credits</name>
+<t>
+The RDMA2_GRANT message type enables a connection peer
+to grant additional credits to its remote peer
+without conveying a payload.
+</t>
+<sourcecode name="" type="xdr" markers="true">
+<![CDATA[
+const rpcrdma2_proc RDMA2_GRANT = 6;
+]]>
+</sourcecode>
+<t>
+This message carries no payload except for a struct rpcrdma2_hdr_prefix.
+The rdma_flags field is unused.
+Senders MUST set the rdma_flags field to zero (all clear)
+and receivers MUST ignore the value of the bits in this field.
 </t>
 </section>
 
@@ -4229,6 +4266,7 @@ of each extension produces a full XDR definition of that extension.
 /// const rpcrdma2_proc RDMA2_NOMSG = 1;
 /// const rpcrdma2_proc RDMA2_ERROR = 4;
 /// const rpcrdma2_proc RDMA2_CONNPROP = 5;
+/// const rpcrdma2_proc RDMA2_GRANT = 6;
 ///
 /// /*
 ///  * Header Types to Convey RPC Messages.
