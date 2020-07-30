@@ -1215,14 +1215,15 @@ for the duration of the connection.
  numbered="true"
  removeInRFC="false"
  toc="default">
-<name>XDR Encoding with Chunks</name>
+<name>Using Direct Data Placement</name>
 <t>
-When a DDP capability is available,
-an RDMA provider can place the contents
-of one or more XDR data items
-directly into a receiver's memory.
-It can do this
-separately from the transfer of other parts of the containing XDR stream.
+RPC-over-RDMA version 2 provides a mechanism
+for moving part of an RPC message via a data transfer
+distinct from RDMA Send and Receive.
+For example,
+a sender can remove one or more XDR data items from the Payload stream.
+These items are then conveyed via other mechanisms,
+such as one or more RDMA Read or Write operations.
 </t>
 
 <section
@@ -1230,52 +1231,64 @@ separately from the transfer of other parts of the containing XDR stream.
  numbered="true"
  removeInRFC="false"
  toc="default">
-<name>Reducing an XDR Stream</name>
-<t>
-RPC-over-RDMA version 2 provides a mechanism
-for moving part of an RPC message via a data transfer
-distinct from an RDMA Send/Receive pair.
-The sender removes one or more XDR data items from the Payload stream.
-These items are conveyed via other mechanisms,
-such as one or more RDMA Read or Write operations.
-As the receiver decodes an incoming message,
-it skips over directly placed data items.
-</t>
+<name>Reducing a Payload Stream</name>
 <t>
 We refer to a data item that a sender removes from a Payload stream
 to transmit separately as a "reduced" data item.
 After a sender has finished removing XDR data items from a Payload stream,
 we refer to it as a "reduced" Payload stream.
-The data object in a transport header that
-describes memory regions containing reduced data items
-is known as a "chunk."
+A set of RDMA segments that describe memory regions
+containing a single reduced data item is categorized as
+a "data item chunk."
 </t>
-</section>
-
-<section
- anchor="section_155d7e5e-821b-485a-9b68-1248b7e35743"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>DDP-Eligibility</name>
 <t>
 Not all XDR data items benefit from Direct Data Placement.
 For example, small data items
 or
 data items that require XDR unmarshaling by the receiver
 do not benefit from DDP.
-Moreover, it is impractical for receivers to prepare for every possible XDR data item in a protocol to appear in a chunk.
+Moreover, it is impractical for receivers to prepare for
+every possible XDR data item in a protocol to appear in a data item chunk.
 </t>
 <t>
-Determining which data items are DDP-eligible is done
-in additional specifications that describe how ULPs employ DDP.
-A "ULB specification" identifies which XDR data items
-a peer <bcp14>MAY</bcp14> transfer using DDP.
-Such data items are known as "DDP-eligible."
-Senders <bcp14>MUST NOT</bcp14> reduce any other XDR data items.
+Specifying which data items are DDP-eligible is done
+in separate standards track documents known as "Upper Layer Bindings".
+A ULB identifies which XDR data items a peer
+<bcp14>MAY</bcp14>
+transfer using DDP.
+We refer to such data items as "DDP-eligible."
+Senders
+<bcp14>MUST NOT</bcp14>
+reduce any other XDR data items.
 Detailed requirements for ULB specifications appear in
 <xref target="section_9e003b83-66b5-43d7-b9ef-0f271c8d301b" format="default" sectionFormat="of"/>
 of the current document.
+</t>
+</section>
+
+<section
+ anchor="section_8c9060c3-e70e-4f37-ad0d-2fd074145d55"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>Moving Whole RPC Messages using Explicit RDMA</name>
+<t>
+RPC-over-RDMA version 2 also enables the movement of
+a whole RPC message via data transfer
+distinct from RDMA Send and Receive.
+A sender registers the memory containing a Payload stream
+without regard to data item boundaries or DDP-eligibility.
+The Payload stream is then conveyed via other mechanisms,
+such as one or more RDMA Read or Write operations.
+A set of RDMA segments that describe memory regions
+containing a Payload stream is categorized as
+a "body chunk".
+</t>
+<t>
+A sender may first reduce that Payload stream if it contains
+one or more DDP-eligible data items.
+The sender moves these data items using data items chunks,
+and the reduced Payload stream using a body chunk.
 </t>
 </section>
 
@@ -1336,21 +1349,12 @@ for further discussion.
  numbered="true"
  removeInRFC="false"
  toc="default">
-<name>Chunks</name>
+<name>Encoding Chunks</name>
 <t>
-In RPC-over-RDMA version 2,
-a "chunk" refers to a portion of an RPC message
-that is moved independently
-of the Payload stream.
-The sender removes chunk data from the Payload stream,
-transfers it via separate operations,
-and then the receiver reinserts it into the received Payload stream
-to reconstruct the complete RPC message.
-</t>
-<t>
-Each chunk consists of RDMA segments.
-Each RDMA segment represents a piece of a chunk that is contiguous in memory.
-A Requester <bcp14>MAY</bcp14> divide a chunk into RDMA segments
+Every chunk consists of one or more RDMA segments.
+A Requester
+<bcp14>MAY</bcp14>
+divide a data item chunk into RDMA segments
 using any convenient boundaries.
 The length of a chunk is precisely
 the sum of the lengths of the RDMA segments that comprise it.
@@ -1360,11 +1364,18 @@ The RPC-over-RDMA version 2 transport protocol
 does not place a limit on chunk size.
 However, each ULP may cap the amount of data that can be transferred
 by a single RPC transaction.
-For example, NFS has "rsize" and "wsize", which restrict the payload size
-of NFS READ and WRITE operations.
+For example, NFS implementations typically have settings
+that restrict the payload size of NFS READ and WRITE operations.
 The Responder can use such limits to sanity check chunk sizes
 before using them in RDMA operations.
 </t>
+
+<section
+ anchor="section_4acf0f2d-6719-43cf-8231-e9ce8fa9791e"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>Reducing Complex XDR Data Types</name>
 
 <section
  anchor="section_2b8d1299-b521-4198-b99c-25b4e344b8bb"
@@ -1652,6 +1663,8 @@ Therefore, when returning a single variable-length result data item,
 a returned Write chunk's total length <bcp14>MUST</bcp14> be
 the same as the encoded length of the result data item.
 </t>
+</section>
+
 </section>
 
 </section>
