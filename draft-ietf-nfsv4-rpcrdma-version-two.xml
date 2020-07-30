@@ -1464,39 +1464,27 @@ Read chunks associated with the associated RPC Call message.
  toc="default">
 <name>Write Chunks</name>
 <t>
-While constructing an RPC Call message,
-a Requester prepares memory regions
-in which to receive DDP-eligible result data items.
-A "Write chunk" represents an XDR data item
-that a Responder is to push to a Requester.
-It consists of an array of zero or more plain segments.
+Each "Write chunk" consists of a counted array of
+zero or more segments, as defined in
+<xref target="section_8966c401-1714-413c-9384-b1f71f0a920d" format="default"/>.
+The function of a Write chunk depends on the direction of
+the containing RPC-over-RDMA message.
+In a Call message,
+a Write chunk advertises registered memory regions into which the Responder
+may push data.
+In a Reply message,
+a Write chunk reports how much data has been pushed.
 </t>
 <t>
-A Requester provisions Write chunks
-long before the Responder has prepared the reply message.
-A Requester often does not know the actual length
-of the result data items to be returned,
-since the result does not yet exist.
-Thus, it <bcp14>MUST</bcp14> provision Write chunks large enough
+A Requester provisions Write chunks for an RPC transaction
+long before the Responder has constructed a corresponding Reply message.
+A Requester typically does not know the actual length
+of the result data items or Reply to be returned,
+since the Reply does not yet exist.
+Thus, a Requester
+<bcp14>MUST</bcp14>
+provision Write chunks large enough
 to accommodate the maximum possible size of each returned data item.
-</t>
-<t>
-Note that the XDR position of DDP-eligible data items
-in the reply's Payload stream is not predictable
-when a Requester constructs an RPC Call message.
-Therefore, segments in a Write chunk do not have a Position field.
-</t>
-<t>
-For each Write chunk provided by a Requester,
-the Responder pushes DDP-eligible one data item to the Requester.
-It fills the chunk contiguously and in segment array order
-until the Responder has written that data item to the Requester in its entirety.
-The Responder <bcp14>MUST</bcp14> copy the segment count
-and all segments from the Requester-provided Write chunk
-into the RPC Reply message's transport header.
-As it does so, the Responder updates each segment length field
-to reflect the actual amount of data returned in that segment.
-The Responder then sends the RPC Reply message via an RDMA Send operation.
 </t>
 <t>
 An "empty Write chunk" is a Write chunk with a zero segment count.
@@ -1517,21 +1505,55 @@ When no DDP-eligible data items are to appear
 in the Reply to an RPC transaction,
 the Requester provides an empty Write list in the RPC Call,
 and the Responder leaves the Write list empty in the matching RPC Reply.
+When a Write chunk appears in the Write list,
+it acts only as a data item chunk.
+</t>
+<t>
+For each Write chunk in the Write list,
+the Responder pushes one DDP-eligible data item to the Requester.
+It fills the chunk contiguously and in segment array order
+until the Responder has written that data item to the Requester in its entirety.
+The Responder <bcp14>MUST</bcp14> copy the segment count
+and all segments from the Requester-provided Write chunk
+into the RPC Reply message's transport header.
+As it does so, the Responder updates each segment length field
+to reflect the actual amount of data returned in that segment.
+</t>
+<t>
+The Responder then sends the RPC Reply message via an RDMA Send operation.
 </t>
 </section>
 
 <section
- anchor="section_2e73c718-e091-4d41-a88a-0b28c84fbe5c"
+ anchor="section_af268e5f-c34b-4329-aa2a-578e4b47b914"
+ numbered="true"
+ removeInRFC="false"
+ toc="include">
+<name>The Reply Chunk</name>
+<t>
+The Reply chunk is a single Write chunk that acts as a body chunk.
+that contains an RPC Reply message.
+When a Requester estimates that the Reply message can exceed the
+connection's ability to convey that Reply using RDMA Send operations,
+it should provision a Reply chunk.
+</t>
+</section>
+
+<section
+ anchor="section_76f7431e-a3d6-4e62-8c8d-1844c564f944"
  numbered="true"
  removeInRFC="false"
  toc="default">
-<name>Decoding Write Chunks</name>
+<name>Write Completion</name>
 <t>
-After receiving the RPC Reply message,
-the Requester reconstructs the transferred data
-by concatenating the contents of each segment in array order
-into the RPC Reply message's XDR stream at the known XDR position
-of the associated DDP-eligible result data item.
+A Responder acknowledges that
+it is finished updating the Requester's Write chunk memory regions
+when it sends the corresponding RPC Reply message.
+The RDMA provider guarantees that the written data is at rest
+before the next Receive operation, which typically contains the
+corresponding RPC Reply, completes.
+The Requester may then invalidate memory regions belonging to
+Write chunks associated with the associated RPC Call message.
 </t>
 </section>
 
@@ -1546,9 +1568,6 @@ When provisioning a Write chunk for a variable-length result data item,
 the Requester <bcp14>MUST NOT</bcp14> include additional space for XDR roundup padding.
 A Responder <bcp14>MUST NOT</bcp14> write XDR roundup padding into a Write chunk,
 even if the result is shorter than the available space in the chunk.
-Therefore, when returning a single variable-length result data item,
-a returned Write chunk's total length <bcp14>MUST</bcp14> be
-the same as the encoded length of the result data item.
 </t>
 </section>
 
