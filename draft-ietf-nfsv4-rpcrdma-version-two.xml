@@ -208,11 +208,11 @@ in advance.
 <t>
 To address these issues in a way that preserves interoperation
 with existing RPC-over-RDMA version 1 deployments,
-we present a second version of the RPC-over-RDMA transport protocol
-in the current document.
+the current document presents
+an updated version of the RPC-over-RDMA transport protocol.
 </t>
 <t>
-The version of RPC-over-RDMA presented here is extensible,
+This version of RPC-over-RDMA is extensible,
 enabling the introduction of <bcp14>OPTIONAL</bcp14> extensions
 without impacting existing implementations.
 See
@@ -282,9 +282,7 @@ it uses.
 RPC-over-RDMA version 2 enables
 the transmission of RPC messges built using XDR
 and
-also uses XDR internally to describe its header formats.
-The remainder of this document requires
-an understanding of RPC and its use of XDR.
+also uses XDR internally to describe its header format.
 </t>
 
 <section
@@ -650,7 +648,7 @@ no additional adjustment of data alignment is necessary
 RDMA transports enable both of these optimizations.
 </t>
 <t>
-In the current document, "RDMA" refers to
+In the current document, the standalone term "RDMA" refers to
 the physical mechanism an RDMA transport utilizes when moving data.
 </t>
 
@@ -663,15 +661,15 @@ the physical mechanism an RDMA transport utilizes when moving data.
 Typically, RPC implementations copy
 the contents of RPC messages into a buffer before being sent.
 An efficient RPC implementation sends bulk data
-without copying it into a separate send buffer first.
+without first copying it into a separate send buffer.
 </t>
 <t>
 However, socket-based RPC implementations
 are often unable to receive data directly
 into its final place in memory.
 Receivers often need to copy incoming data
-to finish an RPC operation
-sometimes, if only to adjust data alignment.
+to finish an RPC operation,
+if only to adjust data alignment.
 </t>
 <t>
 Although it may not be efficient,
@@ -696,7 +694,7 @@ some mechanisms that do not employ explicit RDMA can place data directly.
  anchor="section_6903045e-bd1c-4e12-bf96-6b534989f46A"
  numbered="true"
  toc="default">
-<name>RDMA Transport Requirements</name>
+<name>RDMA Transport Operation</name>
 <t>
 RDMA transports require that
 RDMA consumers provision resources in advance
@@ -747,7 +745,7 @@ identifies each registered memory region.
 <t>
 The RDMA provider supports an RDMA Send operation,
 with completion signaled on the receiving peer
-after RDMA provider has placed data in a pre-posted buffer.
+after the RDMA provider has placed data in a pre-posted buffer.
 Sends complete at the receiver
 in the order they were posted at the sender.
 The size of the remote peer's pre-posted buffers
@@ -923,7 +921,7 @@ the RDMA provider can terminate the connection.
 Therefore, a sender needs to respect the resource limits of its peer receiver
 to ensure the longevity of each connection.
 Two operational parameters communicate these limits between connection peers:
-flow control, and inline threshold.
+credit grants, and inline threshold.
 </t>
 
 <section
@@ -973,9 +971,8 @@ where a message in one direction might trigger zero, one, or multiple
 messages in the other direction in response.
 </t>
 <t>
-To achieve this,
-each posted Receive buffer on both connection peers receives one credit.
-Each Requester has a set of Receive credits,
+Each posted Receive buffer on both connection peers receives one credit.
+Thus, each Requester has a set of Receive credits,
 and
 each Responder has a set of Receive credits.
 These credit values are managed independently of one another.
@@ -1112,7 +1109,7 @@ the version 1 default inline threshold of 1024 octets.
  anchor="section_8db4c54e-c1ce-43ba-93b4-031e829960f5"
  numbered="true"
  toc="default">
-<name>Server Does Support RPC-over-RDMA Version 2</name>
+<name>Server Supports RPC-over-RDMA Version 2</name>
 <t>
 If the server supports RPC-over-RDMA version 2,
 it sends RPC-over-RDMA messages back to the client
@@ -3290,13 +3287,6 @@ specified by a Reply chunk.
 In both cases, the sender sets the rdma_xid field
 to the same value as the xid of the RPC message payload.
 </t>
-<t>
-If all the chunk lists are empty
-the message conveys a credit grant refresh.
-The header prefix of this message contains a credit grant refresh
-in the rdma_credit field.
-In this case, the sender <bcp14>MUST</bcp14> set the rdma_xid field to zero.
-</t>
 <sourcecode name="" type="xdr" markers="true">
 <![CDATA[
 const rpcrdma2_proc RDMA2_NOMSG = 1;
@@ -3442,7 +3432,7 @@ and receivers <bcp14>MUST</bcp14> ignore the value of the bits in this field.
  anchor="section_19fc8c94-d83f-4c1b-8ce3-700918d129b5"
  numbered="true"
  toc="default">
-<name>Choosing a Reply Mechanism</name>
+<name>Choosing a Reply Payload Format</name>
 <t>
 A Requester provisions all necessary registered memory resources
 for both an RPC Call and its matching RPC Reply.
@@ -3836,7 +3826,6 @@ it <bcp14>MUST</bcp14> terminate this RPC transaction with an error.
 If a Requester has provided a Write chunk
 that is not large enough to contain a DDP-eligible result,
 the Responder <bcp14>MUST</bcp14> set the rdma_err field to RDMA2_ERR_WRITE_RESOURCE.
- 
 The Responder <bcp14>MUST</bcp14> set the rdma_chunk_index field
 to point to the first Write chunk in the transport header
 that is too short,
@@ -3868,7 +3857,6 @@ the Reply does not fit in the Reply chunk,
 the Responder <bcp14>MUST</bcp14> set the rdma_err field to RDMA2_ERR_REPLY_RESOURCE.
 The Responder <bcp14>MUST</bcp14> set the rdma_length_needed
 to the number of Reply chunk bytes needed to convey the reply.
- 
 The Requester can reconstruct the Call with more reply resources
 and resend it.
 If the Requester does not resend the Call
@@ -5637,10 +5625,9 @@ the range reserved for experimental use,
 as defined in Section&nbsp;8.2.
 </t>
 <t>
-[ cel: There is no section 8.2. ]
-</t>
-<t>
-[ cel: Should we request the creation of an IANA registry for propid values? ].
+[ cel:
+ There is no longer a section 8.2 or an experimental range of propid values.
+ Should we request the creation of an IANA registry for propid values? ].
 </t>
 </li>
 </ul>
@@ -6150,7 +6137,6 @@ Transport Area Director
 <contact fullname="Magnus Westerlund"/>,
 NFSV4 Working Group Chairs
 <contact fullname="Spencer Shepler"/>,
-<contact fullname="David Noveck"/>,
 and
 <contact fullname="Brian Pawlowski"/>,
 and
