@@ -200,7 +200,7 @@ However, there are known shortcomings to this protocol:
 <li>
 The protocol's default size of Receive buffers forces
 the use of RDMA Read and Write transfers for small payloads,
-and limits the size of reverse direction messages.
+and limits the size of reverse-direction messages.
 </li>
 <li>
 It is difficult to make optimizations or protocol fixes
@@ -1689,6 +1689,10 @@ be made DDP-eligible, subject to the other requirements in this section.
  removeInRFC="false"
  toc="default">
 <name>Reverse-Direction Operation</name>
+<t>
+The terminology used in this section is introduced in
+<xref target="section_189a59d0-9235-4c1e-a76f-ea2b20fd6c94" format="default" sectionFormat="of"/>.
+</t>
 
 <section
  anchor="section_3816dd27-8007-47b0-82da-9d69f578f29d"
@@ -1746,12 +1750,12 @@ as described in
  toc="default">
 <name>Sending a Reverse-Direction RPC Reply</name>
 <t>
-An RPC-over-RDMA server endpoint constructs the transport header
+An RPC-over-RDMA client endpoint constructs the transport header
 for a reverse-direction RPC Reply as follows:
 </t>
 <ul spacing="normal" bare="false" empty="false">
 <li>
-The server copies the XID value from the matching RPC Call
+The client copies the XID value from the matching RPC Call
 and
 places it in the rdma_xid field of the transport header
 and
@@ -1765,12 +1769,12 @@ The rdma_vers field of each reverse-direction Call
 on the same connection.
 </li>
 <li>
-The server fills in the rdma_credits
+The client fills in the rdma_credits
 with the credit values for the connection, as described in
 <xref target="section_278fca6a-f2a8-42f3-a4e9-a8d4b217567e" format="default" sectionFormat="of"/>.
 </li>
 <li>
-The server determines the Payload format for the RPC message
+The client determines the Payload format for the RPC message
 and fills in the rdma_htype field as appropriate
 (see Sections
 <xref target="section_740e5b29-8c88-40ab-9506-69635d9a8167" format="counter" sectionFormat="of"/>
@@ -1780,7 +1784,7 @@ and
 also covers the disposition of the chunk lists.
 </li>
 <li>
-The server <bcp14>MUST</bcp14> set the RDMA2_F_RESPONSE flag in the rdma_flags field.
+The client <bcp14>MUST</bcp14> set the RDMA2_F_RESPONSE flag in the rdma_flags field.
 It sets the RDMA2_F_MORE flag in the rdma_flags field
 as described in
 <xref target="section_fb299673-74f3-4f01-adb5-26a02ccd679f" format="default" sectionFormat="of"/>.
@@ -1793,15 +1797,15 @@ as described in
  numbered="true"
  removeInRFC="false"
  toc="default">
-<name>In the Absence of Support For Reverse-Direction Operation</name>
+<name>When Reverse-Direction Operation is Not Supported</name>
 <t>
 An RPC-over-RDMA transport endpoint does not
 have to support reverse-direction operation.
 There might be no mechanism in the transport implementation to do so.
 Or, the transport implementation might support
 operation in the reverse direction,
-but the Upper-Layer Protocol might not yet
-have configured the transport to handle reverse-direction traffic.
+but the Upper-Layer Protocol might not
+configure the transport to handle reverse-direction traffic.
 </t>
 <t>
 If an endpoint is unprepared to receive a reverse-direction message,
@@ -1809,7 +1813,7 @@ loss of the RDMA connection might result.
 Thus a denial of service can occur if an RPC server
 continues to send reverse-direction messages
 after a client that is not prepared to receive them
-reconnects to an endpoint.
+reconnects to that server.
 </t>
 <t>
 Connection peers indicate their support for reverse-direction operation
@@ -1821,12 +1825,12 @@ just after a connection is established (see
 When dealing with the possibility that the remote peer
 has no transport level support for reverse-direction operation,
 the Upper-Layer Protocol is responsible for informing peers
-when reverse direction operation is supported.
-Otherwise, even a simple reverse direction RPC NULL procedure
+when reverse-direction operation is supported.
+Otherwise, even a simple reverse-direction RPC NULL procedure
 from a peer could result in a lost connection.
 Therefore, an Upper-Layer Protocol <bcp14>MUST NOT</bcp14> perform
 reverse-direction RPC operations
-until the RPC server indicates support for them.
+until the RPC client indicates support for them.
 </t>
 </section>
 
@@ -1837,13 +1841,13 @@ until the RPC server indicates support for them.
  toc="default">
 <name>Using Chunks During Reverse-Direction Operation</name>
 <t>
-Reverse-direction operations can use chunks,
-as defined in
-<xref target="section_c561e45c-fe88-47e3-bdfd-689d482fcad3" format="default" sectionFormat="of"/>,
-for DDP-eligible data items or in Special payload formats.
-Reverse-direction chunks operate the same way
-as in forward-direction operation.
-Connection peers indicate their support for reverse-direction chunks
+Reverse-direction operations can use chunks for
+DDP-eligible data items
+and
+Special payload formats
+the same way chunks are used in forward-direction operation.
+Connection peers indicate their support for
+using chunks in the reverse direction
 as part of the exchange of Transport Properties
 just after a connection is established (see
 <xref target="section_6ace2d7f-044b-491f-97ea-5760345a2e8f" format="default" sectionFormat="of"/>).
@@ -1864,8 +1868,6 @@ implementers <bcp14>MAY</bcp14> choose not to provide support
 for chunks in the reverse direction,
 thus avoiding the complexity of implementing support
 for RDMA Reads and Writes in the reverse direction.
-</t>
-<t>
 When an RPC-over-RDMA transport implementation does not support
 chunks in the reverse direction, RPC endpoints use only
 the Simple Payload format without chunks
@@ -1899,14 +1901,14 @@ We refer to this as an "RPC retransmission" or a "replay."
 </t>
 <t>
 In the forward direction,
-the Requester is the RPC client.
+an RPC client is the Requester.
 The client is always responsible for ensuring
 a transport connection is in place
 before sending a dropped Call again.
 </t>
 <t>
 With reverse-direction operation,
-the Requester is an RPC server.
+an RPC server is the Requester.
 Because an RPC server is not responsible
 for establishing transport connections with clients,
 the Requester is unable to retransmit a reverse-direction Call
@@ -1920,7 +1922,7 @@ before it can retransmit reverse-direction RPC Calls.
 If the forward-direction Requester has no work to do,
 it can be some time before the RPC client
 re-establishes a transport connection.
-An RPC server may need to abandon a waiting reverse-direction RPC Call
+An RPC server may need to abandon a pending reverse-direction RPC Call
 to avoid waiting indefinitely for the client
 to re-establish a transport connection.
 </t>
@@ -2274,7 +2276,7 @@ typedef uint32 rpcrdma2_prop_rcsiz;
 <t>
 The value of this property specifies
 a client implementation's readiness to process
-messages that are part of reverse direction RPC requests.
+messages that are part of reverse-direction RPC requests.
 </t>
 <sourcecode name="" type="xdr" markers="true">
 <![CDATA[
@@ -2619,7 +2621,7 @@ and the receiver <bcp14>MUST</bcp14> ignore reserved flags.
 The RDMA2_F_RESPONSE flag qualifies the value contained in the
 transport header's rdma_xid field.
 The RDMA2_F_RESPONSE flag enables a receiver to avoid
-performing an XID lookup on incoming reverse direction Call messages.
+performing an XID lookup on incoming reverse-direction Call messages.
 Therefore:
 </t>
 <ul spacing="normal" bare="false" empty="false">
@@ -6232,11 +6234,11 @@ Existing RPC-over-RDMA transport protocol specifications
 <xref target="RFC8167" format="default" sectionFormat="of"/>
 do not forbid direct data placement in the reverse direction.
 Moreover, there is currently no Upper-Layer Protocol
-that makes data items in reverse direction operations
+that makes data items in reverse-direction operations
 eligible for direct data placement.
 </t>
 <t>
-When chunks are present in a reverse direction RPC request,
+When chunks are present in a reverse-direction RPC request,
 Remote Invalidation enables the Responder
 to trigger invalidation of a Requester's STags
 as part of sending an RPC Reply,
@@ -6248,6 +6250,64 @@ and the client is the Responder.
 The server's RNIC, therefore, must support receiving an IETH,
 and the server must have registered its STags
 with an appropriate registration mechanism.
+</t>
+</section>
+
+<section
+ anchor="section_e936ff03-84d1-489c-9c5f-5541adbabc94"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>Integration of Reverse-Direction Operation</name>
+<t>
+Because
+<xref target="RFC5666" format="default" sectionFormat="of"/>
+did not include specification of reverse-direction operation,
+<xref target="RFC8166" format="default" sectionFormat="of"/>
+does not include it either.
+Reverse-direction operation in RPC-over-RDMA version 1 is
+specified by a separate standards track document
+<xref target="RFC8167" format="default" sectionFormat="of"/>.
+</t>
+<t>
+Reverse-direction operation in RPC-over-RDMA version 1
+was constrained by the limited ability to extend
+that version of the protocol.
+The most awkward issue is that
+a receiver needs to peek at ingress RPC message payloads
+to determine whether it is a Call or Reply message.
+This is necessary because the meaning of several fields
+in the RPC-over-RDMA transport header
+is determined by the direction of the RPC message payload:
+</t>
+<ul spacing="normal" bare="false" empty="false">
+<li>
+The meaning of the value in the rdma_xid field
+is determined by the direction of the message because
+the XID spaces in the forward and reverse directions are distinct.
+</li>
+<li>
+The meaning of the value in the rdma_credits field
+is determined by the direction of the message because
+credits are granted separately
+for forward and reverse direction operation.
+</li>
+<li>
+The purpose of Write chunks and the meaning of their length fields
+is determined by the direction of the message because
+in Call messages, they are provisional,
+but in Reply messages, they represent returned results.
+</li>
+</ul>
+<t>
+The current document remedies this awkwardness by
+integrating reverse-direction operation
+into RPC-over-RDMA version 2 so that it can
+make use of all facilities that are available in the forward-direction,
+including body chunks, remote invalidation, and message continuation.
+To enable this integration,
+the direction of the RPC message payload is encoded
+in each RPC-over-RDMA version 2 transport header.
 </t>
 </section>
 
