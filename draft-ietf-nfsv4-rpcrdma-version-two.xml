@@ -1371,10 +1371,10 @@ before using them in RDMA operations.
  toc="default">
 <name>Read Chunks</name>
 <t>
-A "Read chunk" represents an XDR data item
-that its receiver pulls from the sender.
-A Read chunk is a list of one or more RDMA read segments.
-Each RDMA read segment consists of a Position field
+A "Read chunk" contains data that its receiver pulls from the sender.
+Each Read chunk is a set of one or more "Read segments"
+encoded as a list.
+A Read segment consists of a Position field
 followed by a segment, as defined in
 <xref target="section_8966c401-1714-413c-9384-b1f71f0a920d" format="default" sectionFormat="of"/>.
 </t>
@@ -1386,32 +1386,32 @@ where the receiver reinserts the data item conveyed in the chunk.
 The sender <bcp14>MUST</bcp14> compute the Position value
 from the beginning of the unreduced Payload stream,
 which begins at Position zero.
-All RDMA read segments belonging to the same Read chunk
-have the same value in their Position field.
+All segments in the same Read chunk share the same Position value,
+even if one or more of the segments have a non-four-byte-aligned length.
+The value in this field <bcp14>MUST</bcp14> be a multiple of four.
 </dd>
 </dl>
 <t>
-While constructing an RPC-over-RDMA message,
-the sender registers memory regions containing data items
-intended for RDMA Read operations.
+When constructing an RPC-over-RDMA message,
+the sender registers memory regions containing
+data intended for RDMA Read operations.
 It advertises the coordinates of these regions in Read chunks added
-to the transport header of the RPC-over-RDMA message.
+to the transport header of an RPC-over-RDMA message.
 </t>
 <t>
-The receiver of this message then pulls the chunk data from the sender
+The receiver of this message then pulls the chunk's data from the sender
 using RDMA Read operations.
-The receiver inserts the first segment in a Read chunk
+When receiving a Read chunk,
+the receiver inserts the first Read segment in a Read chunk
 into the Payload stream at the byte offset indicated by its Position field.
-The receiver concatenates segments
+The receiver concatenates Read segments
 whose Position field value matches this offset
-until there are no more segments at that Position value.
+until there are no more Read segments at that Position value.
 </t>
 <t>
-The Position field in an RDMA read segment
-indicates where the containing Read chunk starts in the Payload stream.
-The value in this field <bcp14>MUST</bcp14> be a multiple of four.
-All segments in the same Read chunk share the same Position value,
-even if one or more of the segments have a non-four-byte-aligned length.
+A Read chunk may act as either a data item chunk or a body chunk.
+When the chunk's position is zero, it acts as a body chunk.
+Otherwise, it is a data item chunk containing exactly one XDR data item.
 </t>
 
 <section
@@ -1421,31 +1421,22 @@ even if one or more of the segments have a non-four-byte-aligned length.
  toc="default">
 <name>The Read List</name>
 <t>
-Each RPC-over-RDMA message carries a list of RDMA read segments
+Each RPC-over-RDMA message carries a list of Read segments
 that make up the set of Read chunks for that message.
 When no RDMA Read operations are needed
 to complete the transmission of the message's Payload stream,
 the message's Read list is empty.
-This is typically the case for RPC Replies, for instance.
 </t>
 <t>
 If a Responder receives
 a Read list whose segment position values
-do not appear in monotonically increasing order,
-it <bcp14>MUST</bcp14>
+do not appear in monotonically increasing order, it
+<bcp14>MUST</bcp14>
 discard the message without processing it
 and
 respond with an RDMA2_ERROR message
 with the rdma_xid field set to the XID of the malformed message and
 the rdma_err field set to RDMA2_ERR_BAD_XDR.
-If a Requester receives
-a Read list whose segment position values
-do not appear in monotonically increasing order,
-it <bcp14>MUST</bcp14>
-discard the message without processing it
-and
-terminate the RPC transaction corresponds to the XID value
-in the rdma_xid field of the malformed message.
 </t>
 </section>
 
@@ -1454,30 +1445,13 @@ in the rdma_xid field of the malformed message.
  numbered="true"
  removeInRFC="false"
  toc="default">
-<name>Decoding Read Chunks</name>
+<name>Read Completion</name>
 <t>
-The Responder initiates an RDMA Read
-to pull a Read chunk's data content
-into registered local memory
-whenever the XDR offset in the Payload stream matches that of a Read chunk.
-The Responder acknowledges that it is finished with Read chunk source buffers
-when it sends the corresponding RPC Reply message to the Requester.
-The Requester may then release Read chunks advertised in the RPC-over-RDMA Call.
-</t>
-</section>
-
-<section
- anchor="section_2d24ecfa-6471-43bc-9635-872a07dbe2f8"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>Read Chunk Roundup</name>
-<t>
-When reducing a variable-length argument data item,
-the Requester <bcp14>MUST NOT</bcp14> include
-the data item's XDR roundup padding
-in the chunk itself.
-The chunk's total length <bcp14>MUST</bcp14> be the same as the encoded length of the data item.
+A Responder acknowledges that
+it is finished with the Requester's Read chunk memory regions
+when it sends the corresponding RPC Reply message.
+The Requester may then invalidate memory regions belonging to
+Read chunks associated with the associated RPC Call message.
 </t>
 </section>
 
@@ -1619,6 +1593,9 @@ The sender
 <bcp14>MUST</bcp14>
 omit the item's XDR roundup padding
 from the Payload stream and the chunk.
+The chunk's total length
+<bcp14>MUST</bcp14>
+be the same as the encoded length of the data item.
 </t>
 </section>
 
@@ -2045,7 +2022,7 @@ the sender always handles Calls and Replies differently.
 <dd>
 The Requester provides a Read chunk
 that contains the RPC Call message's Payload stream.
-Every read segment in this chunk <bcp14>MUST</bcp14> contain zero (0) in its Position field.
+Every Read segment in this chunk <bcp14>MUST</bcp14> contain zero (0) in its Position field.
 This type of Read chunk is known as a "Position Zero Read chunk."
 </dd>
 <dt>Special Reply</dt>
@@ -3253,8 +3230,7 @@ More detail is provided in
 </dd>
 <dt>rdma_reads:</dt>
 <dd>
-The rdma_reads field
- anchors a list of zero or more RDMA read segments
+The rdma_reads field anchors a list of zero or more Read segments
 (see
 <xref target="section_52130e02-8afb-4a36-ac38-64a4cb73b5bf" format="default" sectionFormat="of"/>).
 </dd>
