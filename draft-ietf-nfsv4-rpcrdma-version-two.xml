@@ -1365,87 +1365,6 @@ before using them in RDMA operations.
 </t>
 
 <section
- anchor="section_4acf0f2d-6719-43cf-8231-e9ce8fa9791e"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>Reducing Complex XDR Data Types</name>
-
-<section
- anchor="section_2b8d1299-b521-4198-b99c-25b4e344b8bb"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>Counted Arrays</name>
-<t>
-If a chunk is to contain a counted array data type,
-the count of array elements <bcp14>MUST</bcp14> remain in the Payload stream.
-The sender <bcp14>MUST</bcp14> move the array elements into the chunk.
-For example, when encoding an opaque byte array as a chunk,
-the count of bytes stays in the Payload stream.
-The sender removes the bytes in the array from the Payload stream
-and places them in the chunk.
-</t>
-<t>
-Individual array elements appear in a chunk
-in their entirety.
-For example, when encoding an array of arrays as a chunk,
-the count of items in the enclosing array stays in the Payload stream.
-But each enclosed array, including its item count,
-is transferred as part of the chunk.
-</t>
-</section>
-
-<section
- anchor="section_ec322087-6d38-42b9-b24b-831aabcfb5f9"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>Optional-Data</name>
-<t>
-If a chunk contains an optional-data data type,
-the "is present" field <bcp14>MUST</bcp14> remain in the Payload stream.
-The sender <bcp14>MUST</bcp14> move the data, if present, to the chunk.
-</t>
-</section>
-
-<section
- anchor="section_5ae887e6-fd9d-4a9f-a298-925b87a6a5b2"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>XDR Unions</name>
-<t>
-A union data type <bcp14>MUST NOT</bcp14> be made DDP-eligible.
-However, one or more of its arms <bcp14>MAY</bcp14> be made DDP-eligible,
-subject to the other requirements in this section.
-</t>
-</section>
-
-<section
- anchor="section_a7aa6a3a-2d02-4c11-bb88-0ba2eb76b0c0"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>Chunk Roundup</name>
-<t>
-Except in special cases (covered in
-<xref target="section_d9731520-bdde-4a1b-9f54-9901d5c57648" format="default" sectionFormat="of"/>),
-a chunk <bcp14>MUST</bcp14> contain only one XDR data item.
-This restriction makes it straightforward to reduce variable-length data items
-without affecting the XDR alignment of other data items in the Payload stream.
-</t>
-<t>
-When a sender reduces a variable-length XDR data item,
-data items remaining in the Payload stream <bcp14>MUST</bcp14> remain on four-byte alignment.
-Therefore, the sender always removes XDR roundup padding
-for that data item from the Payload stream.
-</t>
-</section>
-
-</section>
-
-<section
  anchor="section_025098f1-1355-4c97-8fda-5b4859372aa5"
  numbered="true"
  removeInRFC="false"
@@ -1656,6 +1575,111 @@ even if the result is shorter than the available space in the chunk.
 Therefore, when returning a single variable-length result data item,
 a returned Write chunk's total length <bcp14>MUST</bcp14> be
 the same as the encoded length of the result data item.
+</t>
+</section>
+
+</section>
+
+<section
+ anchor="section_4acf0f2d-6719-43cf-8231-e9ce8fa9791e"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>Reducing Complex XDR Data Types</name>
+<t>
+XDR data items may appear in body chunks
+without regard to their DDP-eligibility.
+As body chunks contain a Payload stream, they
+<bcp14>MUST</bcp14>
+include all appropriate XDR roundup padding
+to maintain proper XDR alignment of their contents.
+</t>
+<t>
+However, a data item chunk
+<bcp14>MUST</bcp14>
+contain only one XDR data item, and the chunk
+<bcp14>MUST</bcp14>
+occupy a four-byte aligned length in the Payload stream
+so that subsequent data items remain properly aligned
+once the reduced data item is removed from the Payload stream.
+</t>
+
+<section
+ anchor="section_a7aa6a3a-2d02-4c11-bb88-0ba2eb76b0c0"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>Variable-Length Data Items</name>
+<t>
+When a sender reduces a variable-length XDR data item,
+the length of the item
+<bcp14>MUST</bcp14>
+remain in the Payload stream.
+The sender
+<bcp14>MUST</bcp14>
+omit the item's XDR roundup padding
+from the Payload stream and the chunk.
+</t>
+</section>
+
+<section
+ anchor="section_2b8d1299-b521-4198-b99c-25b4e344b8bb"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>Counted Arrays</name>
+<t>
+When reducing a data item that is a counted array data type,
+the count of array elements
+<bcp14>MUST</bcp14>
+remain in the Payload stream.
+The sender
+<bcp14>MUST</bcp14>
+move the array elements into the chunk.
+For example, when encoding an opaque byte array as a chunk,
+the count of bytes stays in the Payload stream,
+and the sender places the bytes in the array in the chunk.
+</t>
+<t>
+Individual array elements appear in a chunk in their entirety.
+For example, when encoding an array of arrays as a chunk,
+the count of items in the enclosing array stays in the Payload stream.
+But each enclosed array, including its item count,
+is transferred as part of the chunk.
+</t>
+</section>
+
+<section
+ anchor="section_ec322087-6d38-42b9-b24b-831aabcfb5f9"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>Optional-Data</name>
+<t>
+Similar to a counted array,
+when reducing an optional-data data type,
+the discriminator field
+<bcp14>MUST</bcp14>
+remain in the Payload stream.
+The sender
+<bcp14>MUST</bcp14>
+place the data, when present, in the chunk.
+</t>
+</section>
+
+<section
+ anchor="section_5ae887e6-fd9d-4a9f-a298-925b87a6a5b2"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>XDR Unions</name>
+<t>
+A union data type
+<bcp14>MUST NOT</bcp14>
+be made DDP-eligible.
+However, one or more of its arms
+<bcp14>MAY</bcp14>
+be made DDP-eligible, subject to the other requirements in this section.
 </t>
 </section>
 
@@ -2050,13 +2074,6 @@ If a Requester provided a Reply chunk
 and
 the reduced Payload stream is larger than the reply inline threshold,
 the Responder <bcp14>MUST</bcp14> use the Requester-provided Reply chunk for the reply.
-</t>
-<t>
-XDR data items may appear in these chunks
-without regard to their DDP-eligibility.
-As these chunks contain a Payload stream,
-they <bcp14>MUST</bcp14> include appropriate XDR roundup padding
-to maintain proper XDR alignment of their contents.
 </t>
 <t>
 If a Responder receives an RPC-over-RDMA message
