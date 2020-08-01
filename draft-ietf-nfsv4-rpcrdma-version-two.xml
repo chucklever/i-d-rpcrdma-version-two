@@ -932,13 +932,20 @@ flow control, and inline threshold.
  toc="default">
 <name>Flow Control</name>
 <t>
-RPC-over-RDMA requires reliable and in-order delivery of data payloads.
-Therefore, RPC-over-RDMA transports <bcp14>MUST</bcp14> use
-the RDMA RC (Reliable Connected) Queue Pair (QP) type.
-The use of an RC QP ensures
+Therefore, RPC-over-RDMA transports
+<bcp14>MUST</bcp14>
+operate only on a reliable Queue Pair (QP) such as
+the RDMA RC (Reliable Connected) QP type
+as defined in Section&nbsp;9.7.7 of
+<xref target="IBA" format="default"/>.
+The Marker PDU Aligned (MPA) protocol
+<xref target="RFC5044" format="default"/>,
+when deployed on a reliable transport such as TCP,
+provides similar functionality.
+The use of a reliable QP type ensures
 in-transit data integrity
 and
-proper recovery from packet loss or misordering.
+proper recovery from link-layer packet loss or misordering.
 </t>
 <t>
 However, RPC-over-RDMA itself provides a flow control mechanism
@@ -3937,11 +3944,12 @@ associated with the XID value in the RDMA2_ERROR message's rdma_xid field.
 <t>
 The RDMA connection and physical link
 provide some degree of error detection and retransmission.
-iWARP's Marker PDU Aligned (MPA) layer (when used over TCP),
-the Stream Control Transmission Protocol (SCTP),
+The Marker PDU Aligned Framing (MPA) protocol
+(as described in Section&nbsp;7.1 of
+<xref target="RFC5044" format="default"/>)
 as well as the InfiniBand link layer
 <xref target="IBA" format="default"/>
-all provide Cyclic Redundancy Check (CRC) protection of RDMA payloads.
+provide Cyclic Redundancy Check (CRC) protection of RDMA payloads.
 CRC-class protection is a general attribute of such transports.
 </t>
 <t>
@@ -4429,15 +4437,15 @@ However, a distinct service address (port number)
 is sometimes required for operation on RPC-over-RDMA.
 </t>
 <t>
-When mapped atop the iWARP transport
-<xref target="RFC5040" format="default"/>
-<xref target="RFC5041" format="default"/>,
+When mapped atop MPA
+<xref target="RFC5044" format="default"/>,
 which uses IP port addressing due to its layering on TCP or SCTP,
 port mapping is trivial
 and consists merely of issuing the port in the connection process.
-The NFS/RDMA protocol service
-address has been assigned port 20049 by IANA, for both iWARP/TCP and
-iWARP/SCTP <xref target="RFC8267" format="default"/>.
+The NFS/RDMA protocol service address
+has been assigned port 20049 by IANA
+for this deployment scenario
+<xref target="RFC8267" format="default"/>.
 </t>
 <t>
 When mapped atop InfiniBand
@@ -4480,15 +4488,15 @@ An RPC client can connect to this service address
 and
 use the portmap protocol to obtain a service address
 in response to a program number
-(e.g., an iWARP port number or an InfiniBand GID).
+(e.g., a TCP port number or an InfiniBand GID).
 </li>
 <li>
 Alternately, an RPC client can connect
 to the mapped well-known port for the service itself,
 if it is appropriately defined.
 By convention, the NFS/RDMA service,
-when operating atop such an InfiniBand fabric,
-uses the same 20049 assignment as for iWARP.
+when operating atop an InfiniBand fabric,
+uses the same 20049 assignment as for MPA.
 </li>
 </ul>
 <t>
@@ -4499,14 +4507,13 @@ The current document leaves the specific method for each RPC-over-RDMA-enabled U
 <t>
 <xref target="RFC8166" format="default"/>
 defines two new netid values
-to be used for registration of upper layers
-atop iWARP
-<xref target="RFC5040" format="default"/> <xref target="RFC5041" format="default"/>
-and (when a suitable port translation service is available) InfiniBand
-<xref target="IBA" format="default"/>.
-Additional RDMA-capable networks <bcp14>MAY</bcp14> define their own netids,
-or if they provide a port translation,
-they <bcp14>MAY</bcp14> share the one defined in
+to be used for registration of upper layers atop MPA
+and (when a suitable port translation service is available) InfiniBand.
+Additional RDMA-capable networks
+<bcp14>MAY</bcp14>
+define their own netids, or if they provide a port translation, they
+<bcp14>MAY</bcp14>
+share the one defined in
 <xref target="RFC8166" format="default"/>.
 </t>
 </section>
@@ -5106,6 +5113,7 @@ Credit-Based Flow Control for ATM Networks: Credit Update Protocol, Adaptive Cre
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.3552.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5040.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5041.xml"/>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5044.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5532.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5661.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5662.xml"/>
