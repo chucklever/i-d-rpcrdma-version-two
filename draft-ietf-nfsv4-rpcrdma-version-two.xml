@@ -3611,7 +3611,9 @@ and presents an error to the RPC consumer.
 <t>
 A receiver performs validity checks
 on each ingress RPC-over-RDMA message
-before it passes that message to the RPC layer.
+before it assembles that message's Payload stream
+and
+passes it to the RPC layer.
 For example, if an ingress RPC-over-RDMA message is not as long as
 the size of struct rpcrdma2_hdr_prefix (20 octets),
 the receiver cannot trust the value of the rdma_xid field.
@@ -3694,7 +3696,8 @@ without passing it to the RPC layer
 <t>
 When a Requester receives this error,
 it uses the information in the rpcrdma2_err_vers structure
-to select an RPC-over-RDMA version that both peers support.
+to select an RPC-over-RDMA version that both peers support
+for subsequent operations on the connection.
 A Requester <bcp14>MUST NOT</bcp14> subsequently send a message that uses
 a version that the Responder has indciated it does not support.
 RDMA2_ERR_VERS indicates a permanent error.
@@ -3719,7 +3722,8 @@ The Responder <bcp14>MUST</bcp14> silently discard the incoming message
 without passing it to the RPC layer.
 </t>
 <t>
-A Requester <bcp14>MUST NOT</bcp14> subsequently send a message that uses
+A Requester <bcp14>MUST NOT</bcp14> subsequently send a message
+on the connection that uses
 an htype that the Responder has indicated it does not support.
 RDMA2_ERR_INVAL_HTYPE indicates a permanent error.
 Receipt of this error completes the RPC transaction
@@ -3765,16 +3769,17 @@ Examples of such errors include:
 </t>
 <ul spacing="normal" bare="false" empty="false">
 <li>
-An invalid value in the rdma_proc field.
-</li>
-<li>
 The value of the rdma_xid field does not match
 the value of the XID field in the accompanying RPC
 message.
 </li>
+<li>
+The receive buffer ends before the end of a data
+object contained in the Transport stream.
+</li>
 </ul>
 <t>
-When a Responder receives a valid RPC-over-RDMA header
+Moreover, when a Responder receives a valid RPC-over-RDMA header
 but the Responder's ULP implementation cannot parse the RPC arguments
 in the RPC Call,
 the Responder returns an RPC Reply with status GARBAGE_ARGS,
@@ -3863,7 +3868,9 @@ A Responder might detect this problem before attempting to write past the end of
 RDMA operational errors can be fatal to the connection.
 To avoid a retransmission loop and repeated connection loss that deadlocks the connection,
 once the Requester has re-established a connection,
-the Responder should send an RDMA2_ERROR response
+the Responder
+<bcp14>SHOULD</bcp14>
+send an RDMA2_ERROR response
 to indicate that no RPC-level reply is possible for that transaction.
 </t>
 
@@ -3892,7 +3899,7 @@ Message Continuation
 or
 a Special Format payload
 and resend it.
-If the Requester does not resend the Call,
+If the Requester chooses not to resend the Call,
 it <bcp14>MUST</bcp14> terminate this RPC transaction with an error.
 </t>
 </section>
