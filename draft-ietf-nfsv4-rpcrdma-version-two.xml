@@ -5034,7 +5034,7 @@ possibly through use of a translation service as described in
 <references>
 <name>Informative References</name>
 
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-nfsv4-rpc-tls-07.xml"/>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-nfsv4-rpc-tls-08.xml"/>
 <reference anchor="IBA">
 <front>
 <title>InfiniBand Architecture Specification Volume 1</title>
