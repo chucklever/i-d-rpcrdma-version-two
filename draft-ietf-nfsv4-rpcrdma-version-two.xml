@@ -1540,7 +1540,7 @@ The Responder then sends the RPC Reply message via an RDMA Send operation.
  anchor="section_af268e5f-c34b-4329-aa2a-578e4b47b914"
  numbered="true"
  removeInRFC="false"
- toc="include">
+ toc="default">
 <name>The Reply Chunk</name>
 <t>
 The Reply chunk is a single Write chunk that acts as a body chunk.
@@ -5945,8 +5945,8 @@ to accept header types necessary to report associated errors.
  toc="default">
 <name>Differences from RPC-over-RDMA Version 1</name>
 <t>
-The goal of RPC-over-RDMA version 2 is
-to relieve certain constraints that have
+The primary goal of RPC-over-RDMA version 2 is
+to relieve constraints that have
 become evident in RPC-over-RDMA version 1
 with deployment experience:
 </t>
@@ -5960,11 +5960,13 @@ The average size of NFSv4 COMPOUNDs is significantly greater than
 NFSv3 requests, requiring the use of Long messages for frequent operations.
 </li>
 <li>
-Reply size estimation is awkward more often than expected.
+Reply size estimation is difficult more often than first expected.
 </li>
 </ul>
 <t>
-This section details specific changes in RPC-over-RDMA version 2 that address these constraints directly.
+This section details specific changes in RPC-over-RDMA version 2
+that address these constraints directly,
+in addition to other changes to make implementation easier.
 </t>
 
 <section
@@ -6049,12 +6051,13 @@ rather than an enum type, to facilitate header type extension.
 <t>
 Beyond conforming to the restrictions specified in
 <xref target="RFC8166" format="default" sectionFormat="of"/>,
-RPC-over-RDMA version 2 tightly limits
+RPC-over-RDMA version 2 attempts to limit
 the scope of the changes made to ensure interoperability.
-Version 2 retains all existing transport header types used in version 1,
-as defined in
-<xref target="RFC8166" format="default" sectionFormat="of"/>.
-And, it expresses chunks in the same format and uses them the same way.
+Although it introduces the Call chunk
+and splits the two version 1 workhorse procedure types
+RDMA_MSG and RDMA_NOMSG into several variants,
+RPC-over-RDMA version 2 otherwise
+expresses chunks in the same format and utilizes them the same way.
 </t>
 </section>
 
@@ -6433,6 +6436,61 @@ caused by mis-estimation of the maximum reply size.
 To minimize the likelihood of a Requester waiting forever for a Reply
 when there are communications problems that prevent the Responder
 from sending it.
+</li>
+</ul>
+</section>
+
+
+<section
+ anchor="section_9180da71-3ea9-40f8-b6d2-ded634e4ce25"
+ numbered="true"
+ removeInRFC="false"
+ toc="include">
+<name>Changes in Terminology</name>
+<t>
+The RPC-over-RDMA version 2 specification makes
+the following changes in terminology.
+These changes do not result in
+changes in the behavior or operation of the protocol.
+</t>
+<ul spacing="normal" bare="false" empty="false">
+<li>
+The current document explicitly acknowledges the different semantics
+and purpose of Write chunks appearing in Call messages
+and those appearing in Reply messages.
+</li>
+<li>
+The current document introduces the term "payload format"
+to describe the selection of a mechanism for reducing
+and conveying an RPC message payload.
+It replaces the terms "short message" and "long message"
+with the terms "simple format" and "special format"
+because this selection is not based only on
+the size of the payload.
+</li>
+<li>
+The current document introduces the terms
+"data item chunk"
+and
+"body chunk"
+in order to distinguish the purpose and operation
+of these two categories of chunk.
+</li>
+<li>
+For improved readability,
+the current document replaces the terms
+"RDMA segment"
+and
+"plain segment"
+with the term "segment",
+and the term
+"RDMA read segment"
+with the term "Read segment".
+</li>
+<li>
+The current document refers specifically to
+the RDMAP, DDP, and MPA standards track protocols
+rather than using the nebulous term "iWARP".
 </li>
 </ul>
 </section>
