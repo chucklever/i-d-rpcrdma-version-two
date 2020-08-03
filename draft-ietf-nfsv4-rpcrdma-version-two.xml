@@ -917,9 +917,6 @@ but
 <bcp14>MUST</bcp14> send RPC message fragments in XDR stream order
 and
 <bcp14>MUST NOT</bcp14> interleave Payload streams from multiple RPC messages.
-The RPC-over-RDMA version 2 message carrying the final part
-of an RPC message is marked (see
-<xref target="section_fb299673-74f3-4f01-adb5-26a02ccd679f" format="default" sectionFormat="of"/>).
 </li>
 </ul>
 <t>
@@ -1408,11 +1405,6 @@ The receiver concatenates Read segments
 whose Position field value matches this offset
 until there are no more Read segments at that Position value.
 </t>
-<t>
-A Read chunk may act as either a data item chunk or a body chunk.
-When the chunk's position is zero, it acts as a body chunk.
-Otherwise, it is a data item chunk containing exactly one XDR data item.
-</t>
 
 <section
  anchor="section_52130e02-8afb-4a36-ac38-64a4cb73b5bf"
@@ -1437,6 +1429,26 @@ and
 respond with an RDMA2_ERROR message
 with the rdma_xid field set to the XID of the malformed message and
 the rdma_err field set to RDMA2_ERR_BAD_XDR.
+</t>
+</section>
+
+<section
+ anchor="section_a7327632-a379-43a5-92f7-d5a83582cd6d"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>The Call Chunk</name>
+<t>
+The Call chunk is a Read chunk that acts as a body chunk
+containing an RPC Call message.
+A Requester can utilize a Call chunk at any time.
+However, using a Call chunk is less efficient than
+an RDMA Send.
+</t>
+<t>
+A Read chunk may act as either a data item chunk or a body chunk.
+When the chunk's position is zero, it acts as a body chunk.
+Otherwise, it is a data item chunk containing exactly one XDR data item.
 </t>
 </section>
 
@@ -1734,12 +1746,6 @@ and
 <xref target="section_858fef67-6100-48bc-8d3d-d46201a4b461" format="default" sectionFormat="of"/>
 also covers the disposition of the chunk lists.
 </li>
-<li>
-The server <bcp14>MUST</bcp14> clear the RDMA2_F_RESPONSE flag in the rdma_flags field.
-It sets the RDMA2_F_MORE flag in the rdma_flags field
-as described in
-<xref target="section_fb299673-74f3-4f01-adb5-26a02ccd679f" format="default" sectionFormat="of"/>.
-</li>
 </ul>
 </section>
 
@@ -1782,12 +1788,6 @@ and
 <xref target="section_858fef67-6100-48bc-8d3d-d46201a4b461" format="counter" sectionFormat="of"/>).
 <xref target="section_858fef67-6100-48bc-8d3d-d46201a4b461" format="default" sectionFormat="of"/>
 also covers the disposition of the chunk lists.
-</li>
-<li>
-The client <bcp14>MUST</bcp14> set the RDMA2_F_RESPONSE flag in the rdma_flags field.
-It sets the RDMA2_F_MORE flag in the rdma_flags field
-as described in
-<xref target="section_fb299673-74f3-4f01-adb5-26a02ccd679f" format="default" sectionFormat="of"/>.
 </li>
 </ul>
 </section>
@@ -1870,9 +1870,9 @@ thus avoiding the complexity of implementing support
 for RDMA Reads and Writes in the reverse direction.
 When an RPC-over-RDMA transport implementation does not support
 chunks in the reverse direction, RPC endpoints use only
-the Simple Payload format without chunks
+the Simple Payload format without data item chunks
 or
-the Continued Payload format without chunks
+the Continued Payload format without data item chunks
 to send RPC messages in the reverse direction.
 </t>
 <t>
@@ -1953,9 +1953,11 @@ RPC-over-RDMA version 2 enables connection endpoints
 to exchange information about implementation properties.
 Compatible endpoints use this information to optimize data transfer.
 Initially, only a small set of transport properties are defined.
-The protocol provides a single message type
+The protocol provides header types
 to exchange transport properties (see
-<xref target="section_07e8c178-62df-46a7-a57e-dcf107821d93" format="default" sectionFormat="of"/>).
+<xref target="section_977e471d-6948-43da-b3c8-bbb36034bd3e" format="counter" sectionFormat="of"/>
+and
+<xref target="section_e8fbc443-1f44-4ec6-9132-9a28b4e6c870" format="counter" sectionFormat="of"/>).
 </t>
 <t>
 Both the set of transport properties and the operations used
@@ -2210,10 +2212,8 @@ In particular:
 </t>
 <ul spacing="normal" bare="false" empty="false">
 <li>
-Requesters may use the value to determine when to provide
-a Position Zero Read chunk
-or
-use Message Continuation
+Requesters may use the value to determine
+when to use a Call chunk or Message Continuation
 when sending a Call.
 </li>
 <li>
@@ -2299,15 +2299,15 @@ that the sender does not support reverse-direction operation.
 </li>
 <li>
 The value RDMA2_RVRSDIR_SIMPLE indicates
-that the sender supports using only Simple Format messages without chunks
+that the sender supports using only Simple Format messages without data item chunks
 for reverse-direction messages.
 </li>
 <li>
 The value RDMA2_RVRSDIR_CONT indicates
 that the sender supports using either
-Simple Format without chunks
+Simple Format without data item chunks
 or
-Continued Format messages without chunks
+Continued Format messages without data item chunks
 for reverse-direction messages.
 </li>
 <li>
@@ -2411,7 +2411,7 @@ the value of the header type for this operation.
 <li>
 The column labeled "XDR type" gives
 the XDR type of the data structure
-used to organize the information in this new message type.
+used to organize the information in this new header type.
 This data immediately follows the universal portion on the
 transport header present in every RPC-over-RDMA transport header.
 </li>
@@ -2436,46 +2436,20 @@ document that explains the use of this header type.
 </tr>
 </thead>
 <tbody>
-<tr>
-<td align="left">Convey Appended RPC Message</td>
-<td align="left">0</td>
-<td align="left">rpcrdma2_msg</td>
-<td align="left">Yes</td>
-<td align="left">
-<xref target="section_9af0d451-2ef3-454f-adb9-827664ccc39c" format="counter" sectionFormat="of"/>
-</td>
-</tr>
-<tr>
-<td align="left">Convey External RPC Message</td>
-<td align="left">1</td>
-<td align="left">rpcrdma2_nomsg</td>
-<td align="left">No</td>
-<td align="left">
-<xref target="section_1c401555-4b7d-4e35-a9a3-8aa14228170e" format="counter" sectionFormat="of"/>
-</td>
-</tr>
+
 <tr>
 <td align="left">Report Transport Error</td>
 <td align="left">4</td>
-<td align="left">rpcrdma2_err</td>
+<td align="left">rpcrdma2_hdr_error</td>
 <td align="left">No</td>
 <td align="left">
 <xref target="section_b1d23e5c-31df-483f-adb7-25430b5de38d" format="counter" sectionFormat="of"/>
 </td>
 </tr>
-<tr>
-<td align="left">Specify Properties at Connection</td>
-<td align="left">5</td>
-<td align="left">rpcrdma2_connprop</td>
-<td align="left">No</td>
-<td align="left">
-<xref target="section_07e8c178-62df-46a7-a57e-dcf107821d93" format="counter" sectionFormat="of"/>
-</td>
-</tr>
 
 <tr>
 <td align="left">Grant Credits</td>
-<td align="left">6</td>
+<td align="left">5</td>
 <td align="left">void</td>
 <td align="left">No</td>
 <td align="left">
@@ -2483,14 +2457,96 @@ document that explains the use of this header type.
 </td>
 </tr>
 
+<tr>
+<td align="left">Specify Properties (Middle)</td>
+<td align="left">6</td>
+<td align="left">rpcrdma2_hdr_connprop</td>
+<td align="left">No</td>
+<td align="left">
+<xref target="section_977e471d-6948-43da-b3c8-bbb36034bd3e" format="counter" sectionFormat="of"/>
+</td>
+</tr>
+
+<tr>
+<td align="left">Specify Properties (Final)</td>
+<td align="left">7</td>
+<td align="left">rpcrdma2_hdr_connprop</td>
+<td align="left">No</td>
+<td align="left">
+<xref target="section_e8fbc443-1f44-4ec6-9132-9a28b4e6c870" format="counter" sectionFormat="of"/>
+</td>
+</tr>
+
+<tr>
+<td align="left">Convey External RPC Call Message</td>
+<td align="left">8</td>
+<td align="left">rpcrdma2_hdr_call_external</td>
+<td align="left">No</td>
+<td align="left">
+<xref target="section_7e1de71a-9b68-4bd0-8213-97991139ab87" format="counter" sectionFormat="of"/>
+</td>
+</tr>
+
+<tr>
+<td align="left">Convey Continued RPC Call Message</td>
+<td align="left">9</td>
+<td align="left">rpcrdma2_hdr_call_middle</td>
+<td align="left">Yes</td>
+<td align="left">
+<xref target="section_3eb026d2-eccb-41bc-a09e-d922d935b23c" format="counter" sectionFormat="of"/>
+</td>
+</tr>
+
+<tr>
+<td align="left">Convey Inline RPC Call Message</td>
+<td align="left">10</td>
+<td align="left">rpcrdma2_hdr_call_inline</td>
+<td align="left">Yes</td>
+<td align="left">
+<xref target="section_b8fd93f1-e5c8-47f2-b26e-921530cb0681" format="counter" sectionFormat="of"/>
+</td>
+</tr>
+
+<tr>
+<td align="left">Convey External RPC Reply Message</td>
+<td align="left">11</td>
+<td align="left">rpcrdma2_hdr_reply_external</td>
+<td align="left">No</td>
+<td align="left">
+<xref target="section_780fd420-96d9-4cbe-af49-141ea89cdf6F" format="counter" sectionFormat="of"/>
+</td>
+</tr>
+
+<tr>
+<td align="left">Convey Continued RPC Reply Message</td>
+<td align="left">12</td>
+<td align="left">rpcrdma2_hdr_reply_middle</td>
+<td align="left">Yes</td>
+<td align="left">
+<xref target="section_3d6d56ae-ba9b-432f-9fc0-403a5f622fe5" format="counter" sectionFormat="of"/>
+</td>
+</tr>
+
+<tr>
+<td align="left">Convey Inline RPC Reply Message</td>
+<td align="left">13</td>
+<td align="left">rpcrdma2_hdr_reply_inline</td>
+<td align="left">Yes</td>
+<td align="left">
+<xref target="section_67bf730f-38f1-40bc-8eec-1bedde7b0449" format="counter" sectionFormat="of"/>
+</td>
+</tr>
+
 </tbody>
 </table>
 <t>
-Suppport for the operations in
-<xref target="table_b5c31bf9-d623-4957-97db-29fc1d416cb8" format="default" sectionFormat="of"/>
-is <bcp14>REQUIRED</bcp14>.
+RPC-over-RDMA version 2 peers are
+<bcp14>REQUIRED</bcp14>
+to support all message header types in
+<xref target="table_b5c31bf9-d623-4957-97db-29fc1d416cb8" format="default" sectionFormat="of"/>.
 RPC-over-RDMA version 2 implementations that receive an unrecognized header type
-<bcp14>MUST</bcp14> respond with an RDMA2_ERROR message
+<bcp14>MUST</bcp14>
+respond with an RDMA2_ERROR message
 with an rdma_err field containing RDMA2_ERR_INVAL_HTYPE
 and drop the incoming message without processing it further.
 </t>
@@ -2536,8 +2592,8 @@ struct rpcrdma_common {
 </sourcecode>
 <t>
 RPC-over-RDMA version 2's use of these first four words
-matches that of version 1 as required by
-<xref target="RFC8166" format="default" sectionFormat="of"/>.
+aligns with that of version 1 as required by
+<xref target="RFC8166" section="4.2" format="default" sectionFormat="of"/>.
 However, there are crucial structural differences
 in the XDR definition of RPC-over-RDMA version 2:
 in the way that these words are described
@@ -2577,6 +2633,516 @@ discusses in further detail.
 </t>
 </section>
 
+</section>
+
+<section
+ anchor="section_8039c7b8-9068-401e-9cbd-5c1e67d403e7"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>Header Types</name>
+<t>
+The header types defined and used in RPC-over-RDMA version 1
+are not carried over into RPC-over-RDMA version 2,
+although there are easy equivalents to the version 1
+procedures:
+</t>
+<ul spacing="normal" bare="false" empty="false">
+<li>
+To simplify interoperability with RPC-over-RDMA version 1,
+only the RDMA2_ERROR header (defined in
+<xref target="section_b1d23e5c-31df-483f-adb7-25430b5de38d" format="default" sectionFormat="of"/>)
+has an XDR definition that differs from that in RPC-over-RDMA version 1,
+and its modifications are all compatible extensions.
+</li>
+<li>
+Senders use RDMA2_CALL_INLINE or RDMA2_REPLY_FINAL
+(defined in Sections
+<xref target="section_b8fd93f1-e5c8-47f2-b26e-921530cb0681" format="counter" sectionFormat="of"/>
+and
+<xref target="section_67bf730f-38f1-40bc-8eec-1bedde7b0449" format="counter" sectionFormat="of"/>)
+in place of RDMA_MSG.
+There are minor differences in the on-the-wire format
+between the version 1 procedure and the version 2 header types.
+</li>
+<li>
+Senders use RDMA2_CALL_EXTERNAL or RDMA2_REPLY_EXTERNAL
+(defined in Sections
+<xref target="section_7e1de71a-9b68-4bd0-8213-97991139ab87" format="counter" sectionFormat="of"/>
+and
+<xref target="section_780fd420-96d9-4cbe-af49-141ea89cdf6F" format="counter" sectionFormat="of"/>)
+in place of RDMA_NOMSG.
+There are minor differences in the on-the-wire format
+between the version 1 procedure and the version 2 header types.
+</li>
+<li>
+RDMA2_CONNPROP_MIDDLE and RDMA2_CONNPROP_FINAL
+(defined in Sections
+<xref target="section_977e471d-6948-43da-b3c8-bbb36034bd3e" format="counter" sectionFormat="of"/>
+and
+<xref target="section_e8fbc443-1f44-4ec6-9132-9a28b4e6c870" format="counter" sectionFormat="of"/>)
+is an entirely new header type devoted to
+enabling connection peers to exchange information
+about their transport properties.
+</li>
+</ul>
+
+<section
+ anchor="section_b1d23e5c-31df-483f-adb7-25430b5de38d"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>RDMA2_ERROR: Report Transport Error</name>
+<t>
+RDMA2_ERROR reports a transport layer error on a previous transmission.
+</t>
+<sourcecode name="" type="xdr" markers="true">
+<![CDATA[
+const rpcrdma2_proc RDMA2_ERROR = 4;
+
+struct rpcrdma2_err_vers {
+        uint32 rdma_vers_low;
+        uint32 rdma_vers_high;
+};
+
+struct rpcrdma2_err_write {
+        uint32 rdma_chunk_index;
+        uint32 rdma_length_needed;
+};
+
+union rpcrdma2_hdr_error switch (rpcrdma2_errcode rdma_err) {
+        case RDMA2_ERR_VERS:
+          rpcrdma2_err_vers rdma_vrange;
+        case RDMA2_ERR_READ_CHUNKS:
+          uint32 rdma_max_chunks;
+        case RDMA2_ERR_WRITE_CHUNKS:
+          uint32 rdma_max_chunks;
+        case RDMA2_ERR_SEGMENTS:
+          uint32 rdma_max_segments;
+        case RDMA2_ERR_WRITE_RESOURCE:
+          rpcrdma2_err_write rdma_writeres;
+        case RDMA2_ERR_REPLY_RESOURCE:
+          uint32 rdma_length_needed;
+        default:
+          void;
+};
+]]>
+</sourcecode>
+<t>
+See
+<xref target="section_995a7597-4e89-48c3-b142-35b783ef1329" format="default" sectionFormat="of"/>
+for details on the use of this header type.
+</t>
+</section>
+
+<section
+ anchor="section_d7b171ca-326d-45ed-bfa6-eca86ae4a62e"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>RDMA2_GRANT: Grant Credits</name>
+<t>
+The RDMA2_GRANT header type enables a connection peer
+to grant additional credits to its remote peer
+without conveying a payload.
+</t>
+<sourcecode name="" type="xdr" markers="true">
+<![CDATA[
+const rpcrdma2_proc RDMA2_GRANT = 5;
+]]>
+</sourcecode>
+<t>
+This message carries no payload except for a struct rpcrdma2_hdr_prefix.
+The rdma_xid field is unused.
+Senders
+<bcp14>MUST</bcp14>
+set the rdma_xid field to zero and receivers
+<bcp14>MUST</bcp14>
+ignore the value in this field.
+</t>
+</section>
+
+<section
+ anchor="section_977e471d-6948-43da-b3c8-bbb36034bd3e"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>RDMA2_CONNPROP_MIDDLE: Exchange Transport Properties</name>
+<t>
+The RDMA2_CONNPROP_MIDDLE header type enables a connection peer
+to publish the properties of its implementation to its
+remote peer.
+</t>
+<sourcecode name="" type="xdr" markers="true">
+<![CDATA[
+const rpcrdma2_proc RDMA2_CONNPROP_MIDDLE = 6;
+
+struct rpcrdma2_hdr_connprop {
+        rpcrdma2_propset rdma_props;
+};
+]]>
+</sourcecode>
+<t>
+A peer sends an RDMA2_CONNPROP_MIDDLE header type
+when it has one or more properties to send that
+do not fit within
+the default inline threshold for the RPC-over-RDMA version that is in effect.
+</t>
+<t>
+A peer may encounter properties that it does not recognize or support.
+In such cases, the receiver ignores unsupported properties
+without generating an error response.
+</t>
+<t>
+If a peer sends follows an RDMA2_CONNPROP_MIDDLE
+header type with anything other than
+another RDMA2_CONNPROP_MIDDLE message
+or
+an RDMA2_CONNPROP_FINAL message,
+the receiver
+<bcp14>MUST</bcp14>
+respond with an RDMA2_ERROR header type
+and
+set its rdma_err field to RDMA2_ERR_INVAL_CONT
+and drop the incoming message without processing it further.
+</t>
+</section>
+
+<section
+ anchor="section_e8fbc443-1f44-4ec6-9132-9a28b4e6c870"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>RDMA2_CONNPROP_FINAL: Exchange Transport Properties</name>
+<t>
+The RDMA2_CONNPROP_FINAL header type enables a connection peer
+to publish the properties of its implementation to its
+remote peer.
+</t>
+<sourcecode name="" type="xdr" markers="true">
+<![CDATA[
+const rpcrdma2_proc RDMA2_CONNPROP_FINAL = 7;
+
+struct rpcrdma2_hdr_connprop {
+        rpcrdma2_propset rdma_props;
+};
+]]>
+</sourcecode>
+<t>
+Each peer sends an RDMA2_CONNPROP_FINAL header type
+as the final CONNPROP-type message
+after the client has established a connection.
+The size of this message is limited to
+the default inline threshold for the RPC-over-RDMA version that is in effect.
+</t>
+<t>
+A peer may encounter properties that it does not recognize or support.
+In such cases, the receiver ignores unsupported properties
+without generating an error response.
+</t>
+<t>
+If a peer sends a CONNPROP-type message on a connection
+after it has sent an RDMA2_CONNPROP_FINAL message,
+the receiver
+<bcp14>MUST</bcp14>
+respond with an RDMA2_ERROR header type
+and
+set its rdma_err field to RDMA2_ERR_INVAL_CONT
+and drop the incoming message without processing it further.
+</t>
+</section>
+
+<section
+ anchor="section_7e1de71a-9b68-4bd0-8213-97991139ab87"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>RDMA2_CALL_EXTERNAL: Convey External RPC Call Message</name>
+<t>
+RDMA2_CALL_EXTERNAL conveys an RPC Call message payload
+using explicit RDMA operations.
+The Responder reads the Payload stream from a memory area
+specified by the Call chunk.
+The sender
+<bcp14>MUST</bcp14>
+set the rdma_xid field to the same value
+as the xid of the RPC Reply message payload.
+</t>
+<sourcecode name="" type="xdr" markers="true">
+<![CDATA[
+const rpcrdma2_proc RDMA2_CALL_EXTERNAL = 8;
+
+struct rpcrdma2_hdr_call_external {
+        uint32                      rdma_inv_handle;
+
+        struct rpcrdma2_read_list   *rdma_call;
+        struct rpcrdma2_read_list   *rdma_reads;
+        struct rpcrdma2_write_list  *rdma_provisional_writes;
+        struct rpcrdma2_write_chunk *rdma_provisional_reply;
+};
+]]>
+</sourcecode>
+<dl newline="false" spacing="normal">
+<dt>rdma_inv_handle:</dt>
+<dd>
+The rdma_inv_handle field contains a 32-bit RDMA handle that
+the Responder may use in a Send With Invalidation operation.
+See
+<xref target="section_a957db67-a8fd-4886-b7a7-57382cfe3190" format="default" sectionFormat="of"/>.
+</dd>
+<dt>rdma_call:</dt>
+<dd>
+The rdma_call field anchors a list of one or more Read segments
+that contain the RPC Call's Payload stream.
+</dd>
+<dt>rdma_reads:</dt>
+<dd>
+The rdma_reads field anchors a list of zero or more Read segments
+that contain data item chunks.
+</dd>
+<dt>rdma_provisional_writes:</dt>
+<dd>
+The rdma_writes field
+anchors a list of zero or more provisional Write chunks.
+</dd>
+<dt>rdma_provisional_reply:</dt>
+<dd>
+The rdma_reply field is a list containing zero or one provisional Reply chunk.
+</dd>
+</dl>
+</section>
+
+<section
+ anchor="section_3eb026d2-eccb-41bc-a09e-d922d935b23c"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>RDMA2_CALL_MIDDLE: Convey Continued RPC Call Message</name>
+<t>
+RDMA2_CALL_MIDDLE conveys a beginning or middle portion
+of an RPC Call message
+immediately following the transport header in the send buffer.
+The sender
+<bcp14>MUST</bcp14>
+set the rdma_xid field to the same value
+as the xid of the RPC Reply message payload.
+The sender sets the rdma_remaining field
+to the number of bytes in the RPC Call message payload
+that remain to be sent.
+The rdma_rpc_first_word field demarks the first word
+of the Payload stream.
+</t>
+<sourcecode name="" type="xdr" markers="true">
+<![CDATA[
+const rpcrdma2_proc RDMA2_CALL_MIDDLE = 9;
+
+struct rpcrdma2_hdr_call_middle {
+        uint32                      rdma_remaining;
+
+        /* The rpc message starts here and continues
+         * through the end of the transmission. */
+        uint32                      rdma_rpc_first_word;
+};
+]]>
+</sourcecode>
+<t>
+If a peer sends follows an RDMA2_CALL_MIDDLE
+header type with anything other than
+an RDMA2_CALL_MIDDLE message
+or
+an RDMA2_CALL_INLINE message,
+the receiver
+<bcp14>MUST</bcp14>
+respond with an RDMA2_ERROR header type
+and
+set its rdma_err field to RDMA2_ERR_INVAL_CONT
+and drop the incoming message without processing it further.
+</t>
+</section>
+
+<section
+ anchor="section_b8fd93f1-e5c8-47f2-b26e-921530cb0681"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>RDMA2_CALL_INLINE: Convey Inline RPC Call Message</name>
+<t>
+RDMA2_CALL_INLINE conveys the only or final portion
+of an RPC Call message.
+The rdma_rpc_first_word field demarks the first word
+of this Payload stream.
+</t>
+<sourcecode name="" type="xdr" markers="true">
+<![CDATA[
+const rpcrdma2_proc RDMA2_CALL_INLINE = 10;
+
+struct rpcrdma2_hdr_call_inline {
+        uint32                      rdma_inv_handle;
+
+        struct rpcrdma2_read_list   *rdma_reads;
+        struct rpcrdma2_write_list  *rdma_provisional_writes;
+        struct rpcrdma2_write_chunk *rdma_provisional_reply;
+
+        /* The rpc message starts here and continues
+         * through the end of the transmission. */
+        uint32                      rdma_rpc_first_word;
+};
+]]>
+</sourcecode>
+<dl newline="false" spacing="normal">
+<dt>rdma_inv_handle:</dt>
+<dd>
+The rdma_inv_handle field contains a 32-bit RDMA handle that
+the Responder may use in a Send With Invalidation operation.
+See
+<xref target="section_a957db67-a8fd-4886-b7a7-57382cfe3190" format="default" sectionFormat="of"/>.
+</dd>
+<dt>rdma_reads:</dt>
+<dd>
+The rdma_reads field anchors a list of zero or more Read segments
+that contain only data item chunks.
+A Requester
+<bcp14>MUST NOT</bcp14>
+insert Position-zero Read chunks in this list.
+</dd>
+<dt>rdma_provisional_writes:</dt>
+<dd>
+The rdma_writes field
+anchors a list of zero or more provisional Write chunks.
+</dd>
+<dt>rdma_provisional_reply:</dt>
+<dd>
+The rdma_reply field is a list containing zero or one provisional Reply chunk.
+</dd>
+</dl>
+</section>
+
+<section
+ anchor="section_780fd420-96d9-4cbe-af49-141ea89cdf6F"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>RDMA2_REPLY_EXTERNAL: Convey External RPC Reply Message</name>
+<t>
+RDMA2_REPLY_EXTERNAL conveys an RPC Reply message payload
+using explicit RDMA operations.
+In particular, it is referred to as a Special Format Reply
+when the Responder writes the RPC payload into a memory area
+specified by a Reply chunk.
+The sender
+<bcp14>MUST</bcp14>
+set the rdma_xid field to the same value
+as the xid of the RPC Reply message payload.
+</t>
+<sourcecode name="" type="xdr" markers="true">
+<![CDATA[
+const rpcrdma2_proc RDMA2_REPLY_EXTERNAL = 11;
+
+struct rpcrdma2_hdr_reply_external {
+        struct rpcrdma2_write_list  *rdma_writes;
+        struct rpcrdma2_write_chunk *rdma_reply;
+};
+]]>
+</sourcecode>
+<dl newline="false" spacing="normal">
+<dt>rdma_writes:</dt>
+<dd>
+The rdma_writes field anchors a list of zero or more Write chunks
+that are either empty or contain reduced data items.
+</dd>
+<dt>rdma_reply:</dt>
+<dd>
+The rdma_reply field is a list that
+<bcp14>MUST</bcp14> contain exactly one Reply chunk.
+</dd>
+</dl>
+</section>
+
+<section
+ anchor="section_3d6d56ae-ba9b-432f-9fc0-403a5f622fe5"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>RDMA2_REPLY_MIDDLE: Convey Continued RPC Reply Message</name>
+<t>
+RDMA2_REPLY_MIDDLE conveys a beginning or middle portion
+of an RPC Reply message
+immediately following the transport header in the send buffer.
+The sender
+<bcp14>MUST</bcp14>
+set the rdma_xid field to the same value
+as the xid of the RPC Reply message payload.
+The sender sets the rdma_remaining field
+to the number of bytes in the RPC Call message payload
+that remain to be sent.
+The rdma_rpc_first_word field demarks the first word
+of the Payload stream.
+</t>
+<sourcecode name="" type="xdr" markers="true">
+<![CDATA[
+const rpcrdma2_proc RDMA2_REPLY_MIDDLE = 12;
+
+struct rpcrdma2_hdr_reply_middle {
+        uint32                      rdma_remaining;
+
+        /* The rpc message starts here and continues
+         * through the end of the transmission. */
+        uint32                      rdma_rpc_first_word;
+};
+]]>
+</sourcecode>
+<t>
+If a peer sends follows an RDMA2_REPLY_MIDDLE
+header type with anything other than
+an RDMA2_REPLY_MIDDLE message
+or
+an RDMA2_REPLY_INLINE message,
+the receiver
+<bcp14>MUST</bcp14>
+respond with an RDMA2_ERROR header type
+and
+set its rdma_err field to RDMA2_ERR_INVAL_CONT
+and drop the incoming message without processing it further.
+</t>
+</section>
+
+<section
+ anchor="section_67bf730f-38f1-40bc-8eec-1bedde7b0449"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>RDMA2_REPLY_INLINE: Convey RPC Reply Message Inline</name>
+<t>
+RDMA2_REPLY_INLINE conveys the only or final portion
+of an RPC Reply message
+immediately following the transport header in the send buffer.
+If the Reply message payload has been reduced,
+the rdma_chunks object carries the reduced data item chunks.
+</t>
+<sourcecode name="" type="xdr" markers="true">
+<![CDATA[
+const rpcrdma2_proc RDMA2_REPLY_INLINE = 13;
+
+struct rpcrdma2_hdr_reply_inline {
+        struct rpcrdma2_write_list  *rdma_writes;
+
+        /* The rpc message starts here and continues
+         * through the end of the transmission. */
+        uint32                      rdma_rpc_first_word;
+};
+]]>
+</sourcecode>
+<dl newline="false" spacing="normal">
+<dt>rdma_writes:</dt>
+<dd>
+The rdma_writes field anchors a list of zero or more Write chunks
+that are either empty or contain reduced data items.
+</dd>
+</dl>
+</section>
+
+</section>
+
 <section
  anchor="section_2d1735f0-c465-43c6-9c18-3da6b7979862"
  numbered="true"
@@ -2589,225 +3155,11 @@ RPC-over-RDMA version 2 transport header.
 </t>
 <sourcecode name="" type="xdr" markers="true">
 <![CDATA[
-const RDMA2_F_RESPONSE           0x00000001;
-const RDMA2_F_MORE               0x00000002;
-const RDMA2_F_TPMORE             0x00000004;
-
 struct rpcrdma2_hdr_prefix {
         struct rpcrdma_common       rdma_start;
-        uint32                      rdma_flags;
 };
 ]]>
 </sourcecode>
-<t>
-The rdma_flags field is new to RPC-over-RDMA version 2.
-Currently, the only flags defined within this word are the
-RDMA2_F_RESPONSE flag
-and the
-RDMA2_F_MORE flag.
-The other flags are reserved for future use as described in
-<xref target="section_55a1749d-702c-48e4-b78c-0db392692c09" format="default" sectionFormat="of"/>.
-The sender <bcp14>MUST</bcp14> set reserved flags to zero,
-and the receiver <bcp14>MUST</bcp14> ignore reserved flags.
-</t>
-
-<section
- anchor="section_4e23391c-b6a8-46b1-a399-c86f754b51bc"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>RDMA2_F_RESPONSE Flag</name>
-<t>
-The RDMA2_F_RESPONSE flag qualifies the value contained in the
-transport header's rdma_xid field.
-The RDMA2_F_RESPONSE flag enables a receiver to avoid
-performing an XID lookup on incoming reverse-direction Call messages.
-Therefore:
-</t>
-<ul spacing="normal" bare="false" empty="false">
-<li>
-When the rdma_htype field has the value RDMA2_MSG or
-RDMA2_NOMSG, the value of the RDMA2_F_RESPONSE flag <bcp14>MUST</bcp14> be the
-same as the value of the associated RPC message's msg_type field.
-</li>
-<li>
-When the header type is anything else
-and
-a whole or partial RPC message payload is present,
-the value of the RDMA2_F_RESPONSE flag <bcp14>MUST</bcp14> be the same
-as the value of the associated RPC message's msg_type field.
-</li>
-<li>
-When no RPC message payload is present,
-a Requester <bcp14>MUST</bcp14> set the value of RDMA2_F_RESPONSE
-to reflect how the receiver is to interpret the
-rdma_xid field.
-</li>
-<li>
-When the rdma_htype field has the value RDMA2_ERROR,
-the RDMA2_F_RESPONSE flag <bcp14>MUST</bcp14> be set.
-</li>
-</ul>
-</section>
-
-<section
- anchor="section_fb299673-74f3-4f01-adb5-26a02ccd679f"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>RDMA2_F_MORE Flag</name>
-<t>
-The RDMA2_F_MORE flag signifies that
-the RPC-over-RDMA message payload continues in the next message.
-</t>
-<t>
-When the sender asserts the RDMA2_F_MORE flag,
-the receiver is to concatenate
-the data payload of the next received message
-to the end of the data payload of the received message.
-The sender clears the RDMA2_F_MORE flag
-in the final message in the sequence.
-</t>
-<t>
-All RPC-over-RDMA messages in such a sequence <bcp14>MUST</bcp14> have the same values
-in the rdma_xid and rdma_htype fields.
-Otherwise, the receiver <bcp14>MUST</bcp14> drop the message
-without processing it further.
-If the receiver is a Responder, it <bcp14>MUST</bcp14> also
-respond with an RDMA2_ERROR message
-with the rdma_err field set to RDMA2_ERR_INVAL_CONT.
-</t>
-<t>
-If a peer receives an RPC-over-RDMA message
-with the RDMA2_F_MORE flag set,
-and the rdma_htype field does not contain
-the values RDMA2_MSG or RDMA2_CONNPROP,
-the receiver <bcp14>MUST</bcp14> drop the message
-without processing it further.
-If the receiver is a Responder, it <bcp14>MUST</bcp14> also
-respond with an RDMA2_ERROR message
-with the rdma_err field set to RDMA2_ERR_INVAL_CONT.
-</t>
-<t>
-The sender includes chunks only in the final message
-in a sequence, in which the RDMA2_F_MORE flag is clear.
-If a peer receives an RPC-over-RDMA message
-with the RDMA2_F_MORE flag set, and its chunk lists are not empty,
-the receiver <bcp14>MUST</bcp14> drop the message
-without processing it further.
-If the receiver is a Responder, it <bcp14>MUST</bcp14> also
-respond with an RDMA2_ERROR message
-with the rdma_err field set to RDMA2_ERR_INVAL_CONT.
-</t>
-<t>
-There is no protocol-defined limit
-on the number of concatenated messages in a sequence.
-If the sender exhausts the receiver's credit grant
-before sending the final message in the sequence,
-the sender waits for a further credit grant
-from the receiver before continuing to send messages.
-</t>
-<t>
-Credit exhaustion can occur at the receiver
-in the middle of a sequence of continued messages.
-The receiver can grant more credits
-by sending an RPC message payload
-or an out-of-band credit grant (see
-<xref target="section_f6348562-97f8-4413-96d7-bde3ff57b375" format="default" sectionFormat="of"/>)
-to enable the sender to send
-the remaining messages in the sequence.
-</t>
-</section>
-
-<section
- anchor="section_1b29ba98-8a84-45be-ae09-2b1ff96e490b"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>RDMA2_F_TPMORE Flag</name>
-<t>
-The RDMA2_F_TPMORE flag indicates that the sender has
-additional Transport Properties to send
-in a subsequent RPC-over-RDMA message.
-If a peer receives any message type other than RDMA2_CONNPROP
-with the RDMA2_F_TPMORE flag set,
-it <bcp14>MUST</bcp14> respond with an RDMA2_ERROR message type
-whose rdma_err field contains RDMA2_ERR_INVAL_HTYPE,
-and then silently discard the ingress message without processing it.
-</t>
-<t>
-The RDMA2_F_TPDONE flag is clear in the final RDMA2_CONNPROP
-message type from this peer on this connection.
-If a peer receives an RDMA2_CONNPROP message type
-after it has received an RDMA2_CONNPROP message type
-with a clear RDMA2_F_TPDONE flag,
-it <bcp14>MUST</bcp14> respond with an RDMA2_ERROR message type
-whose rdma_err field contains RDMA2_ERR_INVAL_HTYPE,
-and then silently discard the ingress message without processing it.
-</t>
-<t>
-After both connection peers have indicated
-they have finished sending their Transport Properties,
-they may begin passing RPC traffic.
-</t>
-</section>
-
-</section>
-
-<section
- anchor="section_af116198-1815-4308-99ab-0197b2c5ea0b"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>External Data Payloads</name>
-<t>
-The rpcrdma2_chunk_lists structure specifies
-where to find the parts of the message payload
-that are to be conveyed via explicit RDMA operations.
-</t>
-<sourcecode name="" type="xdr" markers="true">
-<![CDATA[
-struct rpcrdma2_chunk_lists {
-        uint32                      rdma_inv_handle;
-        struct rpcrdma2_read_list   *rdma_reads;
-        struct rpcrdma2_write_list  *rdma_writes;
-        struct rpcrdma2_write_chunk *rdma_reply;
-};
-]]>
-</sourcecode>
-<dl newline="false" spacing="normal">
-<dt>rdma_inv_handle:</dt>
-<dd>
-The rdma_inv_handle field contains a 32-bit RDMA handle that
-the Responder should use in a Send With Invalidation operation.
-More detail is provided in
-<xref target="section_a957db67-a8fd-4886-b7a7-57382cfe3190" format="default" sectionFormat="of"/>.
-</dd>
-<dt>rdma_reads:</dt>
-<dd>
-The rdma_reads field anchors a list of zero or more Read segments
-(see
-<xref target="section_52130e02-8afb-4a36-ac38-64a4cb73b5bf" format="default" sectionFormat="of"/>).
-</dd>
-<dt>rdma_writes:</dt>
-<dd>
-The rdma_writes field
- anchors a list of zero or more Write chunks
-(see
-<xref target="section_480387ae-1a7c-46b8-b310-8badb7b2a62b" format="default" sectionFormat="of"/>).
-</dd>
-<dt>rdma_reply:</dt>
-<dd>
-The rdma_reply field is a list containing zero or one Reply chunk.
-The use of this chunk is explained further in
-<xref target="section_d9731520-bdde-4a1b-9f54-9901d5c57648" format="default" sectionFormat="of"/>.
-</dd>
-</dl>
-<t>
-The content of the chunk lists
-is determined by the message's Payload format, as explained in
-<xref target="section_740e5b29-8c88-40ab-9506-69635d9a8167" format="default" sectionFormat="of"/>.
-</t>
 </section>
 
 <section
@@ -2838,243 +3190,15 @@ It <bcp14>MUST</bcp14> use the value in the corresponding Call's rdma_inv_handle
 to construct the Send With Invalidate Work Request.
 </t>
 <t>
-A Responder <bcp14>MUST NOT</bcp14> use a Send With Invalidate Work Request when sending
-an RDMA2_ERROR header type (see
-<xref target="section_b1d23e5c-31df-483f-adb7-25430b5de38d" format="default" sectionFormat="of"/>),
-an RDMA2_CONNPROP header type (see
-<xref target="section_07e8c178-62df-46a7-a57e-dcf107821d93" format="default" sectionFormat="of"/>),
-or
-an asynchronous credit grant (see
-<xref target="section_f6348562-97f8-4413-96d7-bde3ff57b375" format="default" sectionFormat="of"/>).
-</t>
-</section>
-
-</section>
-
-<section
- anchor="section_8039c7b8-9068-401e-9cbd-5c1e67d403e7"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>Header Types</name>
-<t>
-The header types defined and used in RPC-over-RDMA version 1
-are carried over into RPC-over-RDMA version 2,
-although there are some limited changes
-in the definitions of existing header types:
-</t>
-<ul spacing="normal" bare="false" empty="false">
-<li>
-To simplify interoperability with RPC-over-RDMA version 1,
-only the RDMA2_ERROR header (defined in
-<xref target="section_b1d23e5c-31df-483f-adb7-25430b5de38d" format="default" sectionFormat="of"/>)
-has an XDR definition that differs from that in RPC-over-RDMA version 1,
-and its modifications are all compatible extensions.
-</li>
-<li>
-RDMA2_MSG and RDMA2_NOMSG (defined in Sections
-<xref target="section_9af0d451-2ef3-454f-adb9-827664ccc39c" format="counter" sectionFormat="of"/>
+A Responder never uses a Send With Invalidate Work Request when sending
+a control plane header type.
+This includes
+the RDMA2_ERROR header type,
+the RDMA2_GRANT header type,
+the RDMA2_CONNPROP_MIDDLE header type,
 and
-<xref target="section_1c401555-4b7d-4e35-a9a3-8aa14228170e" format="counter" sectionFormat="of"/>)
-have XDR definitions that match
-the corresponding RPC-over-RDMA version 1 header types.
-However, because of the changes to the header prefix,
-the version 1 and version 2 header types differ in on-the-wire format.
-</li>
-<li>
-RDMA2_CONNPROP (defined in
-<xref target="section_07e8c178-62df-46a7-a57e-dcf107821d93" format="default" sectionFormat="of"/>)
-is an entirely new header type devoted to
-enabling connection peers to exchange information
-about their transport properties.
-</li>
-</ul>
-
-<section
- anchor="section_9af0d451-2ef3-454f-adb9-827664ccc39c"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>RDMA2_MSG: Convey RPC Message Inline</name>
-<t>
-RDMA2_MSG conveys all or part of an RPC message
-immediately following the transport header in the send buffer.
+the RDMA2_CONNPROP_FINAL header type.
 </t>
-<sourcecode name="" type="xdr" markers="true">
-<![CDATA[
-const rpcrdma2_proc RDMA2_MSG = 0;
-
-struct rpcrdma2_msg {
-        struct rpcrdma2_chunk_lists rdma_chunks;
-
-        /* The rpc message starts here and continues
-         * through the end of the transmission. */
-        uint32                      rdma_rpc_first_word;
-};
-]]>
-</sourcecode>
-</section>
-
-<section
- anchor="section_1c401555-4b7d-4e35-a9a3-8aa14228170e"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>RDMA2_NOMSG: Convey External RPC Message</name>
-<t>
-RDMA2_NOMSG conveys an entire RPC message payload
-using explicit RDMA operations.
-In particular, it is referred to as a Special Format Call
-when the Responder reads the RPC payload from a memory area
-specified by a Position Zero Read chunk.
-It is referred to as a Special Format Reply
-when the Responder writes the RPC payload into a memory area
-specified by a Reply chunk.
-In both cases, the sender sets the rdma_xid field
-to the same value as the xid of the RPC message payload.
-</t>
-<sourcecode name="" type="xdr" markers="true">
-<![CDATA[
-const rpcrdma2_proc RDMA2_NOMSG = 1;
-
-struct rpcrdma2_nomsg {
-        struct rpcrdma2_chunk_lists rdma_chunks;
-};
-]]>
-</sourcecode>
-<t>
-In RPC-over-RDMA version 2,
-a sender should use Message Continuation
-as an alternative to using a Special Format message.
-</t>
-<t>
-When a Responder receives an RDMA2_NOMSG header type
-with a non-empty Read list
-that does not carry a Position Zero Read chunk,
-it <bcp14>MUST</bcp14>
-discard that message without processing it
-and
-send an RDMA2_ERROR message
-with the rdma_err field set to RDMA2_ERR_BAD_XDR.
-When a Requester receives an RDMA2_NOMSG header type
-with an empty Reply chunk,
-it discards that message
-and
-terminates the RPC transaction represented by the XID value
-in the rdma_xid field of the malformed message.
-</t>
-</section>
-
-<section
- anchor="section_b1d23e5c-31df-483f-adb7-25430b5de38d"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>RDMA2_ERROR: Report Transport Error</name>
-<t>
-RDMA2_ERROR reports a transport layer error on a previous transmission.
-</t>
-<sourcecode name="" type="xdr" markers="true">
-<![CDATA[
-const rpcrdma2_proc RDMA2_ERROR = 4;
-
-struct rpcrdma2_err_vers {
-        uint32 rdma_vers_low;
-        uint32 rdma_vers_high;
-};
-
-struct rpcrdma2_err_write {
-        uint32 rdma_chunk_index;
-        uint32 rdma_length_needed;
-};
-
-union rpcrdma2_error switch (rpcrdma2_errcode rdma_err) {
-        case RDMA2_ERR_VERS:
-          rpcrdma2_err_vers rdma_vrange;
-        case RDMA2_ERR_READ_CHUNKS:
-          uint32 rdma_max_chunks;
-        case RDMA2_ERR_WRITE_CHUNKS:
-          uint32 rdma_max_chunks;
-        case RDMA2_ERR_SEGMENTS:
-          uint32 rdma_max_segments;
-        case RDMA2_ERR_WRITE_RESOURCE:
-          rpcrdma2_err_write rdma_writeres;
-        case RDMA2_ERR_REPLY_RESOURCE:
-          uint32 rdma_length_needed;
-        default:
-          void;
-};
-]]>
-</sourcecode>
-<t>
-See
-<xref target="section_995a7597-4e89-48c3-b142-35b783ef1329" format="default" sectionFormat="of"/>
-for details on the use of this header type.
-</t>
-</section>
-
-<section
- anchor="section_07e8c178-62df-46a7-a57e-dcf107821d93"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>RDMA2_CONNPROP: Exchange Transport Properties</name>
-<t>
-The RDMA2_CONNPROP message type enables a connection peer
-to publish the properties of its implementation to its
-remote peer.
-</t>
-<sourcecode name="" type="xdr" markers="true">
-<![CDATA[
-const rpcrdma2_proc RDMA2_CONNPROP = 5;
-
-struct rpcrdma2_connprop {
-        rpcrdma2_propset rdma_props;
-};
-]]>
-</sourcecode>
-<t>
-Each peer sends an RDMA2_CONNPROP message type
-as the first message after the client has established a connection.
-The size of this initial message is limited
-to the default inline threshold for the RPC-over-RDMA version that is in effect.
-If a peer has more or larger Transport Properties than can fit
-in the initial RDMA2_CONNPROP message type,
-it sets the RDMA2_F_TPMORE flag.
-The final RDMA2_CONNPROP message type the peer sends on that connection
-must have a clear RDMA2_F_TPMORE flag.
-</t>
-<t>
-A peer may encounter properties that it does not recognize or support.
-In such cases, the receiver ignores unsupported properties
-without generating an error response.
-</t>
-</section>
-
-<section
- anchor="section_d7b171ca-326d-45ed-bfa6-eca86ae4a62e"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>RDMA2_GRANT: Grant Credits</name>
-<t>
-The RDMA2_GRANT message type enables a connection peer
-to grant additional credits to its remote peer
-without conveying a payload.
-</t>
-<sourcecode name="" type="xdr" markers="true">
-<![CDATA[
-const rpcrdma2_proc RDMA2_GRANT = 6;
-]]>
-</sourcecode>
-<t>
-This message carries no payload except for a struct rpcrdma2_hdr_prefix.
-The rdma_flags field is unused.
-Senders <bcp14>MUST</bcp14> set the rdma_flags field to zero (all clear)
-and receivers <bcp14>MUST</bcp14> ignore the value of the bits in this field.
-</t>
-</section>
-
 </section>
 
 <section
@@ -3187,14 +3311,14 @@ RPC-over-RDMA Replies always carry an empty Read chunk list.
  name=""
  type="call-flow">
 <![CDATA[
-        Requester                             Responder
-            |        RDMA Send (RDMA_MSG)         |
-       Call |   ------------------------------>   |
-            |                                     |
-            |                                     | Processing
-            |                                     |
-            |        RDMA Send (RDMA_MSG)         |
-            |   <------------------------------   | Reply
+     Requester                                 Responder
+         |      RDMA Send (RDMA2_CALL_INLINE)      |
+    Call |   ---------------------------------->   |
+         |                                         |
+         |                                         | Processing
+         |                                         |
+         |      RDMA Send (RDMA2_REPLY_INLINE)     |
+         |   <----------------------------------   | Reply
 ]]>
 </artwork>
 </figure>
@@ -3207,18 +3331,18 @@ RPC-over-RDMA Replies always carry an empty Read chunk list.
  name=""
  type="call-flow">
 <![CDATA[
-        Requester                             Responder
-            |        RDMA Send (RDMA_MSG)         |
-       Call |   ------------------------------>   |
-            |        RDMA Read                    |
-            |   <------------------------------   |
-            |        RDMA Response (arg data)     |
-            |   ------------------------------>   |
-            |                                     |
-            |                                     | Processing
-            |                                     |
-            |        RDMA Send (RDMA_MSG)         |
-            |   <------------------------------   | Reply
+     Requester                                 Responder
+         |      RDMA Send (RDMA2_CALL_INLINE)      |
+    Call |   ---------------------------------->   |
+         |               RDMA Read                 |
+         |   <----------------------------------   |
+         |         RDMA Response (arg data)        |
+         |   ---------------------------------->   |
+         |                                         |
+         |                                         | Processing
+         |                                         |
+         |      RDMA Send (RDMA2_REPLY_INLINE)     |
+         |   <----------------------------------   | Reply
 ]]>
 </artwork>
 </figure>
@@ -3231,16 +3355,16 @@ RPC-over-RDMA Replies always carry an empty Read chunk list.
  name=""
  type="call-flow">
 <![CDATA[
-        Requester                             Responder
-            |        RDMA Send (RDMA_MSG)         |
-       Call |   ------------------------------>   |
-            |                                     |
-            |                                     | Processing
-            |                                     |
-            |        RDMA Write (result data)     |
-            |   <------------------------------   |
-            |        RDMA Send (RDMA_MSG)         |
-            |   <------------------------------   | Reply
+     Requester                                 Responder
+         |      RDMA Send (RDMA2_CALL_INLINE)      |
+    Call |   ---------------------------------->   |
+         |                                         |
+         |                                         | Processing
+         |                                         |
+         |         RDMA Write (result data)        |
+         |   <----------------------------------   |
+         |      RDMA Send (RDMA2_REPLY_INLINE)     |
+         |   <----------------------------------   | Reply
 ]]>
 </artwork>
 </figure>
@@ -3323,23 +3447,22 @@ RPC-over-RDMA Replies always carry an empty Read chunk list.
  name=""
  type="call-flow">
 <![CDATA[
-        Requester                             Responder
-            |        RDMA Send (RDMA_MSG)         |
-       Call |   ------------------------------>   |
-            |        RDMA Send (RDMA_MSG)         |
-            |   ------------------------------>   |
-            |        RDMA Send (RDMA_MSG)         |
-            |   ------------------------------>   |
-            |                                     |
-            |                                     |
-            |                                     | Processing
-            |                                     |
-            |        RDMA Send (RDMA_MSG)         |
-            |   <------------------------------   | Reply
-            |        RDMA Send (RDMA_MSG)         |
-            |   <------------------------------   |
-            |        RDMA Send (RDMA_MSG)         |
-            |   <------------------------------   |
+     Requester                                 Responder
+         |      RDMA Send (RDMA2_CALL_MIDDLE)      |
+    Call |   ---------------------------------->   |
+         |      RDMA Send (RDMA2_CALL_MIDDLE)      |
+         |   ---------------------------------->   |
+         |      RDMA Send (RDMA2_CALL_INLINE)      |
+         |   ---------------------------------->   |
+         |                                         |
+         |                                         | Processing
+         |                                         |
+         |      RDMA Send (RDMA2_REPLY_MIDDLE)     |
+         |   <----------------------------------   | Reply
+         |      RDMA Send (RDMA2_REPLY_MIDDLE)     |
+         |   <----------------------------------   |
+         |      RDMA Send (RDMA2_REPLY_INLINE)     |
+         |   <----------------------------------   |
 ]]>
 </artwork>
 </figure>
@@ -3352,22 +3475,22 @@ RPC-over-RDMA Replies always carry an empty Read chunk list.
  name=""
  type="call-flow">
 <![CDATA[
-        Requester                             Responder
-            |        RDMA Send (RDMA_MSG)         |
-       Call |   ------------------------------>   |
-            |        RDMA Send (RDMA_MSG)         |
-            |   ------------------------------>   |
-            |        RDMA Send (RDMA_MSG)         |
-            |   ------------------------------>   |
-            |        RDMA Read                    |
-            |   <------------------------------   |
-            |        RDMA Response (arg data)     |
-            |   ------------------------------>   |
-            |                                     |
-            |                                     | Processing
-            |                                     |
-            |        RDMA Send (RDMA_MSG)         |
-            |   <------------------------------   | Reply
+     Requester                                 Responder
+         |      RDMA Send (RDMA2_CALL_MIDDLE)      |
+    Call |   ---------------------------------->   |
+         |      RDMA Send (RDMA2_CALL_MIDDLE)      |
+         |   ---------------------------------->   |
+         |      RDMA Send (RDMA2_CALL_INLINE)      |
+         |   ---------------------------------->   |
+         |              RDMA Read                  |
+         |   <----------------------------------   |
+         |         RDMA Response (arg data)        |
+         |   ---------------------------------->   |
+         |                                         |
+         |                                         | Processing
+         |                                         |
+         |      RDMA Send (RDMA2_REPLY_INLINE)     |
+         |   <----------------------------------   | Reply
 ]]>
 </artwork>
 </figure>
@@ -3380,20 +3503,20 @@ RPC-over-RDMA Replies always carry an empty Read chunk list.
  name=""
  type="call-flow">
 <![CDATA[
-        Requester                             Responder
-            |        RDMA Send (RDMA_MSG)         |
-       Call |   ------------------------------>   |
-            |                                     |
-            |                                     | Processing
-            |                                     |
-            |        RDMA Write (result data)     |
-            |   <------------------------------   |
-            |        RDMA Send (RDMA_MSG)         |
-            |   <------------------------------   | Reply
-            |        RDMA Send (RDMA_MSG)         |
-            |   <------------------------------   |
-            |        RDMA Send (RDMA_MSG)         |
-            |   <------------------------------   |
+     Requester                                 Responder
+         |      RDMA Send (RDMA2_CALL_INLINE)      |
+    Call |   ---------------------------------->   |
+         |                                         |
+         |                                         | Processing
+         |                                         |
+         |         RDMA Write (result data)        |
+         |   <----------------------------------   |
+         |      RDMA Send (RDMA2_REPLY_MIDDLE)     |
+         |   <----------------------------------   | Reply
+         |      RDMA Send (RDMA2_REPLY_MIDDLE)     |
+         |   <----------------------------------   |
+         |      RDMA Send (RDMA2_REPLY_INLINE)     |
+         |   <----------------------------------   |
 ]]>
 </artwork>
 </figure>
@@ -3435,7 +3558,7 @@ that contains the RPC Call message's Payload stream.
 Every Read segment in this chunk
 <bcp14>MUST</bcp14>
 contain zero (0) in its Position field.
-This type of Read chunk is a body chunk known as a "Position Zero Read chunk."
+This type of Read chunk is a body chunk known as a Call chunk.
 </dd>
 <dt>Special Reply</dt>
 <dd>
@@ -3467,25 +3590,6 @@ the Responder
 <bcp14>MUST</bcp14>
 use the Requester-provided Reply chunk for the reply.
 </t>
-<t>
-If a Responder receives an RPC-over-RDMA message
-that carries a Position Zero Read chunk
-and whose RDMA2_F_RESPONSE flag is clear
-but the message does not use the RDMA2_NOMSG header type,
-it <bcp14>MUST</bcp14> discard that message without processing it
-and
-respond with an RDMA2_ERROR message
-with the rdma_xid field set to the XID of the malformed message
-and the rdma_err field set to RDMA2_ERR_BAD_XDR.
-When a Requester receives an RPC-over-RDMA message
-that carries a Reply chunk
-and whose RDMA2_F_RESPONSE flag is set
-but the message does not use the RDMA2_NOMSG header type,
-it <bcp14>MUST</bcp14> discard that message without processing it
-and
-terminate the RPC transaction corresponding to the XID
-value in the message's rdma_xid field.
-</t>
 
 <section
  anchor="section_199de5c1-e307-4664-abeb-dd687b4329c3"
@@ -3502,18 +3606,18 @@ value in the message's rdma_xid field.
  name=""
  type="call-flow">
 <![CDATA[
-        Requester                             Responder
-            |        RDMA Send (RDMA_NOMSG)       |
-       Call |   ------------------------------>   |
-            |        RDMA Read                    |
-            |   <------------------------------   |
-            |        RDMA Response (RPC call)     |
-            |   ------------------------------>   |
-            |                                     |
-            |                                     | Processing
-            |                                     |
-            |        RDMA Send (RDMA_MSG)         |
-            |   <------------------------------   | Reply
+     Requester                                 Responder
+         |     RDMA Send (RDMA2_CALL_EXTERNAL)     |
+    Call |   ---------------------------------->   |
+         |               RDMA Read                 |
+         |   <----------------------------------   |
+         |         RDMA Response (RPC call)        |
+         |   ---------------------------------->   |
+         |                                         |
+         |                                         | Processing
+         |                                         |
+         |      RDMA Send (RDMA2_REPLY_INLINE)     |
+         |   <----------------------------------   | Reply
 ]]>
 </artwork>
 </figure>
@@ -3526,16 +3630,16 @@ value in the message's rdma_xid field.
  name=""
  type="call-flow">
 <![CDATA[
-        Requester                             Responder
-            |        RDMA Send (RDMA_MSG)         |
-       Call |   ------------------------------>   |
-            |                                     |
-            |                                     | Processing
-            |                                     |
-            |        RDMA Write (RPC reply)       |
-            |   <------------------------------   |
-            |        RDMA Send (RDMA_NOMSG)       |
-            |   <------------------------------   | Reply
+     Requester                                 Responder
+         |      RDMA Send (RDMA2_CALL_INLINE)      |
+    Call |   ---------------------------------->   |
+         |                                         |
+         |                                         | Processing
+         |                                         |
+         |          RDMA Write (RPC reply)         |
+         |   <----------------------------------   |
+         |     RDMA Send (RDMA2_REPLY_EXTERNAL)    |
+         |   <----------------------------------   | Reply
 ]]>
 </artwork>
 </figure>
@@ -3570,8 +3674,7 @@ the combination of the provided Write chunk list
 and
 Reply chunk
 is not adequate to convey a Reply,
-the Responder <bcp14>SHOULD</bcp14> use Message Continuation (see
-<xref target="section_fb299673-74f3-4f01-adb5-26a02ccd679f" format="default" sectionFormat="of"/>)
+the Responder <bcp14>SHOULD</bcp14> use Message Continuation
 to send that Reply.
 If even that is not possible,
 the Responder sends an RDMA2_ERROR message to the Requester,
@@ -3741,8 +3844,6 @@ associated with XID in the rdma_xid field.
 If a Responder detects a problem with an ingress RPC-over-RDMA message
 that is part of a Message Continuation sequence,
 the Responder <bcp14>MUST</bcp14> set the rdma_err field to RDMA2_ERR_INVAL_CONT.
-<xref target="section_fb299673-74f3-4f01-adb5-26a02ccd679f" format="default" sectionFormat="of"/>
-discusses the types of problems to watch for.
 The Responder <bcp14>MUST</bcp14> silently discard all ingress messages
 with an rdma_xid field that matches the failing message
 without reassembling the payload.
@@ -3783,7 +3884,7 @@ Moreover, when a Responder receives a valid RPC-over-RDMA header
 but the Responder's ULP implementation cannot parse the RPC arguments
 in the RPC Call,
 the Responder returns an RPC Reply with status GARBAGE_ARGS,
-using an RDMA2_MSG message type.
+using an RDMA2_REPLY_INLINE message type.
 This type of parsing failure might be due to mismatches
 between chunk sizes or offsets
 and
@@ -4135,7 +4236,7 @@ only a single copy of the license text needs to be retained.
 <sourcecode name="" type="xdr" markers="true">
 <![CDATA[
 /// /*
-///  * Copyright (c) 2010-2018 IETF Trust and the persons
+///  * Copyright (c) 2010, 2020 IETF Trust and the persons
 ///  * identified as authors of the code.  All rights reserved.
 ///  *
 ///  * The authors of the code are:
@@ -4293,13 +4394,8 @@ of each extension produces a full XDR definition of that extension.
 ///         uint32         rdma_htype;
 /// };
 ///
-/// const RDMA2_F_RESPONSE           0x00000001;
-/// const RDMA2_F_MORE               0x00000002;
-/// const RDMA2_F_TPMORE             0x00000004;
-///
-/// struct rpcrdma2_hdr_prefix
+/// struct rpcrdma2_hdr_prefix {
 ///         struct rpcrdma_common       rdma_start;
-///         uint32                      rdma_flags;
 /// };
 ///
 /// /***************************************************************
@@ -4329,13 +4425,6 @@ of each extension produces a full XDR definition of that extension.
 /// struct rpcrdma2_write_list {
 ///         struct rpcrdma2_write_chunk rdma_entry;
 ///         struct rpcrdma2_write_list  *rdma_next;
-/// };
-///
-/// struct rpcrdma2_chunk_lists {
-///         uint32                      rdma_inv_handle;
-///         struct rpcrdma2_read_list   *rdma_reads;
-///         struct rpcrdma2_write_list  *rdma_writes;
-///         struct rpcrdma2_write_chunk *rdma_reply;
 /// };
 ///
 /// /***************************************************************
@@ -4399,28 +4488,26 @@ of each extension produces a full XDR definition of that extension.
 ///  ***************************************************************/
 ///
 /// /*
-///  * Header Type Codes.
+///  * Header Type Codes: Control plane operations.
 ///  */
-/// const RDMA2_MSG = 0;
-/// const RDMA2_NOMSG = 1;
 /// const RDMA2_ERROR = 4;
-/// const RDMA2_CONNPROP = 5;
-/// const RDMA2_GRANT = 6;
+/// const RDMA2_GRANT = 5;
+/// const RDMA2_CONNPROP_MIDDLE = 6;
+/// const RDMA2_CONNPROP_FINAL = 7;
 ///
 /// /*
-///  * Header Types to Convey RPC Messages.
+///  * Header Type Codes: Call messages.
 ///  */
-/// struct rpcrdma2_msg {
-///         struct rpcrdma2_chunk_lists rdma_chunks;
+/// const RDMA2_CALL_EXTERNAL = 8;
+/// const RDMA2_CALL_MIDDLE = 9;
+/// const RDMA2_CALL_INLINE = 10;
 ///
-///         /* The rpc message starts here and continues
-///          * through the end of the transmission. */
-///         uint32                      rdma_rpc_first_word;
-/// };
-///
-/// struct rpcrdma2_nomsg {
-///         struct rpcrdma2_chunk_lists rdma_chunks;
-/// };
+/// /*
+///  * Header Type Codes: Reply messages.
+///  */
+/// const RDMA2_REPLY_EXTERNAL = 11;
+/// const RDMA2_REPLY_MIDDLE = 12;
+/// const RDMA2_REPLY_INLINE = 13;
 ///
 /// /*
 ///  * Header Type to Report Errors.
@@ -4447,7 +4534,7 @@ of each extension produces a full XDR definition of that extension.
 ///         uint32 rdma_length_needed;
 /// };
 ///
-/// union rpcrdma2_error switch (rpcrdma2_errcode rdma_err) {
+/// union rpcrdma2_hdr_error switch (rpcrdma2_errcode rdma_err) {
 ///         case RDMA2_ERR_VERS:
 ///           rpcrdma2_err_vers rdma_vrange;
 ///         case RDMA2_ERR_READ_CHUNKS:
@@ -4467,8 +4554,61 @@ of each extension produces a full XDR definition of that extension.
 /// /*
 ///  * Header Type to Exchange Transport Properties.
 ///  */
-/// struct rpcrdma2_connprop {
+/// struct rpcrdma2_hdr_connprop {
 ///         rpcrdma2_propset rdma_props;
+/// };
+///
+/// /*
+///  * Header Types to Convey RPC Messages.
+///  */
+/// struct rpcrdma2_hdr_call_external {
+///         uint32                      rdma_inv_handle;
+///
+///         struct rpcrdma2_read_list   *rdma_call;
+///         struct rpcrdma2_read_list   *rdma_reads;
+///         struct rpcrdma2_write_list  *rdma_provisional_writes;
+///         struct rpcrdma2_write_chunk *rdma_provisional_reply;
+/// };
+///
+/// struct rpcrdma2_hdr_call_middle {
+///         uint32                      rdma_remaining;
+///
+///         /* The rpc message starts here and continues
+///          * through the end of the transmission. */
+///         uint32                      rdma_rpc_first_word;
+/// };
+///
+/// struct rpcrdma2_hdr_call_inline {
+///         uint32                      rdma_inv_handle;
+///
+///         struct rpcrdma2_read_list   *rdma_reads;
+///         struct rpcrdma2_write_list  *rdma_provisional_writes;
+///         struct rpcrdma2_write_chunk *rdma_provisional_reply;
+///
+///         /* The rpc message starts here and continues
+///          * through the end of the transmission. */
+///         uint32                      rdma_rpc_first_word;
+/// };
+///
+/// struct rpcrdma2_hdr_reply_external {
+///         struct rpcrdma2_write_list  *rdma_writes;
+///         struct rpcrdma2_write_chunk *rdma_reply;
+/// };
+///
+/// struct rpcrdma2_hdr_reply_middle {
+///         uint32                      rdma_remaining;
+///
+///         /* The rpc message starts here and continues
+///          * through the end of the transmission. */
+///         uint32                      rdma_rpc_first_word;
+/// };
+///
+/// struct rpcrdma2_hdr_reply_inline {
+///         struct rpcrdma2_write_list  *rdma_writes;
+///
+///         /* The rpc message starts here and continues
+///          * through the end of the transmission. */
+///         uint32                      rdma_rpc_first_word;
 /// };
 ///
 /// /* FILE ENDS: baseops.x; */
@@ -5018,7 +5158,7 @@ the result of message integrity verification and encryption.
 Therefore, a sender <bcp14>MUST NOT</bcp14> reduce a Payload stream
 when RPCSEC_GSS integrity or encryption services are in use.
 Effectively, no data item is DDP-eligible in this situation.
-Senders can use only Simple and Continued Formats without chunks,
+Senders can use only Simple and Continued Formats without data item chunks,
 or Special Format.
 In this mode, an RPC-over-RDMA transport operates
 in the same manner as a transport that does not support DDP.
@@ -5571,11 +5711,6 @@ new transport properties and header types:
 They may create new error codes, as described in
 <xref target="section_c2f5e937-d612-4e3a-a380-e0b15261f6a0" format="default" sectionFormat="of"/>.
 </li>
-<li>
-They may define new flags to use within the rdma_flags field,
-as discussed in
-<xref target="section_55a1749d-702c-48e4-b78c-0db392692c09" format="default" sectionFormat="of"/>.
-</li>
 </ul>
 <t>
 New capabilities can be
@@ -5653,9 +5788,9 @@ of the extended protocol.
 <name>Adding New Header Types to RPC-over-RDMA Version 2</name>
 <t>
 New transport header types are defined similar to Sections
-<xref target="section_9af0d451-2ef3-454f-adb9-827664ccc39c" format="counter" sectionFormat="of"/>
+<xref target="section_7e1de71a-9b68-4bd0-8213-97991139ab87" format="counter" sectionFormat="of"/>
 through
-<xref target="section_07e8c178-62df-46a7-a57e-dcf107821d93" format="counter" sectionFormat="of"/>.
+<xref target="section_67bf730f-38f1-40bc-8eec-1bedde7b0449" format="counter" sectionFormat="of"/>.
 In particular, what is needed is:
 </t>
 <ul spacing="normal" bare="false" empty="false">
@@ -5702,49 +5837,6 @@ of a particular header type to see if support is available.
 However, when more efficient means are available
 (e.g., the value of a transport property),
 this should be noted.
-</li>
-</ul>
-</section>
-
-<section
- anchor="section_55a1749d-702c-48e4-b78c-0db392692c09"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>Adding New Header Flags to the Protocol</name>
-<t>
-New flag bits are to be defined similarly to Sections
-<xref target="section_4e23391c-b6a8-46b1-a399-c86f754b51bc" format="counter" sectionFormat="of"/>
-and
-<xref target="section_fb299673-74f3-4f01-adb5-26a02ccd679f" format="counter" sectionFormat="of"/>.
-Each new flag definition should include:
-</t>
-<ul spacing="normal" bare="false" empty="false">
-<li>
-An XDR description of the new flag.
-</li>
-<li>
-A description of the function and use of the new flag.
-</li>
-<li>
-An indication for which header types the flag value is meaningful,
-and
-for which header types it is an error to set the flag or to leave it unset.
-</li>
-<li>
-A means to determine whether peers are prepared
-to receive transport headers with the new flag set.
-</li>
-</ul>
-<t>
-There needs to be additional documentation that is made necessary
-due to the <bcp14>OPTIONAL</bcp14> status of new flags:
-</t>
-<ul spacing="normal" bare="false" empty="false">
-<li>
-The document should discuss constraints on support for the new flags.
-For example, if support for one flag is implied or foreclosed
-by another one, this needs to be documented.
 </li>
 </ul>
 </section>
