@@ -4203,7 +4203,7 @@ then implementers can do the following
 to extract an XDR description file
 and store it in the file rpcrdma-v2.x.
 </t>
-<sourcecode name="rpcrdma-v2.x" type="" markers="true">
+<sourcecode name="" type="" markers="true">
 <![CDATA[
 sed -n -e 's:^ */// ::p' -e 's:^ *///$::p' \
  < spec.txt > rpcrdma-v2.x
@@ -4358,12 +4358,12 @@ of each extension produces a full XDR definition of that extension.
 /// /*
 ///  * Transport propid values for basic properties
 ///  */
-/// const uint32 RDMA2_PROPID_SBSIZ = 1;
-/// const uint32 RDMA2_PROPID_RBSIZ = 2;
-/// const uint32 RDMA2_PROPID_RSSIZ = 3;
-/// const uint32 RDMA2_PROPID_RCSIZ = 4;
-/// const uint32 RDMA2_PROPID_BRS = 5;
-/// const uint32 RDMA2_PROPID_HOSTAUTH = 6;
+/// const RDMA2_PROPID_SBSIZ = 1;
+/// const RDMA2_PROPID_RBSIZ = 2;
+/// const RDMA2_PROPID_RSSIZ = 3;
+/// const RDMA2_PROPID_RCSIZ = 4;
+/// const RDMA2_PROPID_BRS = 5;
+/// const RDMA2_PROPID_HOSTAUTH = 6;
 ///
 /// /*
 ///  * Types specific to particular properties
@@ -4375,10 +4375,10 @@ of each extension produces a full XDR definition of that extension.
 /// typedef uint32 rpcrdma2_prop_brs;
 /// typedef opaque rpcrdma2_prop_hostauth<>;
 ///
-/// const uint32 RDMA2_RVRSDIR_NONE = 0;
-/// const uint32 RDMA2_RVRSDIR_SIMPLE = 1;
-/// const uint32 RDMA2_RVRSDIR_CONT = 1;
-/// const uint32 RDMA2_RVRSDIR_GENL = 3;
+/// const RDMA2_RVRSDIR_NONE = 0;
+/// const RDMA2_RVRSDIR_SIMPLE = 1;
+/// const RDMA2_RVRSDIR_CONT = 1;
+/// const RDMA2_RVRSDIR_GENL = 3;
 ///
 /// /* FILE ENDS: common.x; */
 
@@ -4401,11 +4401,11 @@ of each extension produces a full XDR definition of that extension.
 /// /*
 ///  * Header Type Codes.
 ///  */
-/// const rpcrdma2_proc RDMA2_MSG = 0;
-/// const rpcrdma2_proc RDMA2_NOMSG = 1;
-/// const rpcrdma2_proc RDMA2_ERROR = 4;
-/// const rpcrdma2_proc RDMA2_CONNPROP = 5;
-/// const rpcrdma2_proc RDMA2_GRANT = 6;
+/// const RDMA2_MSG = 0;
+/// const RDMA2_NOMSG = 1;
+/// const RDMA2_ERROR = 4;
+/// const RDMA2_CONNPROP = 5;
+/// const RDMA2_GRANT = 6;
 ///
 /// /*
 ///  * Header Types to Convey RPC Messages.
@@ -4425,17 +4425,17 @@ of each extension produces a full XDR definition of that extension.
 /// /*
 ///  * Header Type to Report Errors.
 ///  */
-/// const uint32 RDMA2_ERR_VERS = 1;
-/// const uint32 RDMA2_ERR_BAD_XDR = 2;
-/// const uint32 RDMA2_ERR_BAD_PROPVAL = 3;
-/// const uint32 RDMA2_ERR_INVAL_HTYPE = 4;
-/// const uint32 RDMA2_ERR_INVAL_CONT = 5;
-/// const uint32 RDMA2_ERR_READ_CHUNKS = 6;
-/// const uint32 RDMA2_ERR_WRITE_CHUNKS = 7;
-/// const uint32 RDMA2_ERR_SEGMENTS = 8;
-/// const uint32 RDMA2_ERR_WRITE_RESOURCE = 9;
-/// const uint32 RDMA2_ERR_REPLY_RESOURCE = 10;
-/// const uint32 RDMA2_ERR_SYSTEM = 100;
+/// const RDMA2_ERR_VERS = 1;
+/// const RDMA2_ERR_BAD_XDR = 2;
+/// const RDMA2_ERR_BAD_PROPVAL = 3;
+/// const RDMA2_ERR_INVAL_HTYPE = 4;
+/// const RDMA2_ERR_INVAL_CONT = 5;
+/// const RDMA2_ERR_READ_CHUNKS = 6;
+/// const RDMA2_ERR_WRITE_CHUNKS = 7;
+/// const RDMA2_ERR_SEGMENTS = 8;
+/// const RDMA2_ERR_WRITE_RESOURCE = 9;
+/// const RDMA2_ERR_REPLY_RESOURCE = 10;
+/// const RDMA2_ERR_SYSTEM = 100;
 ///
 /// struct rpcrdma2_err_vers {
 ///         uint32 rdma_vers_low;
