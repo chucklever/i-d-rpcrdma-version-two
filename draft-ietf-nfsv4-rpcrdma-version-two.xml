@@ -2649,8 +2649,7 @@ procedures:
 </t>
 <ul spacing="normal" bare="false" empty="false">
 <li>
-To simplify interoperability with RPC-over-RDMA version 1,
-only the RDMA2_ERROR header (defined in
+The RDMA2_ERROR header (defined in
 <xref target="section_b1d23e5c-31df-483f-adb7-25430b5de38d" format="default" sectionFormat="of"/>)
 has an XDR definition that differs from that in RPC-over-RDMA version 1,
 and its modifications are all compatible extensions.
@@ -2681,7 +2680,7 @@ RDMA2_CONNPROP_MIDDLE and RDMA2_CONNPROP_FINAL
 <xref target="section_977e471d-6948-43da-b3c8-bbb36034bd3e" format="counter" sectionFormat="of"/>
 and
 <xref target="section_e8fbc443-1f44-4ec6-9132-9a28b4e6c870" format="counter" sectionFormat="of"/>)
-is an entirely new header type devoted to
+are new header types devoted to
 enabling connection peers to exchange information
 about their transport properties.
 </li>
