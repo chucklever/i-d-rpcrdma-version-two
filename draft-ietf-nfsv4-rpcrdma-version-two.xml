@@ -2655,7 +2655,7 @@ has an XDR definition that differs from that in RPC-over-RDMA version 1,
 and its modifications are all compatible extensions.
 </li>
 <li>
-Senders use RDMA2_CALL_INLINE or RDMA2_REPLY_FINAL
+Senders use RDMA2_CALL_INLINE or RDMA2_REPLY_INLINE
 (defined in Sections
 <xref target="section_b8fd93f1-e5c8-47f2-b26e-921530cb0681" format="counter" sectionFormat="of"/>
 and
