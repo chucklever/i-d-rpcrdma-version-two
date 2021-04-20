@@ -3793,18 +3793,50 @@ set its rdma_err field to RDMA2_ERR_VERS.
 The Responder then fills in the rpcrdma2_err_vers structure
 with the RPC-over-RDMA versions it supports.
 The Responder <bcp14>MUST</bcp14> silently discard the ingress message
-without passing it to the RPC layer
+without passing it to the RPC layer.
 </t>
 <t>
-When a Requester receives this error,
+When a Requester receives this error message,
 it uses the information in the rpcrdma2_err_vers structure
 to select an RPC-over-RDMA version that both peers support
 for subsequent operations on the connection.
 A Requester <bcp14>MUST NOT</bcp14> subsequently send a message that uses
-a version that the Responder has indciated it does not support.
+a version that the Responder has indicated it does not support.
 RDMA2_ERR_VERS indicates a permanent error.
 Receipt of this error completes the RPC transaction
 associated with XID in the rdma_xid field.
+</t>
+</section>
+
+<section
+ anchor="section_97a4dbec-8b72-43f8-9ebb-e822ec3ad713"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>RDMA2_ERR_VERS_MISMATCH</name>
+<t>
+When a Responder receives a message
+with a transport protocol version
+that does not match the protocol version
+that was used in previous successful exchanges on the same connection,
+it
+<bcp14>MUST</bcp14>
+respond with an RDMA2_ERROR message type
+and
+set its rdma_err field to RDMA2_ERR_VERS_MISMATCH.
+The Responder
+<bcp14>MUST</bcp14>
+silently discard the ingress message without passing it to the RPC layer.
+</t>
+<t>
+A Requester <bcp14>MUST NOT</bcp14> subsequently send a message
+that uses a protocol version
+that the Responder has indicated it does not recognize on this connection.
+The Requester can recover by sending the message again
+using a corrected protocol version,
+or
+it can terminate the RPC transaction associated with the XID
+in the rdma_xid field with an error.
 </t>
 </section>
 
@@ -4521,6 +4553,7 @@ of each extension produces a full XDR definition of that extension.
 /// const RDMA2_ERR_SEGMENTS = 8;
 /// const RDMA2_ERR_WRITE_RESOURCE = 9;
 /// const RDMA2_ERR_REPLY_RESOURCE = 10;
+/// const RDMA2_ERR_VERS_MISMATCH = 11;
 /// const RDMA2_ERR_SYSTEM = 100;
 ///
 /// struct rpcrdma2_err_vers {
