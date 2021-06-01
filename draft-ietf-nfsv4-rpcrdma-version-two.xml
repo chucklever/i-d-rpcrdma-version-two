@@ -1102,6 +1102,8 @@ connection peers <bcp14>MUST</bcp14> assume both inline thresholds are 4096 octe
 </t>
 </section>
 
+</section>
+
 <section
  anchor="section_9563f1f0-28a7-48e1-a752-e842575c6539"
  numbered="true"
@@ -1201,8 +1203,6 @@ it <bcp14>MUST</bcp14> use it in all subsequent messages it sends on that connec
 The client <bcp14>MUST NOT</bcp14> change the protocol version
 for the duration of the connection.
 </t>
-</section>
-
 </section>
 
 </section>
