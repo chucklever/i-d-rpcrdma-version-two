@@ -939,28 +939,16 @@ and in concert with the underlying transport.
  numbered="true"
  removeInRFC="false"
  toc="default">
-<name>Managing Receiver Resources</name>
+<name>Reliable Message Delivery</name>
 <t>
-If any pre-posted Receive buffer on the connection
-is not large enough to accept an incoming RDMA Send,
-the RDMA provider can terminate the connection.
-Likewise, if a pre-posted Receive buffer is not available
-to accept an incoming RDMA Send,
-the RDMA provider can terminate the connection.
-Therefore, a sender needs to respect the resource limits of its peer receiver
-to ensure the longevity of each connection.
-Two operational parameters communicate these limits between connection peers:
-credit grants, and inline threshold.
+RPC-over-RDMA provides
+a reliable
+and
+in-order
+data transport service for RPC Calls and Replies.
 </t>
-
-<section
- anchor="section_45c67eb8-8dc6-47c3-8555-14270f1514bF"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>Flow Control</name>
 <t>
-Therefore, RPC-over-RDMA transports
+RPC-over-RDMA transports
 <bcp14>MUST</bcp14>
 operate only on a reliable Queue Pair (QP) such as
 the RDMA RC (Reliable Connected) QP type
@@ -970,78 +958,127 @@ The Marker PDU Aligned (MPA) protocol
 <xref target="RFC5044" format="default" sectionFormat="of"/>,
 when deployed on a reliable transport such as TCP,
 provides similar functionality.
-The use of a reliable QP type ensures
+Using a reliable QP type ensures
 in-transit data integrity
 and
-proper recovery from link-layer packet loss or misordering.
+proper recovery from packet loss in the lower layers.
 </t>
 <t>
-However, RPC-over-RDMA itself provides a flow control mechanism
-to prevent a sender from overwhelming receiver resources.
-RPC-over-RDMA transports employ
-end-to-end credit-based flow control for this purpose
+If any pre-posted Receive buffer on the connection
+is not large enough to contain an incoming message,
+the receiving RDMA provider
+cannot deliver that message to the upper-layer consumer.
+Likewise, if no pre-posted Receive buffer is available
+to accept an incoming message,
+the receiving RDMA provide
+cannot pass that message to the consumer.
+Exceeding these limits results in
+a transition to a QP error state,
+the loss of an in-flight message,
+and
+the potential loss of the connection.
+</t>
+<t>
+Therefore, senders need to respect peer receiver resource limits
+to ensure that the transport service
+can deliver every message reliably.
+Two operational parameters communicate these limits
+between RPC-over-RDMA peers:
+credits and inline threshold.
+</t>
+
+<section
+ anchor="section_45c67eb8-8dc6-47c3-8555-14270f1514bF"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>Flow Control</name>
+<t>
+RPC-over-RDMA version 2 employs
+end-to-end credit-based flow control on each connection
+to prevent senders from transmitting more messages
+than a receiver is prepared to accept
 <xref target="CBFC" format="default" sectionFormat="of"/>.
 Credit-based flow control is relatively simple, providing
 robust operation in the face of bursty traffic
 and
-automated management of receive buffer allocation.
-</t>
-
-<section
- anchor="section_278fca6a-f2a8-42f3-a4e9-a8d4b217567e"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>Granting Credits</name>
-<t>
-An RPC-over-RDMA version 2 credit is
-the capability to receive one RPC-over-RDMA version 2 message.
-This arrangement enables RPC-over-RDMA version 2 to
-support asymmetrical operation,
-where a message in one direction might trigger zero, one, or multiple
-messages in the other direction in response.
+automated management of receive buffer allocation
+while enabling effective pipelining.
+A simplified sliding window approach is
+all that is necessary for our purposes
+because
+the underlying RDMA transport service already guarantees
+reliable and in-order message delivery.
 </t>
 <t>
-Each posted Receive buffer on both connection peers receives one credit.
-Thus, each Requester has a set of Receive credits,
-and
-each Responder has a set of Receive credits.
-These credit values are managed independently of one another.
+An RPC-over-RDMA version 2 credit represents
+the capability to convey
+exactly one RPC-over-RDMA version 2 message,
+regardless of its size,
+via an RDMA Send/Receive pair.
+This arrangement enables RPC-over-RDMA version 2
+transport connections to support
+multiple unacknowledged messages in each direction.
 </t>
 <t>
-<xref target="RFC8166" section="7" format="default" sectionFormat="of"/>
-requires that the 32-bit field containing the credit grant is the
-third word in the transport header.
-To conform with that requirement,
-senders encode the two independent credit values into a single
-32-bit field in the fixed portion of the transport header.
-At the receiver, the low-order two bytes are the number of credits
-that are newly granted by the sender.
-The granted credit value <bcp14>MUST NOT</bcp14> be zero
-since such a value would result in deadlock.
-The high-order two bytes are the maximum number of credits that
-can be outstanding at the sender.
+Because an RPC-over-RDMA version 2 connection is full-duplex,
+each connection peer has its own set of credits.
+The two receivers manage their credits independently,
+although they typically communicate these values
+by piggy-backing them on a payload-bearing message
+in the opposite direction.
 </t>
 <t>
-A sender must avoid posting more RDMA Send messages than
-the receiver's granted credit limit.
-If the sender exceeds the granted value,
-the RDMA provider might signal an error,
-possibly terminating the connection.
+Each RPC-over-RDMA version 2 message header contains
+two fields that handle credit accounting:
+</t>
+<ul>
+<li>
+The rdma_credit field contains the receiver's credit window size.
+This field functions in much the same way
+as the RPC-over-RDMA version 1 used "credit grants".
+When sending an RPC-over-RDMA message,
+a peer fills in this field with
+the number of messages is prepared to receive.
+</li>
+<li>
+A second field, which is yet to be defined,
+reports the number of messages received so far.
+When sending an RPC-over-RDMA message,
+a peer fills in this field with the count of messages
+it has already received.
+</li>
+</ul>
+<t>
+A sender also keeps track of the count of messages
+it has sent on the connection. The sender
+<bcp14>MUST</bcp14>
+stop transmitting messages when the number of messages
+it has already sent is about to exceed the number of messages
+the receiver has acknowledged plus the receiver's credit window.
 </t>
 <t>
-The granted credit values <bcp14>MAY</bcp14> be adjusted
+A receiver
+<bcp14>MAY</bcp14>
+adjust the credit window
 to match the needs or policies in effect on either peer.
-For instance, a peer may reduce its granted credit
-value to accommodate the available resources in a Shared Receive Queue.
-</t>
-<t>
+For instance, a peer may reduce the size of its credit window
+to accommodate the available resources in a Shared Receive Queue.
 Certain RDMA implementations may impose additional flow-control restrictions,
 such as limits on RDMA Read operations in progress at the Responder.
-Accommodation of such restrictions is considered
+Accommodation of such checks is considered
 the responsibility of each RPC-over-RDMA version 2 implementation.
 </t>
-</section>
+<t>
+The credit window size
+<bcp14>MUST</bcp14>
+be less than the total sequence number range
+(let's make this a more quantitative statement later).
+The receiver generally chooses a credit window
+that is large enough to maximize throughput,
+given the bandwidth-delay product of the connection,
+while not overwhelming memory resources on the local system.
+</t>
 
 <section
  anchor="section_f6348562-97f8-4413-96d7-bde3ff57b375"
@@ -1050,22 +1087,36 @@ the responsibility of each RPC-over-RDMA version 2 implementation.
  toc="default">
 <name>Asynchronous Credit Grants</name>
 <t>
-A special header type enables one peer
-to refresh its credit grant to the other peer
-without sending an RPC payload.
-A receiving peer can use this when the sender's credit grant
-is exhausted in the midst of a stream of continued messages.
+Credit accounting information is usually piggy-backed
+on data-bearing messages.
+However, on occasion, a receiver might need to
+refresh its credit window without sending an RPC payload.
+A receiving peer can use an alternate header type
+when the sender's credit window is exhausted
+during a stream of unacknowledged messages.
 See
 <xref target="section_d7b171ca-326d-45ed-bfa6-eca86ae4a62e" format="default" sectionFormat="of"/>
 for information about this header type.
 </t>
 <t>
-Receivers <bcp14>MUST</bcp14> always be in a position to receive
-one such credit grant update message,
+Unlike RPC-over-RDMA version 1,
+the credit window on an RPC-over-RDMA version 2
+connection
+<bcp14>MAY</bcp14>
+be zero.
+In that case, the sender waits
+until the receiver sends it an asynchronous credit refresh.
+</t>
+<t>
+Therefore, receivers
+<bcp14>MUST</bcp14>
+always be in a position to receive
+one asynchronous credit update message,
 in addition to payload-bearing messages,
 to prevent transport deadlock.
-One way a receiver can do this is to post one more RDMA Receive
-than the credit value the receiver granted.
+A receiver can do this is by
+posting one more RDMA Receive
+than the advertised credit window.
 </t>
 </section>
 
@@ -1081,24 +1132,30 @@ than the credit value the receiver granted.
 An "inline threshold" value is the largest message size
 (in octets) that can be conveyed in one direction between
 peer implementations using RDMA Send and Receive channel operations.
-An inline threshold value is less than the largest number of octets
+An inline threshold value is
+less than or equal to
+the largest number of octets
 the sender can post in a single RDMA Send operation.
-It is also less than the largest number of octets
+It is also
+less than or equal to
+the largest number of octets
 the receiver can reliably accept via a single RDMA Receive operation.
 </t>
 <t>
 Each connection has two inline threshold values.
-There is one for messages flowing from Requester-to-Responder,
-referred to as the "call inline threshold",
-and one for messages flowing from Responder-to-Requester,
-referred to as the "reply inline threshold."
+There is one for messages flowing from Requester-to-Responder
+(referred to as the "call inline threshold"),
+and one for messages flowing from Responder-to-Requester
+(referred to as the "reply inline threshold").
 </t>
 <t>
 Peers can advertise their inline threshold values
 via RPC-over-RDMA version 2 Transport Properties (see
 <xref target="section_86248e99-ca60-478a-8aff-3fb387410077" format="default" sectionFormat="of"/>).
 In the absence of an exchange of Transport Properties,
-connection peers <bcp14>MUST</bcp14> assume both inline thresholds are 4096 octets.
+connection peers
+<bcp14>MUST</bcp14>
+assume both inline thresholds are 4096 octets.
 </t>
 </section>
 
@@ -1120,7 +1177,7 @@ to determine the server's highest supported protocol version.
 Upon connection establishment, a client <bcp14>MUST</bcp14> send
 only a single RPC-over-RDMA message until
 it receives a valid RPC-over-RDMA message
-from the server that grants client credits.
+from the server that provides a credit window update.
 </t>
 <t>
 The second word of each transport header conveys
@@ -1732,9 +1789,9 @@ The rdma_vers field of each reverse-direction Call
 on the same connection.
 </li>
 <li>
-The server fills in the rdma_credits
+The server fills in the rdma_credit field
 with the credit values for the connection, as described in
-<xref target="section_278fca6a-f2a8-42f3-a4e9-a8d4b217567e" format="default" sectionFormat="of"/>.
+<xref target="section_45c67eb8-8dc6-47c3-8555-14270f1514bF" format="default" sectionFormat="of"/>.
 </li>
 <li>
 The server determines the Payload format for the RPC message
@@ -1775,9 +1832,9 @@ The rdma_vers field of each reverse-direction Call
 on the same connection.
 </li>
 <li>
-The client fills in the rdma_credits
+The client fills in the rdma_credit field
 with the credit values for the connection, as described in
-<xref target="section_278fca6a-f2a8-42f3-a4e9-a8d4b217567e" format="default" sectionFormat="of"/>.
+<xref target="section_45c67eb8-8dc6-47c3-8555-14270f1514bF" format="default" sectionFormat="of"/>.
 </li>
 <li>
 The client determines the Payload format for the RPC message
@@ -2742,7 +2799,7 @@ for details on the use of this header type.
 <name>RDMA2_GRANT: Grant Credits</name>
 <t>
 The RDMA2_GRANT header type enables a connection peer
-to grant additional credits to its remote peer
+to update credit information
 without conveying a payload.
 </t>
 <sourcecode name="" type="xdr" markers="true">
@@ -4969,10 +5026,10 @@ to other users sharing the connection from the errant Requester.
 An RPC-over-RDMA transport implementation is not responsible
 for throttling the RPC request rate,
 other than to keep the number of concurrent RPC transactions
-at or under the number of credits granted per connection (see
+at or under the per connection credit window (see
 <xref target="section_45c67eb8-8dc6-47c3-8555-14270f1514bF" format="default" sectionFormat="of"/>).
 A sender can trigger a self-denial of service
-by exceeding the credit grant repeatedly.
+by exceeding the credit window repeatedly.
 </t>
 <t>
 When an RPC transaction terminates due to
@@ -6425,7 +6482,7 @@ is determined by the direction of the message because
 the XID spaces in the forward and reverse directions are distinct.
 </li>
 <li>
-The meaning of the value in the rdma_credits field
+The meaning of the value in the rdma_credit field
 is determined by the direction of the message because
 credits are granted separately
 for forward and reverse direction operation.
