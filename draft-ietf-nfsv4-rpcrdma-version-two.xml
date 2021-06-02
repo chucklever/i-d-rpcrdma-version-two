@@ -173,8 +173,8 @@ In this context, the Network File System (NFS) family of protocols
 <xref target="RFC1094" format="default" sectionFormat="of"/>,
 <xref target="RFC1813" format="default" sectionFormat="of"/>,
 <xref target="RFC7530" format="default" sectionFormat="of"/>,
-<xref target="RFC5661" format="default" sectionFormat="of"/>,
 <xref target="RFC7862" format="default" sectionFormat="of"/>,
+<xref target="RFC8881" format="default" sectionFormat="of"/>,
 and subsequent NFSv4 minor versions)
 are all potential beneficiaries of RPC-over-RDMA.
 </t>
@@ -479,7 +479,7 @@ in the forward direction.
 They might not be prepared to handle operation
 in the reverse direction.
 Not until NFS version 4.1
-<xref target="RFC5661" format="default" sectionFormat="of"/>
+<xref target="RFC8881" format="default" sectionFormat="of"/>
 has there been a strong need
 to handle reverse-direction operation.
 </t>
@@ -5443,12 +5443,12 @@ Credit-Based Flow Control for ATM Networks: Credit Update Protocol, Adaptive Cre
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5041.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5044.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5532.xml"/>
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5661.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5662.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5666.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7530.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7862.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8167.xml"/>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8881.xml"/>
 
 </references>
 
