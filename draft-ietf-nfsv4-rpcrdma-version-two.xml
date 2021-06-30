@@ -1039,14 +1039,15 @@ This field functions in much the same way
 as the RPC-over-RDMA version 1 used "credit grants".
 When sending an RPC-over-RDMA message,
 a peer fills in this field with
-the number of messages is prepared to receive.
+the number of unacknowledged messages
+it is prepared to receive on this connection.
 </li>
 <li>
 A second field, which is yet to be defined,
 reports the number of messages received so far.
 When sending an RPC-over-RDMA message,
 a peer fills in this field with the count of messages
-it has already received.
+it has already received on this connection.
 </li>
 </ul>
 <t>
