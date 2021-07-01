@@ -5,8 +5,8 @@
 Network File System Version 4                              C. Lever, Ed.
 Internet-Draft                                                    Oracle
 Intended status: Standards Track                               D. Noveck
-Expires: 4 December 2021                                          NetApp
-                                                             2 June 2021
+Expires: 2 January 2022                                           NetApp
+                                                             1 July 2021
 
 
                     RPC-over-RDMA Version 2 Protocol
@@ -20,13 +20,13 @@ Abstract
 
 Note
 
+   This note is to be removed before publishing as an RFC.
+
    Discussion of this draft takes place on the NFSv4 working group
    mailing list (nfsv4@ietf.org), which is archived at
    https://mailarchive.ietf.org/arch/browse/nfsv4/. Working Group
    information can be found at https://datatracker.ietf.org/wg/nfsv4/
    about/.
-
-   This note is to be removed before publishing as an RFC.
 
    The source for this draft is maintained in GitHub.  Suggested changes
    can be submitted as pull requests at https://github.com/chucklever/
@@ -47,7 +47,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 4 December 2021.
+   This Internet-Draft will expire on 2 January 2022.
 
 Copyright Notice
 
@@ -651,13 +651,14 @@ Table of Contents
    *  The rdma_credit field contains the receiver's credit window size.
       This field functions in much the same way as the RPC-over-RDMA
       version 1 used "credit grants".  When sending an RPC-over-RDMA
-      message, a peer fills in this field with the number of messages is
-      prepared to receive.
+      message, a peer fills in this field with the number of
+      unacknowledged messages it is prepared to receive on this
+      connection.
 
    *  A second field, which is yet to be defined, reports the number of
       messages received so far.  When sending an RPC-over-RDMA message,
       a peer fills in this field with the count of messages it has
-      already received.
+      already received on this connection.
 
    A sender also keeps track of the count of messages it has sent on the
    connection.  The sender MUST stop transmitting messages when the
