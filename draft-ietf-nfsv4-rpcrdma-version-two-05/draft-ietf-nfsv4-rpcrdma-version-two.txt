@@ -5,8 +5,8 @@
 Network File System Version 4                              C. Lever, Ed.
 Internet-Draft                                                    Oracle
 Intended status: Standards Track                               D. Noveck
-Expires: 4 January 2021                                           NetApp
-                                                             3 July 2020
+Expires: 7 January 2022                                           NetApp
+                                                             6 July 2021
 
 
                     RPC-over-RDMA Version 2 Protocol
@@ -20,13 +20,13 @@ Abstract
 
 Note
 
+   This note is to be removed before publishing as an RFC.
+
    Discussion of this draft takes place on the NFSv4 working group
    mailing list (nfsv4@ietf.org), which is archived at
    https://mailarchive.ietf.org/arch/browse/nfsv4/. Working Group
    information can be found at https://datatracker.ietf.org/wg/nfsv4/
    about/.
-
-   This note is to be removed before publishing as an RFC.
 
    The source for this draft is maintained in GitHub.  Suggested changes
    can be submitted as pull requests at https://github.com/chucklever/
@@ -47,20 +47,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 4 January 2021.
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                 [Page 1]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
+   This Internet-Draft will expire on 7 January 2022.
 
 Copyright Notice
 
-   Copyright (c) 2020 IETF Trust and the persons identified as the
+   Copyright (c) 2021 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -86,155 +77,78 @@ Copyright Notice
 
 Table of Contents
 
-   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   5
-     1.1.  Design Goals  . . . . . . . . . . . . . . . . . . . . . .   5
-     1.2.  Motivation for a New Version  . . . . . . . . . . . . . .   6
-   2.  Requirements Language . . . . . . . . . . . . . . . . . . . .   7
-   3.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   7
-     3.1.  Remote Procedure Calls  . . . . . . . . . . . . . . . . .   7
-       3.1.1.  Upper-Layer Protocols . . . . . . . . . . . . . . . .   7
-       3.1.2.  Requesters and Responders . . . . . . . . . . . . . .   7
-       3.1.3.  RPC Transports  . . . . . . . . . . . . . . . . . . .   8
-       3.1.4.  External Data Representation  . . . . . . . . . . . .  10
-     3.2.  Remote Direct Memory Access . . . . . . . . . . . . . . .  11
-       3.2.1.  Direct Data Placement . . . . . . . . . . . . . . . .  11
-       3.2.2.  RDMA Transport Requirements . . . . . . . . . . . . .  12
-   4.  RPC-over-RDMA Framework . . . . . . . . . . . . . . . . . . .  14
-     4.1.  Message Framing . . . . . . . . . . . . . . . . . . . . .  14
-     4.2.  Managing Receiver Resources . . . . . . . . . . . . . . .  15
-       4.2.1.  Flow Control  . . . . . . . . . . . . . . . . . . . .  15
-       4.2.2.  Inline Threshold  . . . . . . . . . . . . . . . . . .  16
-       4.2.3.  Initial Connection State  . . . . . . . . . . . . . .  17
-     4.3.  XDR Encoding with Chunks  . . . . . . . . . . . . . . . .  18
-
-
-
-Lever & Noveck           Expires 4 January 2021                 [Page 2]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-       4.3.1.  Reducing an XDR Stream  . . . . . . . . . . . . . . .  18
-       4.3.2.  DDP-Eligibility . . . . . . . . . . . . . . . . . . .  18
-       4.3.3.  RDMA Segments . . . . . . . . . . . . . . . . . . . .  19
-       4.3.4.  Chunks  . . . . . . . . . . . . . . . . . . . . . . .  19
-       4.3.5.  Read Chunks . . . . . . . . . . . . . . . . . . . . .  21
-       4.3.6.  Write Chunks  . . . . . . . . . . . . . . . . . . . .  22
-     4.4.  Payload Formats . . . . . . . . . . . . . . . . . . . . .  23
-       4.4.1.  Simple Format . . . . . . . . . . . . . . . . . . . .  24
-       4.4.2.  Continued Format  . . . . . . . . . . . . . . . . . .  26
-       4.4.3.  Special Format  . . . . . . . . . . . . . . . . . . .  28
-     4.5.  Reverse-Direction Operation . . . . . . . . . . . . . . .  30
-       4.5.1.  Sending a Reverse-Direction RPC Call  . . . . . . . .  30
-       4.5.2.  Sending a Reverse-Direction RPC Reply . . . . . . . .  30
-       4.5.3.  In the Absence of Support For Reverse-Direction
-               Operation . . . . . . . . . . . . . . . . . . . . . .  31
-       4.5.4.  Using Chunks During Reverse-Direction Operation . . .  32
-       4.5.5.  Reverse-Direction Retransmission  . . . . . . . . . .  32
-   5.  Transport Properties  . . . . . . . . . . . . . . . . . . . .  33
-     5.1.  Transport Properties Model  . . . . . . . . . . . . . . .  33
-     5.2.  Current Transport Properties  . . . . . . . . . . . . . .  35
-       5.2.1.  Maximum Send Size . . . . . . . . . . . . . . . . . .  36
-       5.2.2.  Receive Buffer Size . . . . . . . . . . . . . . . . .  36
-       5.2.3.  Maximum RDMA Segment Size . . . . . . . . . . . . . .  37
-       5.2.4.  Maximum RDMA Segment Count  . . . . . . . . . . . . .  37
-       5.2.5.  Reverse-Direction Support . . . . . . . . . . . . . .  37
-       5.2.6.  Host Authentication Message . . . . . . . . . . . . .  38
-   6.  Transport Messages  . . . . . . . . . . . . . . . . . . . . .  38
-     6.1.  Transport Header Types  . . . . . . . . . . . . . . . . .  39
-     6.2.  Headers and Chunks  . . . . . . . . . . . . . . . . . . .  40
-       6.2.1.  Common Transport Header Prefix  . . . . . . . . . . .  40
-       6.2.2.  Transport Header Prefix . . . . . . . . . . . . . . .  41
-       6.2.3.  External Data Payloads  . . . . . . . . . . . . . . .  43
-       6.2.4.  Remote Invalidation . . . . . . . . . . . . . . . . .  44
-     6.3.  Header Types  . . . . . . . . . . . . . . . . . . . . . .  44
-       6.3.1.  RDMA2_MSG: Convey RPC Message Inline  . . . . . . . .  45
-       6.3.2.  RDMA2_NOMSG: Convey External RPC Message  . . . . . .  45
-       6.3.3.  RDMA2_ERROR: Report Transport Error . . . . . . . . .  46
-       6.3.4.  RDMA2_CONNPROP: Exchange Transport Properties . . . .  47
-       6.3.5.  RDMA2_GRANT: Grant Credits  . . . . . . . . . . . . .  48
-     6.4.  Choosing a Reply Mechanism  . . . . . . . . . . . . . . .  48
-   7.  Error Handling  . . . . . . . . . . . . . . . . . . . . . . .  49
-     7.1.  Basic Transport Stream Parsing Errors . . . . . . . . . .  50
-       7.1.1.  RDMA2_ERR_VERS  . . . . . . . . . . . . . . . . . . .  50
-       7.1.2.  RDMA2_ERR_INVAL_HTYPE . . . . . . . . . . . . . . . .  50
-       7.1.3.  RDMA2_ERR_INVAL_CONT  . . . . . . . . . . . . . . . .  51
-     7.2.  XDR Errors  . . . . . . . . . . . . . . . . . . . . . . .  51
-       7.2.1.  RDMA2_ERR_BAD_XDR . . . . . . . . . . . . . . . . . .  51
-       7.2.2.  RDMA2_ERR_BAD_PROPVAL . . . . . . . . . . . . . . . .  52
-
-
-
-Lever & Noveck           Expires 4 January 2021                 [Page 3]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-     7.3.  Responder RDMA Operational Errors . . . . . . . . . . . .  52
-       7.3.1.  RDMA2_ERR_READ_CHUNKS . . . . . . . . . . . . . . . .  52
-       7.3.2.  RDMA2_ERR_WRITE_CHUNKS  . . . . . . . . . . . . . . .  53
-       7.3.3.  RDMA2_ERR_SEGMENTS  . . . . . . . . . . . . . . . . .  53
-       7.3.4.  RDMA2_ERR_WRITE_RESOURCE  . . . . . . . . . . . . . .  53
-       7.3.5.  RDMA2_ERR_REPLY_RESOURCE  . . . . . . . . . . . . . .  54
-     7.4.  Other Operational Errors  . . . . . . . . . . . . . . . .  54
-       7.4.1.  RDMA2_ERR_SYSTEM  . . . . . . . . . . . . . . . . . .  54
-     7.5.  RDMA Transport Errors . . . . . . . . . . . . . . . . . .  55
-   8.  XDR Protocol Definition . . . . . . . . . . . . . . . . . . .  55
-     8.1.  Code Component License  . . . . . . . . . . . . . . . . .  55
-     8.2.  Extraction of the XDR Definition  . . . . . . . . . . . .  57
-     8.3.  XDR Definition for RPC-over-RDMA Version 2 Core
-           Structures  . . . . . . . . . . . . . . . . . . . . . . .  58
+   1.  Introduction
+     1.1.  Design Goals
+     1.2.  Motivation for a New Version
+   2.  Requirements Language
+   3.  Terminology
+     3.1.  Remote Procedure Calls
+     3.2.  Remote Direct Memory Access
+   4.  RPC-over-RDMA Framework
+     4.1.  Message Framing
+     4.2.  Reliable Message Delivery
+     4.3.  Initial Connection State
+     4.4.  Using Direct Data Placement
+     4.5.  Encoding Chunks
+     4.6.  Reverse-Direction Operation
+   5.  Transport Properties
+     5.1.  Transport Properties Model
+     5.2.  Current Transport Properties
+   6.  Transport Messages
+     6.1.  Transport Header Types
+     6.2.  Headers and Chunks
+     6.3.  Header Types
+     6.4.  Transport Header Prefix
+     6.5.  Remote Invalidation
+     6.6.  Payload Formats
+   7.  Error Handling
+     7.1.  Basic Transport Stream Parsing Errors
+     7.2.  XDR Errors
+     7.3.  Responder RDMA Operational Errors
+     7.4.  Other Operational Errors
+     7.5.  RDMA Transport Errors
+   8.  XDR Protocol Definition
+     8.1.  Code Component License
+     8.2.  Extraction of the XDR Definition
+     8.3.  XDR Definition for RPC-over-RDMA Version 2 Core Structures
      8.4.  XDR Definition for RPC-over-RDMA Version 2 Base Header
-           Types . . . . . . . . . . . . . . . . . . . . . . . . . .  60
-     8.5.  Use of the XDR Description  . . . . . . . . . . . . . . .  62
-   9.  RPC Bind Parameters . . . . . . . . . . . . . . . . . . . . .  63
-   10. Implementation Status . . . . . . . . . . . . . . . . . . . .  64
-   11. Security Considerations . . . . . . . . . . . . . . . . . . .  65
-     11.1.  Memory Protection  . . . . . . . . . . . . . . . . . . .  65
-       11.1.1.  Protection Domains . . . . . . . . . . . . . . . . .  65
-       11.1.2.  Handle (STag) Predictability . . . . . . . . . . . .  65
-       11.1.3.  Memory Protection  . . . . . . . . . . . . . . . . .  65
-       11.1.4.  Denial of Service  . . . . . . . . . . . . . . . . .  66
-     11.2.  RPC Message Security . . . . . . . . . . . . . . . . . .  67
-       11.2.1.  RPC-over-RDMA Protection at Other Layers . . . . . .  67
-       11.2.2.  RPCSEC_GSS on RPC-over-RDMA Transports . . . . . . .  67
-     11.3.  Transport Properties . . . . . . . . . . . . . . . . . .  70
-     11.4.  Host Authentication  . . . . . . . . . . . . . . . . . .  70
-   12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  70
-   13. References  . . . . . . . . . . . . . . . . . . . . . . . . .  71
-     13.1.  Normative References . . . . . . . . . . . . . . . . . .  71
-     13.2.  Informative References . . . . . . . . . . . . . . . . .  72
-   Appendix A.  ULB Specifications . . . . . . . . . . . . . . . . .  74
-     A.1.  DDP-Eligibility . . . . . . . . . . . . . . . . . . . . .  74
-     A.2.  Maximum Reply Size  . . . . . . . . . . . . . . . . . . .  75
-     A.3.  Reverse-Direction Operation . . . . . . . . . . . . . . .  75
-     A.4.  Additional Considerations . . . . . . . . . . . . . . . .  76
-     A.5.  ULP Extensions  . . . . . . . . . . . . . . . . . . . . .  76
-   Appendix B.  Extending RPC-over-RDMA Version 2  . . . . . . . . .  77
-     B.1.  Documentation Requirements  . . . . . . . . . . . . . . .  77
-     B.2.  Adding New Header Types to RPC-over-RDMA Version 2  . . .  78
-     B.3.  Adding New Header Flags to the Protocol . . . . . . . . .  79
-     B.4.  Adding New Transport properties to the Protocol . . . . .  79
-     B.5.  Adding New Error Codes to the Protocol  . . . . . . . . .  80
-   Appendix C.  Differences from RPC-over-RDMA Version 1 . . . . . .  81
-     C.1.  Changes to the XDR Definition . . . . . . . . . . . . . .  81
-
-
-
-Lever & Noveck           Expires 4 January 2021                 [Page 4]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-     C.2.  Transport Properties  . . . . . . . . . . . . . . . . . .  82
-     C.3.  Credit Management Changes . . . . . . . . . . . . . . . .  82
-     C.4.  Inline Threshold Changes  . . . . . . . . . . . . . . . .  83
-     C.5.  Message Continuation Changes  . . . . . . . . . . . . . .  84
-     C.6.  Host Authentication Changes . . . . . . . . . . . . . . .  85
-     C.7.  Support for Remote Invalidation . . . . . . . . . . . . .  85
-     C.8.  Error Reporting Changes . . . . . . . . . . . . . . . . .  86
-   Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . . .  87
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  87
+           Types
+     8.5.  Use of the XDR Description
+   9.  RPC Bind Parameters
+   10. Implementation Status
+   11. Security Considerations
+     11.1.  Memory Protection
+     11.2.  RPC Message Security
+     11.3.  Transport Properties
+     11.4.  Host Authentication
+   12. IANA Considerations
+   13. References
+     13.1.  Normative References
+     13.2.  Informative References
+   Appendix A.  ULB Specifications
+     A.1.  DDP-Eligibility
+     A.2.  Maximum Reply Size
+     A.3.  Reverse-Direction Operation
+     A.4.  Additional Considerations
+     A.5.  ULP Extensions
+   Appendix B.  Extending RPC-over-RDMA Version 2
+     B.1.  Documentation Requirements
+     B.2.  Adding New Header Types to RPC-over-RDMA Version 2
+     B.3.  Adding New Transport properties to the Protocol
+     B.4.  Adding New Error Codes to the Protocol
+   Appendix C.  Differences from RPC-over-RDMA Version 1
+     C.1.  Changes to the XDR Definition
+     C.2.  Transport Properties
+     C.3.  Credit Management Changes
+     C.4.  Inline Threshold Changes
+     C.5.  Message Continuation Changes
+     C.6.  Host Authentication Changes
+     C.7.  Support for Remote Invalidation
+     C.8.  Integration of Reverse-Direction Operation
+     C.9.  Error Reporting Changes
+     C.10. Changes in Terminology
+   Acknowledgments
+   Authors' Addresses
 
 1.  Introduction
 
@@ -272,23 +186,13 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    to bolster clients more than servers, as the client is typically
    where applications are most hungry for CPU resources.
 
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                 [Page 5]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    Additionally, RPC-over-RDMA transports are designed to support RPC
    applications transparently.  However, such transports can also
    provide mechanisms that enable further optimization of data transfer
    when RPC applications are structured to exploit direct data
    placement.  In this context, the Network File System (NFS) family of
    protocols (as described in [RFC1094], [RFC1813], [RFC7530],
-   [RFC5661], [RFC7862], and subsequent NFSv4 minor versions) are all
+   [RFC7862], [RFC8881], and subsequent NFSv4 minor versions) are all
    potential beneficiaries of RPC-over-RDMA.
 
    A complete problem statement appears in [RFC5532].
@@ -301,7 +205,7 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
 
    *  The protocol's default size of Receive buffers forces the use of
       RDMA Read and Write transfers for small payloads, and limits the
-      size of reverse direction messages.
+      size of reverse-direction messages.
 
    *  It is difficult to make optimizations or protocol fixes that
       require changes to on-the-wire behavior.
@@ -310,13 +214,12 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
       impossible for an RPC client to estimate in advance.
 
    To address these issues in a way that preserves interoperation with
-   existing RPC-over-RDMA version 1 deployments, we present a second
-   version of the RPC-over-RDMA transport protocol in the current
-   document.
+   existing RPC-over-RDMA version 1 deployments, the current document
+   presents an updated version of the RPC-over-RDMA transport protocol.
 
-   The version of RPC-over-RDMA presented here is extensible, enabling
-   the introduction of OPTIONAL extensions without impacting existing
-   implementations.  See Appendix C.1, for further discussion.  It
+   This version of RPC-over-RDMA is extensible, enabling the
+   introduction of OPTIONAL extensions without impacting existing
+   implementations.  See Appendix C.1 for further discussion.  It
    introduces a mechanism to exchange implementation properties to
    automatically provide further optimization of data transfer.
 
@@ -327,16 +230,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    using multiple RDMA Send operations, support for authentication of
    connection peers, richer error reporting, improved credit-based flow
    control, and support for Remote Invalidation.
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                 [Page 6]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
 2.  Requirements Language
 
@@ -354,8 +247,7 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    [RFC5531] and the External Data Representation (XDR) [RFC4506] it
    uses.  RPC-over-RDMA version 2 enables the transmission of RPC
    messges built using XDR and also uses XDR internally to describe its
-   header formats.  The remainder of this document requires an
-   understanding of RPC and its use of XDR.
+   header format.
 
 3.1.1.  Upper-Layer Protocols
 
@@ -383,16 +275,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    consumers.
 
    ONC RPC transactions consist of two types of messages:
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                 [Page 7]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
    *  A CALL message, or "Call", requests work.  An RPC Call message is
       designated by the value zero (0) in the message's msg_type field.
@@ -438,18 +320,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    connections, while servers wait passively to accept incoming
    connection requests.
 
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                 [Page 8]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
 3.1.3.1.  Transport Failure Recovery
 
    So that appropriate and timely recovery action can be taken, the
@@ -484,7 +354,7 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    RPC clients and servers are usually optimized to perform and scale
    well when handling traffic in the forward direction.  They might not
    be prepared to handle operation in the reverse direction.  Not until
-   NFS version 4.1 [RFC5661] has there been a strong need to handle
+   NFS version 4.1 [RFC8881] has there been a strong need to handle
    reverse-direction operation.
 
 3.1.3.4.  Bi-directional Operation
@@ -497,14 +367,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    "Bi-directional operation" occurs when both transport endpoints act
    as a Requester and a Responder at the same time on a single
    connection.
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                 [Page 9]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
    Bi-directionality is an extension of RPC transport connection
    sharing.  Two RPC endpoints wish to exchange independent RPC messages
@@ -552,16 +414,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    XDR can also flatten lists, arrays, and other complex data types into
    a stream of bytes.
 
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 10]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    We refer to a serialized stream of bytes that is the result of XDR
    encoding as an "XDR stream".  A sender encodes native data into an
    XDR stream and then transmits that stream to a receiver.  The
@@ -602,26 +454,19 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    placement or "DDP").  RDMA transports enable both of these
    optimizations.
 
-   In the current document, "RDMA" refers to the physical mechanism an
-   RDMA transport utilizes when moving data.
+   In the current document, the standalone term "RDMA" refers to the
+   physical mechanism an RDMA transport utilizes when moving data.
 
 3.2.1.  Direct Data Placement
 
    Typically, RPC implementations copy the contents of RPC messages into
    a buffer before being sent.  An efficient RPC implementation sends
-   bulk data without copying it into a separate send buffer first.
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 11]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
+   bulk data without first copying it into a separate send buffer.
 
    However, socket-based RPC implementations are often unable to receive
    data directly into its final place in memory.  Receivers often need
-   to copy incoming data to finish an RPC operation sometimes, if only
-   to adjust data alignment.
+   to copy incoming data to finish an RPC operation, if only to adjust
+   data alignment.
 
    Although it may not be efficient, before an RDMA transfer, a sender
    may copy data into an intermediate buffer.  After an RDMA transfer, a
@@ -635,7 +480,7 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    note that not all RDMA-based data transfer qualifies as DDP, and some
    mechanisms that do not employ explicit RDMA can place data directly.
 
-3.2.2.  RDMA Transport Requirements
+3.2.2.  RDMA Transport Operation
 
    RDMA transports require that RDMA consumers provision resources in
    advance to achieve good performance during receive operations.  An
@@ -662,26 +507,14 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    no more than 32 bits and memory addresses of up to 64 bits in length
    identifies each registered memory region.
 
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 12]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
 3.2.2.2.  RDMA Send
 
    The RDMA provider supports an RDMA Send operation, with completion
-   signaled on the receiving peer after RDMA provider has placed data in
-   a pre-posted buffer.  Sends complete at the receiver in the order
-   they were posted at the sender.  The size of the remote peer's pre-
-   posted buffers limits the amount of data that can be transferred by a
-   single RDMA Send operation.
+   signaled on the receiving peer after the RDMA provider has placed
+   data in a pre-posted buffer.  Sends complete at the receiver in the
+   order they were posted at the sender.  The size of the remote peer's
+   pre-posted buffers limits the amount of data that can be transferred
+   by a single RDMA Send operation.
 
 3.2.2.3.  RDMA Receive
 
@@ -721,15 +554,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    subsequent RDMA Send message.  The remote peer can then invalidate
    steering tags and subsequently free associated source memory regions.
 
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 13]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
 4.  RPC-over-RDMA Framework
 
    Before an RDMA data transfer can occur, an endpoint first exposes
@@ -758,9 +582,7 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    *  The "Payload stream" contains part or all of a single RPC message.
       The sender MAY divide an RPC message at any convenient boundary
       but MUST send RPC message fragments in XDR stream order and MUST
-      NOT interleave Payload streams from multiple RPC messages.  The
-      RPC-over-RDMA version 2 message carrying the final part of an RPC
-      message is marked (see Section 6.2.2.2).
+      NOT interleave Payload streams from multiple RPC messages.
 
    The RPC-over-RDMA framing mechanism described in this section
    replaces all other RPC framing mechanisms.  Connection peers use RPC-
@@ -772,133 +594,133 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    the resulting shift in framing must occur between distinct RPC
    messages, and in concert with the underlying transport.
 
+4.2.  Reliable Message Delivery
 
+   RPC-over-RDMA provides a reliable and in-order data transport service
+   for RPC Calls and Replies.
 
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 14]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-4.2.  Managing Receiver Resources
+   RPC-over-RDMA transports MUST operate only on a reliable Queue Pair
+   (QP) such as the RDMA RC (Reliable Connected) QP type as defined in
+   Section 9.7.7 of [IBA].  The Marker PDU Aligned (MPA) protocol
+   [RFC5044], when deployed on a reliable transport such as TCP,
+   provides similar functionality.  Using a reliable QP type ensures in-
+   transit data integrity and proper recovery from packet loss in the
+   lower layers.
 
    If any pre-posted Receive buffer on the connection is not large
-   enough to accept an incoming RDMA Send, the RDMA provider can
-   terminate the connection.  Likewise, if a pre-posted Receive buffer
-   is not available to accept an incoming RDMA Send, the RDMA provider
-   can terminate the connection.  Therefore, a sender needs to respect
-   the resource limits of its peer receiver to ensure the longevity of
-   each connection.  Two operational parameters communicate these limits
-   between connection peers: flow control, and inline threshold.
+   enough to contain an incoming message, the receiving RDMA provider
+   cannot deliver that message to the upper-layer consumer.  Likewise,
+   if no pre-posted Receive buffer is available to accept an incoming
+   message, the receiving RDMA provide cannot pass that message to the
+   consumer.  Exceeding these limits results in a transition to a QP
+   error state, the loss of an in-flight message, and the potential loss
+   of the connection.
+
+   Therefore, senders need to respect peer receiver resource limits to
+   ensure that the transport service can deliver every message reliably.
+   Two operational parameters communicate these limits between RPC-over-
+   RDMA peers: credits and inline threshold.
 
 4.2.1.  Flow Control
 
-   RPC-over-RDMA requires reliable and in-order delivery of data
-   payloads.  Therefore, RPC-over-RDMA transports MUST use the RDMA RC
-   (Reliable Connected) Queue Pair (QP) type.  The use of an RC QP
-   ensures in-transit data integrity and proper recovery from packet
-   loss or misordering.
+   RPC-over-RDMA version 2 employs end-to-end credit-based flow control
+   on each connection to prevent senders from transmitting more messages
+   than a receiver is prepared to accept [CBFC].  Credit-based flow
+   control is relatively simple, providing robust operation in the face
+   of bursty traffic and automated management of receive buffer
+   allocation while enabling effective pipelining.  A simplified sliding
+   window approach is all that is necessary for our purposes because the
+   underlying RDMA transport service already guarantees reliable and in-
+   order message delivery.
 
-   However, RPC-over-RDMA itself provides a flow control mechanism to
-   prevent a sender from overwhelming receiver resources.  RPC-over-RDMA
-   transports employ end-to-end credit-based flow control for this
-   purpose [CBFC].  Credit-based flow control is relatively simple,
-   providing robust operation in the face of bursty traffic and
-   automated management of receive buffer allocation.
+   An RPC-over-RDMA version 2 credit represents the capability to convey
+   exactly one RPC-over-RDMA version 2 message, regardless of its size,
+   via an RDMA Send/Receive pair.  This arrangement enables RPC-over-
+   RDMA version 2 transport connections to support multiple
+   unacknowledged messages in each direction.
 
-4.2.1.1.  Granting Credits
+   Because an RPC-over-RDMA version 2 connection is full-duplex, each
+   connection peer has its own set of credits.  The two receivers manage
+   their credits independently, although they typically communicate
+   these values by piggy-backing them on a payload-bearing message in
+   the opposite direction.
 
-   An RPC-over-RDMA version 2 credit is the capability to receive one
-   RPC-over-RDMA version 2 message.  This arrangement enables RPC-over-
-   RDMA version 2 to support asymmetrical operation, where a message in
-   one direction might trigger zero, one, or multiple messages in the
-   other direction in response.
+   Each RPC-over-RDMA version 2 message header contains two fields that
+   handle credit accounting:
 
-   To achieve this, each posted Receive buffer on both connection peers
-   receives one credit.  Each Requester has a set of Receive credits,
-   and each Responder has a set of Receive credits.  These credit values
-   are managed independently of one another.
+   *  The rdma_credit field contains the receiver's credit window size.
+      This field functions in much the same way as the RPC-over-RDMA
+      version 1 used "credit grants".  When sending an RPC-over-RDMA
+      message, a peer fills in this field with the number of
+      unacknowledged messages it is prepared to receive on this
+      connection.
 
-   Section 7 of [RFC8166] requires that the 32-bit field containing the
-   credit grant is the third word in the transport header.  To conform
-   with that requirement, senders encode the two independent credit
-   values into a single 32-bit field in the fixed portion of the
-   transport header.  At the receiver, the low-order two bytes are the
-   number of credits that are newly granted by the sender.  The granted
-   credit value MUST NOT be zero since such a value would result in
-   deadlock.  The high-order two bytes are the maximum number of credits
-   that can be outstanding at the sender.
+   *  A second field, which is yet to be defined, reports the number of
+      messages received so far.  When sending an RPC-over-RDMA message,
+      a peer fills in this field with the count of messages it has
+      already received on this connection.
 
+   A sender also keeps track of the count of messages it has sent on the
+   connection.  The sender MUST stop transmitting messages when the
+   number of messages it has already sent is about to exceed the number
+   of messages the receiver has acknowledged plus the receiver's credit
+   window.
 
-
-Lever & Noveck           Expires 4 January 2021                [Page 15]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-   A sender must avoid posting more RDMA Send messages than the
-   receiver's granted credit limit.  If the sender exceeds the granted
-   value, the RDMA provider might signal an error, possibly terminating
-   the connection.
-
-   The granted credit values MAY be adjusted to match the needs or
+   A receiver MAY adjust the credit window to match the needs or
    policies in effect on either peer.  For instance, a peer may reduce
-   its granted credit value to accommodate the available resources in a
-   Shared Receive Queue.
+   the size of its credit window to accommodate the available resources
+   in a Shared Receive Queue.  Certain RDMA implementations may impose
+   additional flow-control restrictions, such as limits on RDMA Read
+   operations in progress at the Responder.  Accommodation of such
+   checks is considered the responsibility of each RPC-over-RDMA version
+   2 implementation.
 
-   Certain RDMA implementations may impose additional flow-control
-   restrictions, such as limits on RDMA Read operations in progress at
-   the Responder.  Accommodation of such restrictions is considered the
-   responsibility of each RPC-over-RDMA version 2 implementation.
+   The credit window size MUST be less than the total sequence number
+   range (let's make this a more quantitative statement later).  The
+   receiver generally chooses a credit window that is large enough to
+   maximize throughput, given the bandwidth-delay product of the
+   connection, while not overwhelming memory resources on the local
+   system.
 
-4.2.1.2.  Asynchronous Credit Grants
+4.2.1.1.  Asynchronous Credit Grants
 
-   A special header type enables one peer to refresh its credit grant to
-   the other peer without sending an RPC payload.  A receiving peer can
-   use this when the sender's credit grant is exhausted in the midst of
-   a stream of continued messages.  See Section 6.3.5 for information
-   about this header type.
+   Credit accounting information is usually piggy-backed on data-bearing
+   messages.  However, on occasion, a receiver might need to refresh its
+   credit window without sending an RPC payload.  A receiving peer can
+   use an alternate header type when the sender's credit window is
+   exhausted during a stream of unacknowledged messages.  See
+   Section 6.3.2 for information about this header type.
 
-   Receivers MUST always be in a position to receive one such credit
-   grant update message, in addition to payload-bearing messages, to
-   prevent transport deadlock.  One way a receiver can do this is to
-   post one more RDMA Receive than the credit value the receiver
-   granted.
+   Unlike RPC-over-RDMA version 1, the credit window on an RPC-over-RDMA
+   version 2 connection MAY be zero.  In that case, the sender waits
+   until the receiver sends it an asynchronous credit refresh.
+
+   Therefore, receivers MUST always be in a position to receive one
+   asynchronous credit update message, in addition to payload-bearing
+   messages, to prevent transport deadlock.  A receiver can do this is
+   by posting one more RDMA Receive than the advertised credit window.
 
 4.2.2.  Inline Threshold
 
    An "inline threshold" value is the largest message size (in octets)
    that can be conveyed in one direction between peer implementations
    using RDMA Send and Receive channel operations.  An inline threshold
-   value is less than the largest number of octets the sender can post
-   in a single RDMA Send operation.  It is also less than the largest
-   number of octets the receiver can reliably accept via a single RDMA
-   Receive operation.
+   value is less than or equal to the largest number of octets the
+   sender can post in a single RDMA Send operation.  It is also less
+   than or equal to the largest number of octets the receiver can
+   reliably accept via a single RDMA Receive operation.
 
    Each connection has two inline threshold values.  There is one for
-   messages flowing from Requester-to-Responder, referred to as the
-   "call inline threshold", and one for messages flowing from Responder-
-   to-Requester, referred to as the "reply inline threshold."
+   messages flowing from Requester-to-Responder (referred to as the
+   "call inline threshold"), and one for messages flowing from
+   Responder-to-Requester (referred to as the "reply inline threshold").
 
    Peers can advertise their inline threshold values via RPC-over-RDMA
    version 2 Transport Properties (see Section 5).  In the absence of an
    exchange of Transport Properties, connection peers MUST assume both
    inline thresholds are 4096 octets.
 
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 16]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-4.2.3.  Initial Connection State
+4.3.  Initial Connection State
 
    When an RPC-over-RDMA version 2 client establishes a connection to a
    server, its first order of business is to determine the server's
@@ -906,7 +728,7 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
 
    Upon connection establishment, a client MUST send only a single RPC-
    over-RDMA message until it receives a valid RPC-over-RDMA message
-   from the server that grants client credits.
+   from the server that provides a credit window update.
 
    The second word of each transport header conveys the transport
    protocol version.  In the interest of clarity, the current document
@@ -919,14 +741,14 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    version 1, this initial message MUST NOT be larger than the version 1
    default inline threshold of 1024 octets.
 
-4.2.3.1.  Server Does Support RPC-over-RDMA Version 2
+4.3.1.  Server Supports RPC-over-RDMA Version 2
 
    If the server supports RPC-over-RDMA version 2, it sends RPC-over-
    RDMA messages back to the client with the value two (2) in the
    rdma_vers field.  Both peers may assume the default inline threshold
    value for RPC-over-RDMA version 2 connections (4096 octets).
 
-4.2.3.2.  Server Does Not Support RPC-over-RDMA Version 2
+4.3.2.  Server Does Not Support RPC-over-RDMA Version 2
 
    If the server does not support RPC-over-RDMA version 2, it MUST send
    an RPC-over-RDMA message to the client with an XID that matches the
@@ -946,15 +768,7 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    peers may use the default inline threshold value for the negotiated
    transport protocol version.
 
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 17]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-4.2.3.3.  Client Does Not Support RPC-over-RDMA Version 2
+4.3.3.  Client Does Not Support RPC-over-RDMA Version 2
 
    The server examines the RPC-over-RDMA protocol version used in the
    first RPC-over-RDMA message it receives.  If it supports this
@@ -962,125 +776,249 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    on that connection.  The client MUST NOT change the protocol version
    for the duration of the connection.
 
-4.3.  XDR Encoding with Chunks
-
-   When a DDP capability is available, an RDMA provider can place the
-   contents of one or more XDR data items directly into a receiver's
-   memory.  It can do this separately from the transfer of other parts
-   of the containing XDR stream.
-
-4.3.1.  Reducing an XDR Stream
+4.4.  Using Direct Data Placement
 
    RPC-over-RDMA version 2 provides a mechanism for moving part of an
-   RPC message via a data transfer distinct from an RDMA Send/Receive
-   pair.  The sender removes one or more XDR data items from the Payload
-   stream.  These items are conveyed via other mechanisms, such as one
-   or more RDMA Read or Write operations.  As the receiver decodes an
-   incoming message, it skips over directly placed data items.
+   RPC message via a data transfer distinct from RDMA Send and Receive.
+   For example, a sender can remove one or more XDR data items from the
+   Payload stream.  These items are then conveyed via other mechanisms,
+   such as one or more RDMA Read or Write operations.
+
+4.4.1.  Chunks and Segments
+
+   A Requester records the location information for each registered
+   memory region associated with an RPC payload in the transport header
+   of an RPC-over-RDMA message.  With this information, the Responder
+   uses RDMA Read and Write operations to retrieve arguments contained
+   in the specified region of the Requester's memory or place results in
+   that region.
+
+   A "segment" is a transport header data object that contains the
+   precise coordinates of a contiguous registered memory region.  Each
+   segment contains the following information:
+
+   Handle:  A steering Tag (STag) or R_key generated by registering this
+      memory with the RDMA provider.
+
+   Length:  The length of the segment's memory region, in octets.  The
+      length of a segment MAY be aligned to a single octet.  An "empty
+      segment" is defined as a segment with the value zero (0) in its
+      length field.
+
+   Offset:  The offset or beginning memory address of the segment's
+      memory region.
+
+   The meaning of the values contained in these fields is elaborated in
+   [RFC5040].
+
+   A "chunk" is simply a set of segments that have a related purpose.  A
+   Requester MAY divide a chunk into segments using any convenient
+   boundaries.  The length of a chunk is defined as the sum of the
+   lengths of the segments that comprise it.
+
+4.4.2.  Reducing a Payload Stream
 
    We refer to a data item that a sender removes from a Payload stream
    to transmit separately as a "reduced" data item.  After a sender has
    finished removing XDR data items from a Payload stream, we refer to
-   it as a "reduced" Payload stream.  The data object in a transport
-   header that describes memory regions containing reduced data items is
-   known as a "chunk."
-
-4.3.2.  DDP-Eligibility
+   it as a "reduced" Payload stream.  A set of segments that describe
+   memory regions containing a single reduced data item is categorized
+   as a "data item chunk."
 
    Not all XDR data items benefit from Direct Data Placement.  For
    example, small data items or data items that require XDR unmarshaling
    by the receiver do not benefit from DDP.  Moreover, it is impractical
    for receivers to prepare for every possible XDR data item in a
-   protocol to appear in a chunk.
+   protocol to appear in a data item chunk.
 
-   Determining which data items are DDP-eligible is done in additional
-   specifications that describe how ULPs employ DDP.  A "ULB
-   specification" identifies which XDR data items a peer MAY transfer
-   using DDP.  Such data items are known as "DDP-eligible."  Senders
-   MUST NOT reduce any other XDR data items.  Detailed requirements for
-   ULB specifications appear in Appendix A of the current document.
+   Specifying which data items are DDP-eligible is done in separate
+   standards track documents known as "Upper Layer Bindings".  A ULB
+   identifies which XDR data items a peer MAY transfer using DDP.  We
+   refer to such data items as "DDP-eligible."  Senders MUST NOT reduce
+   any other XDR data items.  Detailed requirements for ULB
+   specifications appear in Appendix A of the current document.
 
+4.4.3.  Moving Whole RPC Messages using Explicit RDMA
 
+   RPC-over-RDMA version 2 also enables the movement of a whole RPC
+   message via data transfer distinct from RDMA Send and Receive.  A
+   sender registers the memory containing a Payload stream without
+   regard to data item boundaries or DDP-eligibility.  The Payload
+   stream is then conveyed via other mechanisms, such as one or more
+   RDMA Read or Write operations.  A set of segments that describe
+   memory regions containing a Payload stream is categorized as a "body
+   chunk".
 
+   A sender may first reduce that Payload stream if it contains one or
+   more DDP-eligible data items.  The sender moves these data items
+   using data items chunks, and the reduced Payload stream using a body
+   chunk.
 
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 18]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-4.3.3.  RDMA Segments
-
-   When encoding a Payload stream that contains a DDP-eligible data
-   item, a sender may choose to reduce that data item.  When it chooses
-   to do so, the sender does not place the item into the Payload stream.
-   Instead, the sender records in the transport header the location and
-   size of the memory region containing that data item.
-
-   The Requester provides location information for DDP-eligible data
-   items in both RPC Call and Reply messages.  The Responder uses this
-   information to retrieve arguments contained in the specified region
-   of the Requester's memory or place results in that memory region.
-
-   An "RDMA segment", or "plain segment", is a transport header data
-   object that contains the precise coordinates of a contiguous memory
-   region.  This region is conveyed separately from the Payload stream.
-   Each RDMA segment contains the following information:
-
-   Handle:  A steering Tag (STag) or R_key generated by registering this
-      memory with the RDMA provider.
-
-   Length:  The length of the RDMA segment's memory region, in octets.
-      An "empty segment" is an RDMA segment with the value zero (0) in
-      its length field.
-
-   Offset:  The offset or beginning memory address of the RDMA segment's
-      memory region.
-
-   See [RFC5040] for further discussion.
-
-4.3.4.  Chunks
-
-   In RPC-over-RDMA version 2, a "chunk" refers to a portion of an RPC
-   message that is moved independently of the Payload stream.  The
-   sender removes chunk data from the Payload stream, transfers it via
-   separate operations, and then the receiver reinserts it into the
-   received Payload stream to reconstruct the complete RPC message.
-
-   Each chunk consists of RDMA segments.  Each RDMA segment represents a
-   piece of a chunk that is contiguous in memory.  A Requester MAY
-   divide a chunk into RDMA segments using any convenient boundaries.
-   The length of a chunk is precisely the sum of the lengths of the RDMA
-   segments that comprise it.
-
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 19]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
+4.5.  Encoding Chunks
 
    The RPC-over-RDMA version 2 transport protocol does not place a limit
    on chunk size.  However, each ULP may cap the amount of data that can
-   be transferred by a single RPC transaction.  For example, NFS has
-   "rsize" and "wsize", which restrict the payload size of NFS READ and
-   WRITE operations.  The Responder can use such limits to sanity check
-   chunk sizes before using them in RDMA operations.
+   be transferred by a single RPC transaction.  For example, NFS
+   implementations typically have settings that restrict the payload
+   size of NFS READ and WRITE operations.  The Responder can use such
+   limits to sanity check chunk sizes before using them in RDMA
+   operations.
 
-4.3.4.1.  Counted Arrays
+4.5.1.  Read Chunks
 
-   If a chunk is to contain a counted array data type, the count of
-   array elements MUST remain in the Payload stream.  The sender MUST
-   move the array elements into the chunk.  For example, when encoding
-   an opaque byte array as a chunk, the count of bytes stays in the
-   Payload stream.  The sender removes the bytes in the array from the
-   Payload stream and places them in the chunk.
+   A "Read chunk" contains data that its receiver pulls from the sender.
+   Each Read chunk is a set of one or more "Read segments" encoded as a
+   list.  A Read segment consists of a Position field followed by a
+   segment, as defined in Section 4.4.1.
+
+   Position:  The byte offset in the unreduced Payload stream where the
+      receiver reinserts the data item conveyed in the chunk.  The
+      sender MUST compute the Position value from the beginning of the
+      unreduced Payload stream, which begins at Position zero.  All
+      segments in the same Read chunk share the same Position value,
+      even if one or more of the segments have a non-four-byte-aligned
+      length.  The value in this field MUST be a multiple of four.
+
+   When constructing an RPC-over-RDMA message, the sender registers
+   memory regions containing data intended for RDMA Read operations.  It
+   advertises the coordinates of these regions in Read chunks added to
+   the transport header of an RPC-over-RDMA message.
+
+   The receiver of this message then pulls the chunk's data from the
+   sender using RDMA Read operations.  When receiving a Read chunk, the
+   receiver inserts the first Read segment in a Read chunk into the
+   Payload stream at the byte offset indicated by its Position field.
+   The receiver concatenates Read segments whose Position field value
+   matches this offset until there are no more Read segments at that
+   Position value.
+
+4.5.1.1.  The Read List
+
+   Each RPC-over-RDMA message carries a list of Read segments that make
+   up the set of Read chunks for that message.  When no RDMA Read
+   operations are needed to complete the transmission of the message's
+   Payload stream, the message's Read list is empty.
+
+   If a Responder receives a Read list whose segment position values do
+   not appear in monotonically increasing order, it MUST discard the
+   message without processing it and respond with an RDMA2_ERROR message
+   with the rdma_xid field set to the XID of the malformed message and
+   the rdma_err field set to RDMA2_ERR_BAD_XDR.
+
+4.5.1.2.  The Call Chunk
+
+   The Call chunk is a Read chunk that acts as a body chunk containing
+   an RPC Call message.  A Requester can utilize a Call chunk at any
+   time.  However, using a Call chunk is less efficient than an RDMA
+   Send.
+
+   A Read chunk may act as either a data item chunk or a body chunk.
+   When the chunk's position is zero, it acts as a body chunk.
+   Otherwise, it is a data item chunk containing exactly one XDR data
+   item.
+
+4.5.1.3.  Read Completion
+
+   A Responder acknowledges that it is finished with the Requester's
+   Read chunk memory regions when it sends the corresponding RPC Reply
+   message.  The Requester may then invalidate memory regions belonging
+   to Read chunks associated with the associated RPC Call message.
+
+4.5.2.  Write Chunks
+
+   Each "Write chunk" consists of a counted array of zero or more
+   segments, as defined in Section 4.4.1.  The function of a Write chunk
+   depends on the direction of the containing RPC-over-RDMA message.  In
+   a Call message, a Write chunk advertises registered memory regions
+   into which the Responder may push data.  In a Reply message, a Write
+   chunk reports how much data has been pushed.
+
+   A Requester provisions Write chunks for an RPC transaction long
+   before the Responder has constructed a corresponding Reply message.
+   A Requester typically does not know the actual length of the result
+   data items or Reply to be returned, since the Reply does not yet
+   exist.  Thus, a Requester MUST provision Write chunks large enough to
+   accommodate the maximum possible size of each returned data item.
+
+   An "empty Write chunk" is a Write chunk with a zero segment count.
+   By definition, the length of an empty Write chunk is zero.  An
+   "unused Write chunk" has a non-zero segment count, but all of its
+   segments are empty segments.
+
+4.5.2.1.  The Write List
+
+   Each RPC-over-RDMA message carries a list of Write chunks.  When no
+   DDP-eligible data items are to appear in the Reply to an RPC
+   transaction, the Requester provides an empty Write list in the RPC
+   Call, and the Responder leaves the Write list empty in the matching
+   RPC Reply.  When a Write chunk appears in the Write list, it acts
+   only as a data item chunk.
+
+   For each Write chunk in the Write list, the Responder pushes one DDP-
+   eligible data item to the Requester.  It fills the chunk contiguously
+   and in segment array order until the Responder has written that data
+   item to the Requester in its entirety.  The Responder MUST copy the
+   segment count and all segments from the Requester-provided Write
+   chunk into the RPC Reply message's transport header.  As it does so,
+   the Responder updates each segment length field to reflect the actual
+   amount of data returned in that segment.
+
+   The Responder then sends the RPC Reply message via an RDMA Send
+   operation.
+
+4.5.2.2.  The Reply Chunk
+
+   The Reply chunk is a single Write chunk that acts as a body chunk.
+   that contains an RPC Reply message.  When a Requester estimates that
+   the Reply message can exceed the connection's ability to convey that
+   Reply using RDMA Send operations, it should provision a Reply chunk.
+
+4.5.2.3.  Write Completion
+
+   A Responder acknowledges that it is finished updating the Requester's
+   Write chunk memory regions when it sends the corresponding RPC Reply
+   message.  The RDMA provider guarantees that the written data is at
+   rest before the next Receive operation, which typically contains the
+   corresponding RPC Reply, completes.  The Requester may then
+   invalidate memory regions belonging to Write chunks associated with
+   the associated RPC Call message.
+
+4.5.2.4.  Write Chunk Roundup
+
+   When provisioning a Write chunk for a variable-length result data
+   item, the Requester MUST NOT include additional space for XDR roundup
+   padding.  A Responder MUST NOT write XDR roundup padding into a Write
+   chunk, even if the result is shorter than the available space in the
+   chunk.
+
+4.5.3.  Reducing Complex XDR Data Types
+
+   XDR data items may appear in body chunks without regard to their DDP-
+   eligibility.  As body chunks contain a Payload stream, they MUST
+   include all appropriate XDR roundup padding to maintain proper XDR
+   alignment of their contents.
+
+   However, a data item chunk MUST contain only one XDR data item, and
+   the chunk MUST occupy a four-byte aligned length in the Payload
+   stream so that subsequent data items remain properly aligned once the
+   reduced data item is removed from the Payload stream.
+
+4.5.3.1.  Variable-Length Data Items
+
+   When a sender reduces a variable-length XDR data item, the length of
+   the item MUST remain in the Payload stream.  The sender MUST omit the
+   item's XDR roundup padding from the Payload stream and the chunk.
+   The chunk's total length MUST be the same as the encoded length of
+   the data item.
+
+4.5.3.2.  Counted Arrays
+
+   When reducing a data item that is a counted array data type, the
+   count of array elements MUST remain in the Payload stream.  The
+   sender MUST move the array elements into the chunk.  For example,
+   when encoding an opaque byte array as a chunk, the count of bytes
+   stays in the Payload stream, and the sender places the bytes in the
+   array in the chunk.
 
    Individual array elements appear in a chunk in their entirety.  For
    example, when encoding an array of arrays as a chunk, the count of
@@ -1088,560 +1026,24 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    enclosed array, including its item count, is transferred as part of
    the chunk.
 
-4.3.4.2.  Optional-Data
+4.5.3.3.  Optional-Data
 
-   If a chunk contains an optional-data data type, the "is present"
-   field MUST remain in the Payload stream.  The sender MUST move the
-   data, if present, to the chunk.
+   Similar to a counted array, when reducing an optional-data data type,
+   the discriminator field MUST remain in the Payload stream.  The
+   sender MUST place the data, when present, in the chunk.
 
-4.3.4.3.  XDR Unions
+4.5.3.4.  XDR Unions
 
    A union data type MUST NOT be made DDP-eligible.  However, one or
    more of its arms MAY be made DDP-eligible, subject to the other
    requirements in this section.
 
-4.3.4.4.  Chunk Roundup
+4.6.  Reverse-Direction Operation
 
-   Except in special cases (covered in Section 4.4.3), a chunk MUST
-   contain only one XDR data item.  This restriction makes it
-   straightforward to reduce variable-length data items without
-   affecting the XDR alignment of other data items in the Payload
-   stream.
+   The terminology used in this section is introduced in
+   Section 3.1.3.3.
 
-   When a sender reduces a variable-length XDR data item, data items
-   remaining in the Payload stream MUST remain on four-byte alignment.
-   Therefore, the sender always removes XDR roundup padding for that
-   data item from the Payload stream.
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 20]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-4.3.5.  Read Chunks
-
-   A "Read chunk" represents an XDR data item that its receiver pulls
-   from the sender.  A Read chunk is a list of one or more RDMA read
-   segments.  Each RDMA read segment consists of a Position field
-   followed by an RDMA segment, as defined in Section 4.3.3.
-
-   Position:  The byte offset in the unreduced Payload stream where the
-      receiver reinserts the data item conveyed in the chunk.  The
-      sender MUST compute the Position value from the beginning of the
-      unreduced Payload stream, which begins at Position zero.  All RDMA
-      read segments belonging to the same Read chunk have the same value
-      in their Position field.
-
-   While constructing an RPC-over-RDMA message, the sender registers
-   memory regions containing data items intended for RDMA Read
-   operations.  It advertises the coordinates of these regions in Read
-   chunks added to the transport header of the RPC-over-RDMA message.
-
-   The receiver of this message then pulls the chunk data from the
-   sender using RDMA Read operations.  The receiver inserts the first
-   RDMA segment in a Read chunk into the Payload stream at the byte
-   offset indicated by its Position field.  The receiver concatenates
-   RDMA segments whose Position field value matches this offset until
-   there are no more RDMA segments at that Position value.
-
-   The Position field in an RDMA read segment indicates where the
-   containing Read chunk starts in the Payload stream.  The value in
-   this field MUST be a multiple of four.  All segments in the same Read
-   chunk share the same Position value, even if one or more of the RDMA
-   segments have a non-four-byte-aligned length.
-
-4.3.5.1.  The Read List
-
-   Each RPC-over-RDMA message carries a list of RDMA read segments that
-   make up the set of Read chunks for that message.  When no RDMA Read
-   operations are needed to complete the transmission of the message's
-   Payload stream, the message's Read list is empty.  This is typically
-   the case for RPC Replies, for instance.
-
-
-
-
-
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 21]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-   If a Responder receives a Read list whose RDMA segment position
-   values do not appear in monotonically increasing order, it MUST
-   discard the message without processing it and respond with an
-   RDMA2_ERROR message with the rdma_xid field set to the XID of the
-   malformed message and the rdma_err field set to RDMA2_ERR_BAD_XDR.
-   If a Requester receives a Read list whose RDMA segment position
-   values do not appear in monotonically increasing order, it MUST
-   discard the message without processing it and terminate the RPC
-   transaction corresponds to the XID value in the rdma_xid field of the
-   malformed message.
-
-4.3.5.2.  Decoding Read Chunks
-
-   The Responder initiates an RDMA Read to pull a Read chunk's data
-   content into registered local memory whenever the XDR offset in the
-   Payload stream matches that of a Read chunk.  The Responder
-   acknowledges that it is finished with Read chunk source buffers when
-   it sends the corresponding RPC Reply message to the Requester.  The
-   Requester may then release Read chunks advertised in the RPC-over-
-   RDMA Call.
-
-4.3.5.3.  Read Chunk Roundup
-
-   When reducing a variable-length argument data item, the Requester
-   MUST NOT include the data item's XDR roundup padding in the chunk
-   itself.  The chunk's total length MUST be the same as the encoded
-   length of the data item.
-
-4.3.6.  Write Chunks
-
-   While constructing an RPC Call message, a Requester prepares memory
-   regions in which to receive DDP-eligible result data items.  A "Write
-   chunk" represents an XDR data item that a Responder is to push to a
-   Requester.  It consists of an array of zero or more plain segments.
-
-   A Requester provisions Write chunks long before the Responder has
-   prepared the reply message.  A Requester often does not know the
-   actual length of the result data items to be returned, since the
-   result does not yet exist.  Thus, it MUST provision Write chunks
-   large enough to accommodate the maximum possible size of each
-   returned data item.
-
-   Note that the XDR position of DDP-eligible data items in the reply's
-   Payload stream is not predictable when a Requester constructs an RPC
-   Call message.  Therefore, RDMA segments in a Write chunk do not have
-   a Position field.
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 22]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-   For each Write chunk provided by a Requester, the Responder pushes
-   DDP-eligible one data item to the Requester.  It fills the chunk
-   contiguously and in segment array order until the Responder has
-   written that data item to the Requester in its entirety.  The
-   Responder MUST copy the segment count and all segments from the
-   Requester-provided Write chunk into the RPC Reply message's transport
-   header.  As it does so, the Responder updates each segment length
-   field to reflect the actual amount of data returned in that segment.
-   The Responder then sends the RPC Reply message via an RDMA Send
-   operation.
-
-   An "empty Write chunk" is a Write chunk with a zero segment count.
-   By definition, the length of an empty Write chunk is zero.  An
-   "unused Write chunk" has a non-zero segment count, but all of its
-   segments are empty segments.
-
-4.3.6.1.  The Write List
-
-   Each RPC-over-RDMA message carries a list of Write chunks.  When no
-   DDP-eligible data items are to appear in the Reply to an RPC
-   transaction, the Requester provides an empty Write list in the RPC
-   Call, and the Responder leaves the Write list empty in the matching
-   RPC Reply.
-
-4.3.6.2.  Decoding Write Chunks
-
-   After receiving the RPC Reply message, the Requester reconstructs the
-   transferred data by concatenating the contents of each segment in
-   array order into the RPC Reply message's XDR stream at the known XDR
-   position of the associated DDP-eligible result data item.
-
-4.3.6.3.  Write Chunk Roundup
-
-   When provisioning a Write chunk for a variable-length result data
-   item, the Requester MUST NOT include additional space for XDR roundup
-   padding.  A Responder MUST NOT write XDR roundup padding into a Write
-   chunk, even if the result is shorter than the available space in the
-   chunk.  Therefore, when returning a single variable-length result
-   data item, a returned Write chunk's total length MUST be the same as
-   the encoded length of the result data item.
-
-4.4.  Payload Formats
-
-   Unlike RPC-over-TCP and RPC-over-UDP transports, RPC-over-RDMA
-   transports are aware of the XDR encoding of each RPC message payload.
-   For efficiency, the transport can convey DDP-eligible XDR data items
-   separately from the RPC message itself.  Also, receivers are required
-   to post adequate receive resources in advance of each RPC message.
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 23]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-   RPC-over-RDMA version 2 provides several ways to arrange conveyance
-   of an RPC-over-RDMA message.  A sender chooses the specific format
-   for a message among several factors:
-
-   *  The existence of DDP-eligible data items in the RPC message
-
-   *  The size of the RPC message
-
-   *  The direction of the RPC message (i.e., Call or Reply)
-
-   *  The available hardware resources
-
-   *  The arrangement of source and sink memory buffers
-
-   The following subsections describe in detail how Requesters and
-   Responders format RPC-over-RDMA message payloads.
-
-4.4.1.  Simple Format
-
-   All RPC messages conveyed via RPC-over-RDMA version 2 require at
-   least one RDMA Send operation to convey.  Thus, the most efficient
-   way to send an RPC message that is smaller than the inline threshold
-   is to append the Payload stream directly to the Transport stream.
-   When no chunks are present, senders construct Calls and Replies the
-   same way, and no other operations are needed.
-
-4.4.1.1.  Simple Format with Chunks
-
-   If DDP-eligible data items are present in a Payload stream, a sender
-   MAY reduce some or all of these items, removing them from the Payload
-   stream.  The sender then uses a separate mechanism to transfer the
-   reduced data items.  The Transport stream with the reduced Payload
-   stream immediately following it is then transferred using one RDMA
-   Send operation.
-
-   When chunks are present, senders construct Calls differently than
-   Replies.
-
-   Simple Call
-      After receiving the Transport and Payload streams of an RPC Call
-      message with Read chunks, the Responder uses RDMA Read operations
-      to move the reduced data items contained in Read chunks.  RPC-
-      over-RDMA Calls can carry Write chunks for the Responder to use
-      when sending the matching Reply.
-
-   Simple Reply
-      The Responder uses RDMA Write operations to move reduced data
-      items contained in Write chunks.  Afterward, it sends the
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 24]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-      Transport and Payload streams of the RPC Reply message using one
-      RDMA Send.  RPC-over-RDMA Replies always carry an empty Read chunk
-      list.
-
-4.4.1.2.  Simple Format Examples
-
-           Requester                             Responder
-               |        RDMA Send (RDMA_MSG)         |
-          Call |   ------------------------------>   |
-               |                                     |
-               |                                     | Processing
-               |                                     |
-               |        RDMA Send (RDMA_MSG)         |
-               |   <------------------------------   | Reply
-
-     Figure 1: A Simple Call without chunks and a Simple Reply without
-                                   chunks
-
-           Requester                             Responder
-               |        RDMA Send (RDMA_MSG)         |
-          Call |   ------------------------------>   |
-               |        RDMA Read                    |
-               |   <------------------------------   |
-               |        RDMA Response (arg data)     |
-               |   ------------------------------>   |
-               |                                     |
-               |                                     | Processing
-               |                                     |
-               |        RDMA Send (RDMA_MSG)         |
-               |   <------------------------------   | Reply
-
-        Figure 2: A Simple Call with a Read chunk and a Simple Reply
-                               without chunks
-
-           Requester                             Responder
-               |        RDMA Send (RDMA_MSG)         |
-          Call |   ------------------------------>   |
-               |                                     |
-               |                                     | Processing
-               |                                     |
-               |        RDMA Write (result data)     |
-               |   <------------------------------   |
-               |        RDMA Send (RDMA_MSG)         |
-               |   <------------------------------   | Reply
-
-      Figure 3: A Simple Call without chunks and a Simple Reply with a
-                                Write chunk
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 25]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-4.4.2.  Continued Format
-
-   For various reasons, a sender can choose to split a message payload
-   over multiple RPC-over-RDMA messages.  The Payload stream of each
-   RPC-over-RDMA message contains a part of the RPC message.  The
-   receiver reconstructs the original RPC message by concatenating in
-   sequence the Payload stream of each RPC-over-RDMA message.  A sender
-   MAY split an RPC message payload on any convenient boundary.
-
-4.4.2.1.  Continued Format with Chunks
-
-   If DDP-eligible data items are present in the Payload stream, a
-   sender MAY reduce some or all of these items, removing them from the
-   Payload stream.  The sender then uses a separate mechanism to
-   transfer the reduced data items.  The Transport stream with the
-   reduced Payload stream immediately following it is then transferred
-   using one RDMA Send operation.
-
-   As with Simple Format messages, when chunks are present, senders
-   construct Calls differently than Replies.
-
-   Continued Call
-      After receiving the Transport and Payload streams of an RPC Call
-      message with Read chunks, the Responder uses RDMA Read operations
-      to move the reduced data items contained in Read chunks.  RPC-
-      over-RDMA Calls can carry Write chunks for the Responder to use
-      when sending the matching Reply.
-
-   Continued Reply
-      The Responder uses RDMA Write operations to move reduced data
-      items contained in Write chunks.  Afterward, it sends the
-      Transport and Payload streams of the RPC Reply message using
-      multiple RDMA Sends.  RPC-over-RDMA Replies always carry an empty
-      Read chunk list.
-
-4.4.2.2.  Continued Format Examples
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 26]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-           Requester                             Responder
-               |        RDMA Send (RDMA_MSG)         |
-          Call |   ------------------------------>   |
-               |        RDMA Send (RDMA_MSG)         |
-               |   ------------------------------>   |
-               |        RDMA Send (RDMA_MSG)         |
-               |   ------------------------------>   |
-               |                                     |
-               |                                     |
-               |                                     | Processing
-               |                                     |
-               |        RDMA Send (RDMA_MSG)         |
-               |   <------------------------------   | Reply
-               |        RDMA Send (RDMA_MSG)         |
-               |   <------------------------------   |
-               |        RDMA Send (RDMA_MSG)         |
-               |   <------------------------------   |
-
-      Figure 4: A Continued Call without chunks and a Continued Reply
-                               without chunks
-
-           Requester                             Responder
-               |        RDMA Send (RDMA_MSG)         |
-          Call |   ------------------------------>   |
-               |        RDMA Send (RDMA_MSG)         |
-               |   ------------------------------>   |
-               |        RDMA Send (RDMA_MSG)         |
-               |   ------------------------------>   |
-               |        RDMA Read                    |
-               |   <------------------------------   |
-               |        RDMA Response (arg data)     |
-               |   ------------------------------>   |
-               |                                     |
-               |                                     | Processing
-               |                                     |
-               |        RDMA Send (RDMA_MSG)         |
-               |   <------------------------------   | Reply
-
-      Figure 5: A Continued Call with a Read chunk and a Simple Reply
-                               without chunks
-
-
-
-
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 27]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-           Requester                             Responder
-               |        RDMA Send (RDMA_MSG)         |
-          Call |   ------------------------------>   |
-               |                                     |
-               |                                     | Processing
-               |                                     |
-               |        RDMA Write (result data)     |
-               |   <------------------------------   |
-               |        RDMA Send (RDMA_MSG)         |
-               |   <------------------------------   | Reply
-               |        RDMA Send (RDMA_MSG)         |
-               |   <------------------------------   |
-               |        RDMA Send (RDMA_MSG)         |
-               |   <------------------------------   |
-
-     Figure 6: A Simple Call without chunks and a Continued Reply with
-                               a Write chunk
-
-4.4.3.  Special Format
-
-   Sometimes, after DDP-eligible data items have been removed, a Payload
-   stream is still too large to send using only RDMA Send operations.
-   In those cases, the sender can use RDMA Read or Write operations to
-   convey the entire RPC message.  We refer to this as a "Special
-   Format" message.
-
-   To transmit a Special Format message, the sender transmits only the
-   Transport stream with an RDMA Send operation.  The sender does not
-   include the Payload stream in the send buffer.  Instead, the
-   Requester provides chunks that the Responder uses to move the Payload
-   stream.
-
-   Because chunks are always present in Special Format messages, the
-   sender always handles Calls and Replies differently.
-
-   Special Call
-      The Requester provides a Read chunk that contains the RPC Call
-      message's Payload stream.  Every read segment in this chunk MUST
-      contain zero (0) in its Position field.  This type of Read chunk
-      is known as a "Position Zero Read chunk."
-
-   Special Reply
-      The Requester provisions a single Write chunk in advance, known as
-      a "Reply chunk", in which the Responder places the RPC Reply
-      message's Payload stream.  The Requester provisions the Reply
-      chunk to accommodate the maximum expected reply size for that
-      upper-layer operation.
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 28]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-   One purpose of a Special Format message is to handle large RPC
-   messages.  However, Requesters MAY use a Special Format message at
-   any time to convey an RPC Call message.
-
-   When it has alternatives, a Responder chooses which Format to use
-   based on the chunks provided by the Requester.  If a Requester
-   provided a Write chunk and the Responder has a DDP-eligible result,
-   it first reduces the reply Payload stream.  If a Requester provided a
-   Reply chunk and the reduced Payload stream is larger than the reply
-   inline threshold, the Responder MUST use the Requester-provided Reply
-   chunk for the reply.
-
-   XDR data items may appear in these chunks without regard to their
-   DDP-eligibility.  As these chunks contain a Payload stream, they MUST
-   include appropriate XDR roundup padding to maintain proper XDR
-   alignment of their contents.
-
-   If a Responder receives an RPC-over-RDMA message that carries a
-   Position Zero Read chunk and whose RDMA2_F_RESPONSE flag is clear but
-   the message does not use the RDMA2_NOMSG header type, it MUST discard
-   that message without processing it and respond with an RDMA2_ERROR
-   message with the rdma_xid field set to the XID of the malformed
-   message and the rdma_err field set to RDMA2_ERR_BAD_XDR.  When a
-   Requester receives an RPC-over-RDMA message that carries a Reply
-   chunk and whose RDMA2_F_RESPONSE flag is set but the message does not
-   use the RDMA2_NOMSG header type, it MUST discard that message without
-   processing it and terminate the RPC transaction corresponding to the
-   XID value in the message's rdma_xid field.
-
-4.4.3.1.  Special Format Examples
-
-           Requester                             Responder
-               |        RDMA Send (RDMA_NOMSG)       |
-          Call |   ------------------------------>   |
-               |        RDMA Read                    |
-               |   <------------------------------   |
-               |        RDMA Response (RPC call)     |
-               |   ------------------------------>   |
-               |                                     |
-               |                                     | Processing
-               |                                     |
-               |        RDMA Send (RDMA_MSG)         |
-               |   <------------------------------   | Reply
-
-         Figure 7: A Special Call and a Simple Reply without chunks
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 29]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-           Requester                             Responder
-               |        RDMA Send (RDMA_MSG)         |
-          Call |   ------------------------------>   |
-               |                                     |
-               |                                     | Processing
-               |                                     |
-               |        RDMA Write (RPC reply)       |
-               |   <------------------------------   |
-               |        RDMA Send (RDMA_NOMSG)       |
-               |   <------------------------------   | Reply
-
-         Figure 8: A Simple Call without chunks and a Special Reply
-
-4.5.  Reverse-Direction Operation
-
-4.5.1.  Sending a Reverse-Direction RPC Call
+4.6.1.  Sending a Reverse-Direction RPC Call
 
    An RPC-over-RDMA server endpoint constructs the transport header for
    a reverse-direction RPC Call as follows:
@@ -1655,34 +1057,20 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    *  The rdma_vers field of each reverse-direction Call MUST contain
       the same value as forward-direction Calls on the same connection.
 
-   *  The server fills in the rdma_credits with the credit values for
-      the connection, as described in Section 4.2.1.1.
+   *  The server fills in the rdma_credit field with the credit values
+      for the connection, as described in Section 4.2.1.
 
    *  The server determines the Payload format for the RPC message and
-      fills in the rdma_htype field as appropriate (see Sections 4.4 and
-      4.5.4).  Section 4.5.4 also covers the disposition of the chunk
+      fills in the rdma_htype field as appropriate (see Sections 6.6 and
+      4.6.4).  Section 4.6.4 also covers the disposition of the chunk
       lists.
 
-   *  The server MUST clear the RDMA2_F_RESPONSE flag in the rdma_flags
-      field.  It sets the RDMA2_F_MORE flag in the rdma_flags field as
-      described in Section 6.2.2.2.
+4.6.2.  Sending a Reverse-Direction RPC Reply
 
-4.5.2.  Sending a Reverse-Direction RPC Reply
-
-   An RPC-over-RDMA server endpoint constructs the transport header for
+   An RPC-over-RDMA client endpoint constructs the transport header for
    a reverse-direction RPC Reply as follows:
 
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 30]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-   *  The server copies the XID value from the matching RPC Call and
+   *  The client copies the XID value from the matching RPC Call and
       places it in the rdma_xid field of the transport header and the
       xid field of the RPC Reply message.  The RPC Reply header MUST
       start with the same XID value that is present in the transport
@@ -1692,69 +1080,49 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
       the same value as forward-direction Replies on the same
       connection.
 
-   *  The server fills in the rdma_credits with the credit values for
-      the connection, as described in Section 4.2.1.1.
+   *  The client fills in the rdma_credit field with the credit values
+      for the connection, as described in Section 4.2.1.
 
-   *  The server determines the Payload format for the RPC message and
-      fills in the rdma_htype field as appropriate (see Sections 4.4 and
-      4.5.4).  Section 4.5.4 also covers the disposition of the chunk
+   *  The client determines the Payload format for the RPC message and
+      fills in the rdma_htype field as appropriate (see Sections 6.6 and
+      4.6.4).  Section 4.6.4 also covers the disposition of the chunk
       lists.
 
-   *  The server MUST set the RDMA2_F_RESPONSE flag in the rdma_flags
-      field.  It sets the RDMA2_F_MORE flag in the rdma_flags field as
-      described in Section 6.2.2.2.
-
-4.5.3.  In the Absence of Support For Reverse-Direction Operation
+4.6.3.  When Reverse-Direction Operation is Not Supported
 
    An RPC-over-RDMA transport endpoint does not have to support reverse-
    direction operation.  There might be no mechanism in the transport
    implementation to do so.  Or, the transport implementation might
    support operation in the reverse direction, but the Upper-Layer
-   Protocol might not yet have configured the transport to handle
-   reverse-direction traffic.
+   Protocol might not configure the transport to handle reverse-
+   direction traffic.
 
    If an endpoint is unprepared to receive a reverse-direction message,
    loss of the RDMA connection might result.  Thus a denial of service
    can occur if an RPC server continues to send reverse-direction
    messages after a client that is not prepared to receive them
-   reconnects to an endpoint.
+   reconnects to that server.
 
    Connection peers indicate their support for reverse-direction
    operation as part of the exchange of Transport Properties just after
    a connection is established (see Section 5.2.5).
 
-
-
-
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 31]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    When dealing with the possibility that the remote peer has no
    transport level support for reverse-direction operation, the Upper-
-   Layer Protocol is responsible for informing peers when reverse
-   direction operation is supported.  Otherwise, even a simple reverse
+   Layer Protocol is responsible for informing peers when reverse-
+   direction operation is supported.  Otherwise, even a simple reverse-
    direction RPC NULL procedure from a peer could result in a lost
    connection.  Therefore, an Upper-Layer Protocol MUST NOT perform
-   reverse-direction RPC operations until the RPC server indicates
+   reverse-direction RPC operations until the RPC client indicates
    support for them.
 
-4.5.4.  Using Chunks During Reverse-Direction Operation
+4.6.4.  Using Chunks During Reverse-Direction Operation
 
-   Reverse-direction operations can use chunks, as defined in
-   Section 4.3.4, for DDP-eligible data items or in Special payload
-   formats.  Reverse-direction chunks operate the same way as in
+   Reverse-direction operations can use chunks for DDP-eligible data
+   items and Special payload formats the same way chunks are used in
    forward-direction operation.  Connection peers indicate their support
-   for reverse-direction chunks as part of the exchange of Transport
-   Properties just after a connection is established (see
+   for using chunks in the reverse direction as part of the exchange of
+   Transport Properties just after a connection is established (see
    Section 5.2.5).
 
    However, an implementation might support only Upper-Layer Protocols
@@ -1767,38 +1135,28 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    direction, implementers MAY choose not to provide support for chunks
    in the reverse direction, thus avoiding the complexity of
    implementing support for RDMA Reads and Writes in the reverse
-   direction.
-
-   When an RPC-over-RDMA transport implementation does not support
-   chunks in the reverse direction, RPC endpoints use only the Simple
-   Payload format without chunks or the Continued Payload format without
-   chunks to send RPC messages in the reverse direction.
+   direction.  When an RPC-over-RDMA transport implementation does not
+   support chunks in the reverse direction, RPC endpoints use only the
+   Simple Payload format without data item chunks or the Continued
+   Payload format without data item chunks to send RPC messages in the
+   reverse direction.
 
    If a reverse-direction Requester provides a non-empty chunk list to a
    Responder that does not support chunks, the Responder MUST report its
    lack of support using one of the error values defined in Section 7.3.
 
-4.5.5.  Reverse-Direction Retransmission
+4.6.5.  Reverse-Direction Retransmission
 
    In rare cases, an RPC server cannot complete an RPC transaction and
    cannot send a Reply.  In these cases, the Requester may send the RPC
    transaction again using the same RPC XID.  We refer to this as an
    "RPC retransmission" or a "replay."
 
+   In the forward direction, an RPC client is the Requester.  The client
+   is always responsible for ensuring a transport connection is in place
+   before sending a dropped Call again.
 
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 32]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-   In the forward direction, the Requester is the RPC client.  The
-   client is always responsible for ensuring a transport connection is
-   in place before sending a dropped Call again.
-
-   With reverse-direction operation, the Requester is an RPC server.
+   With reverse-direction operation, an RPC server is the Requester.
    Because an RPC server is not responsible for establishing transport
    connections with clients, the Requester is unable to retransmit a
    reverse-direction Call whenever there is no transport connection.  In
@@ -1808,7 +1166,7 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
 
    If the forward-direction Requester has no work to do, it can be some
    time before the RPC client re-establishes a transport connection.  An
-   RPC server may need to abandon a waiting reverse-direction RPC Call
+   RPC server may need to abandon a pending reverse-direction RPC Call
    to avoid waiting indefinitely for the client to re-establish a
    transport connection.
 
@@ -1825,13 +1183,12 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    information about implementation properties.  Compatible endpoints
    use this information to optimize data transfer.  Initially, only a
    small set of transport properties are defined.  The protocol provides
-   a single message type to exchange transport properties (see
-   Section 6.3.4).
+   header types to exchange transport properties (see 6.3.3 and 6.3.4).
 
    Both the set of transport properties and the operations used to
    communicate them may be extended.  Within RPC-over-RDMA version 2,
    such extensions are OPTIONAL.  A discussion of extending the set of
-   transport properties appears in Appendix B.4.
+   transport properties appears in Appendix B.3.
 
 5.1.  Transport Properties Model
 
@@ -1841,14 +1198,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    array containing the XDR encoding of the property.
 
    The following XDR types handle transport properties:
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 33]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
    <CODE BEGINS>
    typedef rpcrdma2_propid uint32;
@@ -1879,7 +1228,7 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    rdma_which.  When the contents of the rdma_data field do not conform
    to that XDR type, the receiver MUST return the error
    RDMA2_ERR_BAD_PROPVAL using the header type RDMA2_ERROR, as described
-   in Section 6.3.3.
+   in Section 6.3.1.
 
    For example, the receiver of a message containing a valid
    rpcrdma2_propval returns this error if the length of rdma_data is
@@ -1898,13 +1247,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    value contained in rdma_which.  In that case, the receiver does not
    process that rpcrdma2_propval.  Processing continues with the next
    rpcrdma2_propval, if any.
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 34]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
    The rpcrdma2_propset type specifies a set of transport properties.
    The protocol does not impose a particular ordering of the
@@ -1939,44 +1281,21 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    *  The column labeled "Section" indicates the section within the
       current document that explains the use of this property.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 35]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-   +----------------------------+------+----------+---------+---------+
-   | Property                   | Code | XDR type | Default | Section |
-   +============================+======+==========+=========+=========+
-   | Maximum Send Size          | 1    | uint32   | 4096    | 5.2.1   |
-   +----------------------------+------+----------+---------+---------+
-   | Receive Buffer Size        | 2    | uint32   | 4096    | 5.2.2   |
-   +----------------------------+------+----------+---------+---------+
-   | Maximum RDMA Segment Size  | 3    | uint32   | 1048576 | 5.2.3   |
-   +----------------------------+------+----------+---------+---------+
-   | Maximum RDMA Segment Count | 4    | uint32   | 16      | 5.2.4   |
-   +----------------------------+------+----------+---------+---------+
-   | Reverse-Direction Support  | 5    | uint32   | 0       | 5.2.5   |
-   +----------------------------+------+----------+---------+---------+
-   | Host Auth Message          | 6    | opaque<> | N/A     | 5.2.6   |
-   +----------------------------+------+----------+---------+---------+
+   +===========================+======+==========+=========+=========+
+   | Property                  | Code | XDR type | Default | Section |
+   +===========================+======+==========+=========+=========+
+   | Maximum Send Size         | 1    | uint32   | 4096    | 5.2.1   |
+   +---------------------------+------+----------+---------+---------+
+   | Receive Buffer Size       | 2    | uint32   | 4096    | 5.2.2   |
+   +---------------------------+------+----------+---------+---------+
+   | Maximum Segment Size      | 3    | uint32   | 1048576 | 5.2.3   |
+   +---------------------------+------+----------+---------+---------+
+   | Maximum Segment Count     | 4    | uint32   | 16      | 5.2.4   |
+   +---------------------------+------+----------+---------+---------+
+   | Reverse-Direction Support | 5    | uint32   | 0       | 5.2.5   |
+   +---------------------------+------+----------+---------+---------+
+   | Host Auth Message         | 6    | opaque<> | N/A     | 5.2.6   |
+   +---------------------------+------+----------+---------+---------+
 
                                  Table 1
 
@@ -2005,18 +1324,8 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    to be sent fits in pre-posted receive buffers that the receiver has
    set up.  In particular:
 
-   *  Requesters may use the value to determine when to provide a
-      Position Zero Read chunk or use Message Continuation when sending
-      a Call.
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 36]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
+   *  Requesters may use the value to determine when to use a Call chunk
+      or Message Continuation when sending a Call.
 
    *  Requesters may use the value to determine when to provide a Reply
       chunk when sending a Call, based on the maximum possible size of
@@ -2025,20 +1334,20 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    *  Responders may use the value to determine when to use a Reply
       chunk provided by the Requester, given the actual size of a Reply.
 
-5.2.3.  Maximum RDMA Segment Size
+5.2.3.  Maximum Segment Size
 
    The value of this property specifies the maximum size, in octets, of
-   an RDMA segment this endpoint is prepared to send or receive.
+   a segment this endpoint is prepared to send or receive.
 
    <CODE BEGINS>
    const uint32 RDMA2_PROPID_RSSIZ = 3;
    typedef uint32 rpcrdma2_prop_rssiz;
    <CODE ENDS>
 
-5.2.4.  Maximum RDMA Segment Count
+5.2.4.  Maximum Segment Count
 
-   The value of this property specifies the maximum number of RDMA
-   segments that can appear in a Requester's transport header.
+   The value of this property specifies the maximum number of segments
+   that can appear in a Requester's transport header.
 
    <CODE BEGINS>
    const uint32 RDMA2_PROPID_RCSIZ = 4;
@@ -2048,7 +1357,7 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
 5.2.5.  Reverse-Direction Support
 
    The value of this property specifies a client implementation's
-   readiness to process messages that are part of reverse direction RPC
+   readiness to process messages that are part of reverse-direction RPC
    requests.
 
    <CODE BEGINS>
@@ -2066,21 +1375,14 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    *  The value RDMA2_RVRSDIR_NONE indicates that the sender does not
       support reverse-direction operation.
 
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 37]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    *  The value RDMA2_RVRSDIR_SIMPLE indicates that the sender supports
-      using only Simple Format messages without chunks for reverse-
-      direction messages.
+      using only Simple Format messages without data item chunks for
+      reverse-direction messages.
 
    *  The value RDMA2_RVRSDIR_CONT indicates that the sender supports
-      using either Simple Format without chunks or Continued Format
-      messages without chunks for reverse-direction messages.
+      using either Simple Format without data item chunks or Continued
+      Format messages without data item chunks for reverse-direction
+      messages.
 
    *  The value RDMA2_RVRSDIR_GENL indicates that the sender supports
       reverse-direction messages in the same way as forward-direction
@@ -2109,26 +1411,14 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
 
    Each transport message consists of multiple sections.
 
-   *  A transport header prefix, as defined in Section 6.2.2.  Among
-      other things, this structure indicates the header type.
+   *  A transport header prefix, as defined in Section 6.4.  Among other
+      things, this structure indicates the header type.
 
    *  The transport header proper, as defined by one of the sub-sections
       below.  See Section 6.1 for the mapping between header types and
       the corresponding header structure.
 
    *  Potentially, all or part of an RPC message payload.
-
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 38]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
    This organization differs from that presented in the definition of
    RPC-over-RDMA version 1 [RFC8166], which defined the first and second
@@ -2148,7 +1438,7 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
       for this operation.
 
    *  The column labeled "XDR type" gives the XDR type of the data
-      structure used to organize the information in this new message
+      structure used to organize the information in this new header
       type.  This data immediately follows the universal portion on the
       transport header present in every RPC-over-RDMA transport header.
 
@@ -2158,39 +1448,63 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    *  The column labeled "Section" refers to the section within the
       current document that explains the use of this header type.
 
-   +--------------------+------+-------------------+-----+---------+
-   | Operation          | Code | XDR type          | Msg | Section |
-   +====================+======+===================+=====+=========+
-   | Convey Appended    | 0    | rpcrdma2_msg      | Yes | 6.3.1   |
-   | RPC Message        |      |                   |     |         |
-   +--------------------+------+-------------------+-----+---------+
-   | Convey External    | 1    | rpcrdma2_nomsg    | No  | 6.3.2   |
-   | RPC Message        |      |                   |     |         |
-   +--------------------+------+-------------------+-----+---------+
-   | Report Transport   | 4    | rpcrdma2_err      | No  | 6.3.3   |
-   | Error              |      |                   |     |         |
-   +--------------------+------+-------------------+-----+---------+
-   | Specify Properties | 5    | rpcrdma2_connprop | No  | 6.3.4   |
-   | at Connection      |      |                   |     |         |
-   +--------------------+------+-------------------+-----+---------+
-   | Grant Credits      | 6    | void              | No  | 6.3.5   |
-   +--------------------+------+-------------------+-----+---------+
+   +==============+======+=============================+=====+=========+
+   | Operation    | Code | XDR type                    | Msg | Section |
+   +==============+======+=============================+=====+=========+
+   | Report       | 4    | rpcrdma2_hdr_error          | No  | 6.3.1   |
+   | Transport    |      |                             |     |         |
+   | Error        |      |                             |     |         |
+   +--------------+------+-----------------------------+-----+---------+
+   | Grant        | 5    | void                        | No  | 6.3.2   |
+   | Credits      |      |                             |     |         |
+   +--------------+------+-----------------------------+-----+---------+
+   | Specify      | 6    | rpcrdma2_hdr_connprop       | No  | 6.3.3   |
+   | Properties   |      |                             |     |         |
+   | (Middle)     |      |                             |     |         |
+   +--------------+------+-----------------------------+-----+---------+
+   | Specify      | 7    | rpcrdma2_hdr_connprop       | No  | 6.3.4   |
+   | Properties   |      |                             |     |         |
+   | (Final)      |      |                             |     |         |
+   +--------------+------+-----------------------------+-----+---------+
+   | Convey       | 8    | rpcrdma2_hdr_call_external  | No  | 6.3.5   |
+   | External     |      |                             |     |         |
+   | RPC Call     |      |                             |     |         |
+   | Message      |      |                             |     |         |
+   +--------------+------+-----------------------------+-----+---------+
+   | Convey       | 9    | rpcrdma2_hdr_call_middle    | Yes | 6.3.6   |
+   | Continued    |      |                             |     |         |
+   | RPC Call     |      |                             |     |         |
+   | Message      |      |                             |     |         |
+   +--------------+------+-----------------------------+-----+---------+
+   | Convey       | 10   | rpcrdma2_hdr_call_inline    | Yes | 6.3.7   |
+   | Inline RPC   |      |                             |     |         |
+   | Call         |      |                             |     |         |
+   | Message      |      |                             |     |         |
+   +--------------+------+-----------------------------+-----+---------+
+   | Convey       | 11   | rpcrdma2_hdr_reply_external | No  | 6.3.8   |
+   | External     |      |                             |     |         |
+   | RPC Reply    |      |                             |     |         |
+   | Message      |      |                             |     |         |
+   +--------------+------+-----------------------------+-----+---------+
+   | Convey       | 12   | rpcrdma2_hdr_reply_middle   | Yes | 6.3.9   |
+   | Continued    |      |                             |     |         |
+   | RPC Reply    |      |                             |     |         |
+   | Message      |      |                             |     |         |
+   +--------------+------+-----------------------------+-----+---------+
+   | Convey       | 13   | rpcrdma2_hdr_reply_inline   | Yes | 6.3.10  |
+   | Inline RPC   |      |                             |     |         |
+   | Reply        |      |                             |     |         |
+   | Message      |      |                             |     |         |
+   +--------------+------+-----------------------------+-----+---------+
 
-                                Table 2
+                                  Table 2
 
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 39]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-   Suppport for the operations in Table 2 is REQUIRED.  RPC-over-RDMA
-   version 2 implementations that receive an unrecognized header type
-   MUST respond with an RDMA2_ERROR message with an rdma_err field
-   containing RDMA2_ERR_INVAL_HTYPE and drop the incoming message
-   without processing it further.
+   RPC-over-RDMA version 2 peers are REQUIRED to support all message
+   header types in Table 2.  RPC-over-RDMA version 2 implementations
+   that receive an unrecognized header type MUST respond with an
+   RDMA2_ERROR message with an rdma_err field containing
+   RDMA2_ERR_INVAL_HTYPE and drop the incoming message without
+   processing it further.
 
 6.2.  Headers and Chunks
 
@@ -2216,11 +1530,11 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    };
    <CODE ENDS>
 
-   RPC-over-RDMA version 2's use of these first four words matches that
-   of version 1 as required by [RFC8166].  However, there are crucial
-   structural differences in the XDR definition of RPC-over-RDMA version
-   2: in the way that these words are described by the respective XDR
-   descriptions:
+   RPC-over-RDMA version 2's use of these first four words aligns with
+   that of version 1 as required by Section 4.2 of [RFC8166].  However,
+   there are crucial structural differences in the XDR definition of
+   RPC-over-RDMA version 2: in the way that these words are described by
+   the respective XDR descriptions:
 
    *  The header type is represented as a uint32 rather than as an enum
       type.  An enum would need to be modified to reflect additions to
@@ -2231,18 +1545,7 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
       of a discriminated union, that includes the body of each transport
       header type.
 
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 40]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-   *  There is now a prefix structure (see Section 6.2.2) of which the
+   *  There is now a prefix structure (see Section 6.4) of which the
       rpcrdma_common structure is the initial segment.  This prefix is a
       newly defined XDR object within the protocol description, which
       constrains the universal portion of all header types to the four
@@ -2254,329 +1557,35 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    Section 8 reflects these changes, which Appendix C.1 discusses in
    further detail.
 
-6.2.2.  Transport Header Prefix
-
-   The following prefix structure appears at the start of each RPC-over-
-   RDMA version 2 transport header.
-
-   <CODE BEGINS>
-   const RDMA2_F_RESPONSE           0x00000001;
-   const RDMA2_F_MORE               0x00000002;
-   const RDMA2_F_TPMORE             0x00000004;
-
-   struct rpcrdma2_hdr_prefix {
-           struct rpcrdma_common       rdma_start;
-           uint32                      rdma_flags;
-   };
-   <CODE ENDS>
-
-   The rdma_flags field is new to RPC-over-RDMA version 2.  Currently,
-   the only flags defined within this word are the RDMA2_F_RESPONSE flag
-   and the RDMA2_F_MORE flag.  The other flags are reserved for future
-   use as described in Appendix B.3.  The sender MUST set reserved flags
-   to zero, and the receiver MUST ignore reserved flags.
-
-6.2.2.1.  RDMA2_F_RESPONSE Flag
-
-   The RDMA2_F_RESPONSE flag qualifies the value contained in the
-   transport header's rdma_xid field.  The RDMA2_F_RESPONSE flag enables
-   a receiver to avoid performing an XID lookup on incoming reverse
-   direction Call messages.  Therefore:
-
-   *  When the rdma_htype field has the value RDMA2_MSG or RDMA2_NOMSG,
-      the value of the RDMA2_F_RESPONSE flag MUST be the same as the
-      value of the associated RPC message's msg_type field.
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 41]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-   *  When the header type is anything else and a whole or partial RPC
-      message payload is present, the value of the RDMA2_F_RESPONSE flag
-      MUST be the same as the value of the associated RPC message's
-      msg_type field.
-
-   *  When no RPC message payload is present, a Requester MUST set the
-      value of RDMA2_F_RESPONSE to reflect how the receiver is to
-      interpret the rdma_xid field.
-
-   *  When the rdma_htype field has the value RDMA2_ERROR, the
-      RDMA2_F_RESPONSE flag MUST be set.
-
-6.2.2.2.  RDMA2_F_MORE Flag
-
-   The RDMA2_F_MORE flag signifies that the RPC-over-RDMA message
-   payload continues in the next message.
-
-   When the sender asserts the RDMA2_F_MORE flag, the receiver is to
-   concatenate the data payload of the next received message to the end
-   of the data payload of the received message.  The sender clears the
-   RDMA2_F_MORE flag in the final message in the sequence.
-
-   All RPC-over-RDMA messages in such a sequence MUST have the same
-   values in the rdma_xid and rdma_htype fields.  Otherwise, the
-   receiver MUST drop the message without processing it further.  If the
-   receiver is a Responder, it MUST also respond with an RDMA2_ERROR
-   message with the rdma_err field set to RDMA2_ERR_INVAL_CONT.
-
-   If a peer receives an RPC-over-RDMA message with the RDMA2_F_MORE
-   flag set, and the rdma_htype field does not contain the values
-   RDMA2_MSG or RDMA2_CONNPROP, the receiver MUST drop the message
-   without processing it further.  If the receiver is a Responder, it
-   MUST also respond with an RDMA2_ERROR message with the rdma_err field
-   set to RDMA2_ERR_INVAL_CONT.
-
-   The sender includes chunks only in the final message in a sequence,
-   in which the RDMA2_F_MORE flag is clear.  If a peer receives an RPC-
-   over-RDMA message with the RDMA2_F_MORE flag set, and its chunk lists
-   are not empty, the receiver MUST drop the message without processing
-   it further.  If the receiver is a Responder, it MUST also respond
-   with an RDMA2_ERROR message with the rdma_err field set to
-   RDMA2_ERR_INVAL_CONT.
-
-   There is no protocol-defined limit on the number of concatenated
-   messages in a sequence.  If the sender exhausts the receiver's credit
-   grant before sending the final message in the sequence, the sender
-   waits for a further credit grant from the receiver before continuing
-   to send messages.
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 42]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-   Credit exhaustion can occur at the receiver in the middle of a
-   sequence of continued messages.  The receiver can grant more credits
-   by sending an RPC message payload or an out-of-band credit grant (see
-   Section 4.2.1.2) to enable the sender to send the remaining messages
-   in the sequence.
-
-6.2.2.3.  RDMA2_F_TPMORE Flag
-
-   The RDMA2_F_TPMORE flag indicates that the sender has additional
-   Transport Properties to send in a subsequent RPC-over-RDMA message.
-   If a peer receives any message type other than RDMA2_CONNPROP with
-   the RDMA2_F_TPMORE flag set, it MUST respond with an RDMA2_ERROR
-   message type whose rdma_err field contains RDMA2_ERR_INVAL_HTYPE, and
-   then silently discard the ingress message without processing it.
-
-   The RDMA2_F_TPDONE flag is clear in the final RDMA2_CONNPROP message
-   type from this peer on this connection.  If a peer receives an
-   RDMA2_CONNPROP message type after it has received an RDMA2_CONNPROP
-   message type with a clear RDMA2_F_TPDONE flag, it MUST respond with
-   an RDMA2_ERROR message type whose rdma_err field contains
-   RDMA2_ERR_INVAL_HTYPE, and then silently discard the ingress message
-   without processing it.
-
-   After both connection peers have indicated they have finished sending
-   their Transport Properties, they may begin passing RPC traffic.
-
-6.2.3.  External Data Payloads
-
-   The rpcrdma2_chunk_lists structure specifies where to find the parts
-   of the message payload that are to be conveyed via explicit RDMA
-   operations.
-
-   <CODE BEGINS>
-   struct rpcrdma2_chunk_lists {
-           uint32                      rdma_inv_handle;
-           struct rpcrdma2_read_list   *rdma_reads;
-           struct rpcrdma2_write_list  *rdma_writes;
-           struct rpcrdma2_write_chunk *rdma_reply;
-   };
-   <CODE ENDS>
-
-   rdma_inv_handle:  The rdma_inv_handle field contains a 32-bit RDMA
-      handle that the Responder should use in a Send With Invalidation
-      operation.  More detail is provided in Section 6.2.4.
-
-   rdma_reads:  The rdma_reads field anchors a list of zero or more RDMA
-      read segments (see Section 4.3.5.1).
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 43]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-   rdma_writes:  The rdma_writes field anchors a list of zero or more
-      Write chunks (see Section 4.3.6.1).
-
-   rdma_reply:  The rdma_reply field is a list containing zero or one
-      Reply chunk.  The use of this chunk is explained further in
-      Section 4.4.3.
-
-   The content of the chunk lists is determined by the message's Payload
-   format, as explained in Section 4.4.
-
-6.2.4.  Remote Invalidation
-
-   To solicit the use of Remote Invalidation, a Requester sets the value
-   of the rdma_inv_handle field in an RPC Call's transport header to a
-   non-zero value that matches one of the rdma_handle fields in that
-   header.  If the Responder may invalidate none of the rdma_handle
-   values in the header conveying the Call, the Requester sets the RPC
-   Call's rdma_inv_handle field to the value zero.
-
-   If the Responder chooses not to use remote invalidation for this
-   particular RPC Reply, or the RPC Call's rdma_inv_handle field
-   contains the value zero, the Responder simply uses RDMA Send to
-   transmit the matching RPC reply.  However, if the Responder chooses
-   to use Remote Invalidation, it uses RDMA Send With Invalidate to
-   transmit the RPC Reply.  It MUST use the value in the corresponding
-   Call's rdma_inv_handle field to construct the Send With Invalidate
-   Work Request.
-
-   A Responder MUST NOT use a Send With Invalidate Work Request when
-   sending an RDMA2_ERROR header type (see Section 6.3.3), an
-   RDMA2_CONNPROP header type (see Section 6.3.4), or an asynchronous
-   credit grant (see Section 4.2.1.2).
-
 6.3.  Header Types
 
-   The header types defined and used in RPC-over-RDMA version 1 are
-   carried over into RPC-over-RDMA version 2, although there are some
-   limited changes in the definitions of existing header types:
+   The header types defined and used in RPC-over-RDMA version 1 are not
+   carried over into RPC-over-RDMA version 2, although there are easy
+   equivalents to the version 1 procedures:
 
-   *  To simplify interoperability with RPC-over-RDMA version 1, only
-      the RDMA2_ERROR header (defined in Section 6.3.3) has an XDR
+   *  The RDMA2_ERROR header (defined in Section 6.3.1) has an XDR
       definition that differs from that in RPC-over-RDMA version 1, and
       its modifications are all compatible extensions.
 
+   *  Senders use RDMA2_CALL_INLINE or RDMA2_REPLY_INLINE (defined in
+      Sections 6.3.7 and 6.3.10) in place of RDMA_MSG.  There are minor
+      differences in the on-the-wire format between the version 1
+      procedure and the version 2 header types.
 
+   *  Senders use RDMA2_CALL_EXTERNAL or RDMA2_REPLY_EXTERNAL (defined
+      in Sections 6.3.5 and 6.3.8) in place of RDMA_NOMSG.  There are
+      minor differences in the on-the-wire format between the version 1
+      procedure and the version 2 header types.
 
+   *  RDMA2_CONNPROP_MIDDLE and RDMA2_CONNPROP_FINAL (defined in
+      Sections 6.3.3 and 6.3.4) are new header types devoted to enabling
+      connection peers to exchange information about their transport
+      properties.
 
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 44]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-   *  RDMA2_MSG and RDMA2_NOMSG (defined in Sections 6.3.1 and 6.3.2)
-      have XDR definitions that match the corresponding RPC-over-RDMA
-      version 1 header types.  However, because of the changes to the
-      header prefix, the version 1 and version 2 header types differ in
-      on-the-wire format.
-
-   *  RDMA2_CONNPROP (defined in Section 6.3.4) is an entirely new
-      header type devoted to enabling connection peers to exchange
-      information about their transport properties.
-
-6.3.1.  RDMA2_MSG: Convey RPC Message Inline
-
-   RDMA2_MSG conveys all or part of an RPC message immediately following
-   the transport header in the send buffer.
-
-   <CODE BEGINS>
-   const rpcrdma2_proc RDMA2_MSG = 0;
-
-   struct rpcrdma2_msg {
-           struct rpcrdma2_chunk_lists rdma_chunks;
-
-           /* The rpc message starts here and continues
-            * through the end of the transmission. */
-           uint32                      rdma_rpc_first_word;
-   };
-   <CODE ENDS>
-
-6.3.2.  RDMA2_NOMSG: Convey External RPC Message
-
-   RDMA2_NOMSG conveys an entire RPC message payload using explicit RDMA
-   operations.  In particular, it is referred to as a Special Format
-   Call when the Responder reads the RPC payload from a memory area
-   specified by a Position Zero Read chunk.  It is referred to as a
-   Special Format Reply when the Responder writes the RPC payload into a
-   memory area specified by a Reply chunk.  In both cases, the sender
-   sets the rdma_xid field to the same value as the xid of the RPC
-   message payload.
-
-   If all the chunk lists are empty the message conveys a credit grant
-   refresh.  The header prefix of this message contains a credit grant
-   refresh in the rdma_credit field.  In this case, the sender MUST set
-   the rdma_xid field to zero.
-
-
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 45]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-   <CODE BEGINS>
-   const rpcrdma2_proc RDMA2_NOMSG = 1;
-
-   struct rpcrdma2_nomsg {
-           struct rpcrdma2_chunk_lists rdma_chunks;
-   };
-   <CODE ENDS>
-
-   In RPC-over-RDMA version 2, a sender should use Message Continuation
-   as an alternative to using a Special Format message.
-
-   When a Responder receives an RDMA2_NOMSG header type with a non-empty
-   Read list that does not carry a Position Zero Read chunk, it MUST
-   discard that message without processing it and send an RDMA2_ERROR
-   message with the rdma_err field set to RDMA2_ERR_BAD_XDR.  When a
-   Requester receives an RDMA2_NOMSG header type with an empty Reply
-   chunk, it discards that message and terminates the RPC transaction
-   represented by the XID value in the rdma_xid field of the malformed
-   message.
-
-6.3.3.  RDMA2_ERROR: Report Transport Error
+6.3.1.  RDMA2_ERROR: Report Transport Error
 
    RDMA2_ERROR reports a transport layer error on a previous
    transmission.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 46]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
    <CODE BEGINS>
    const rpcrdma2_proc RDMA2_ERROR = 4;
@@ -2591,7 +1600,7 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
            uint32 rdma_length_needed;
    };
 
-   union rpcrdma2_error switch (rpcrdma2_errcode rdma_err) {
+   union rpcrdma2_hdr_error switch (rpcrdma2_errcode rdma_err) {
            case RDMA2_ERR_VERS:
              rpcrdma2_err_vers rdma_vrange;
            case RDMA2_ERR_READ_CHUNKS:
@@ -2611,57 +1620,555 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
 
    See Section 7 for details on the use of this header type.
 
-6.3.4.  RDMA2_CONNPROP: Exchange Transport Properties
+6.3.2.  RDMA2_GRANT: Grant Credits
 
-   The RDMA2_CONNPROP message type enables a connection peer to publish
-   the properties of its implementation to its remote peer.
+   The RDMA2_GRANT header type enables a connection peer to update
+   credit information without conveying a payload.
 
    <CODE BEGINS>
-   const rpcrdma2_proc RDMA2_CONNPROP = 5;
+   const rpcrdma2_proc RDMA2_GRANT = 5;
+   <CODE ENDS>
 
-   struct rpcrdma2_connprop {
+   This message carries no payload except for a struct
+   rpcrdma2_hdr_prefix.  The rdma_xid field is unused.  Senders MUST set
+   the rdma_xid field to zero and receivers MUST ignore the value in
+   this field.
+
+6.3.3.  RDMA2_CONNPROP_MIDDLE: Exchange Transport Properties
+
+   The RDMA2_CONNPROP_MIDDLE header type enables a connection peer to
+   publish the properties of its implementation to its remote peer.
+
+   <CODE BEGINS>
+   const rpcrdma2_proc RDMA2_CONNPROP_MIDDLE = 6;
+
+   struct rpcrdma2_hdr_connprop {
            rpcrdma2_propset rdma_props;
    };
    <CODE ENDS>
 
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 47]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-   Each peer sends an RDMA2_CONNPROP message type as the first message
-   after the client has established a connection.  The size of this
-   initial message is limited to the default inline threshold for the
-   RPC-over-RDMA version that is in effect.  If a peer has more or
-   larger Transport Properties than can fit in the initial
-   RDMA2_CONNPROP message type, it sets the RDMA2_F_TPMORE flag.  The
-   final RDMA2_CONNPROP message type the peer sends on that connection
-   must have a clear RDMA2_F_TPMORE flag.
+   A peer sends an RDMA2_CONNPROP_MIDDLE header type when it has one or
+   more properties to send that do not fit within the default inline
+   threshold for the RPC-over-RDMA version that is in effect.
 
    A peer may encounter properties that it does not recognize or
    support.  In such cases, the receiver ignores unsupported properties
    without generating an error response.
 
-6.3.5.  RDMA2_GRANT: Grant Credits
+   If a peer sends follows an RDMA2_CONNPROP_MIDDLE header type with
+   anything other than another RDMA2_CONNPROP_MIDDLE message or an
+   RDMA2_CONNPROP_FINAL message, the receiver MUST respond with an
+   RDMA2_ERROR header type and set its rdma_err field to
+   RDMA2_ERR_INVAL_CONT and drop the incoming message without processing
+   it further.
 
-   The RDMA2_GRANT message type enables a connection peer to grant
-   additional credits to its remote peer without conveying a payload.
+6.3.4.  RDMA2_CONNPROP_FINAL: Exchange Transport Properties
+
+   The RDMA2_CONNPROP_FINAL header type enables a connection peer to
+   publish the properties of its implementation to its remote peer.
 
    <CODE BEGINS>
-   const rpcrdma2_proc RDMA2_GRANT = 6;
+   const rpcrdma2_proc RDMA2_CONNPROP_FINAL = 7;
+
+   struct rpcrdma2_hdr_connprop {
+           rpcrdma2_propset rdma_props;
+   };
    <CODE ENDS>
 
-   This message carries no payload except for a struct
-   rpcrdma2_hdr_prefix.  The rdma_flags field is unused.  Senders MUST
-   set the rdma_flags field to zero (all clear) and receivers MUST
-   ignore the value of the bits in this field.
+   Each peer sends an RDMA2_CONNPROP_FINAL header type as the final
+   CONNPROP-type message after the client has established a connection.
+   The size of this message is limited to the default inline threshold
+   for the RPC-over-RDMA version that is in effect.
 
-6.4.  Choosing a Reply Mechanism
+   A peer may encounter properties that it does not recognize or
+   support.  In such cases, the receiver ignores unsupported properties
+   without generating an error response.
+
+   If a peer sends a CONNPROP-type message on a connection after it has
+   sent an RDMA2_CONNPROP_FINAL message, the receiver MUST respond with
+   an RDMA2_ERROR header type and set its rdma_err field to
+   RDMA2_ERR_INVAL_CONT and drop the incoming message without processing
+   it further.
+
+6.3.5.  RDMA2_CALL_EXTERNAL: Convey External RPC Call Message
+
+   RDMA2_CALL_EXTERNAL conveys an RPC Call message payload using
+   explicit RDMA operations.  The Responder reads the Payload stream
+   from a memory area specified by the Call chunk.  The sender MUST set
+   the rdma_xid field to the same value as the xid of the RPC Reply
+   message payload.
+
+   <CODE BEGINS>
+   const rpcrdma2_proc RDMA2_CALL_EXTERNAL = 8;
+
+   struct rpcrdma2_hdr_call_external {
+           uint32                      rdma_inv_handle;
+
+           struct rpcrdma2_read_list   *rdma_call;
+           struct rpcrdma2_read_list   *rdma_reads;
+           struct rpcrdma2_write_list  *rdma_provisional_writes;
+           struct rpcrdma2_write_chunk *rdma_provisional_reply;
+   };
+   <CODE ENDS>
+
+   rdma_inv_handle:  The rdma_inv_handle field contains a 32-bit RDMA
+      handle that the Responder may use in a Send With Invalidation
+      operation.  See Section 6.5.
+
+   rdma_call:  The rdma_call field anchors a list of one or more Read
+      segments that contain the RPC Call's Payload stream.
+
+   rdma_reads:  The rdma_reads field anchors a list of zero or more Read
+      segments that contain data item chunks.
+
+   rdma_provisional_writes:  The rdma_writes field anchors a list of
+      zero or more provisional Write chunks.
+
+   rdma_provisional_reply:  The rdma_reply field is a list containing
+      zero or one provisional Reply chunk.
+
+6.3.6.  RDMA2_CALL_MIDDLE: Convey Continued RPC Call Message
+
+   RDMA2_CALL_MIDDLE conveys a beginning or middle portion of an RPC
+   Call message immediately following the transport header in the send
+   buffer.  The sender MUST set the rdma_xid field to the same value as
+   the xid of the RPC Reply message payload.  The sender sets the
+   rdma_remaining field to the number of bytes in the RPC Call message
+   payload that remain to be sent.  The rdma_rpc_first_word field
+   demarks the first word of the Payload stream.
+
+   <CODE BEGINS>
+   const rpcrdma2_proc RDMA2_CALL_MIDDLE = 9;
+
+   struct rpcrdma2_hdr_call_middle {
+           uint32                      rdma_remaining;
+
+           /* The rpc message starts here and continues
+            * through the end of the transmission. */
+           uint32                      rdma_rpc_first_word;
+   };
+   <CODE ENDS>
+
+   If a peer sends follows an RDMA2_CALL_MIDDLE header type with
+   anything other than an RDMA2_CALL_MIDDLE message or an
+   RDMA2_CALL_INLINE message, the receiver MUST respond with an
+   RDMA2_ERROR header type and set its rdma_err field to
+   RDMA2_ERR_INVAL_CONT and drop the incoming message without processing
+   it further.
+
+6.3.7.  RDMA2_CALL_INLINE: Convey Inline RPC Call Message
+
+   RDMA2_CALL_INLINE conveys the only or final portion of an RPC Call
+   message.  The rdma_rpc_first_word field demarks the first word of
+   this Payload stream.
+
+   <CODE BEGINS>
+   const rpcrdma2_proc RDMA2_CALL_INLINE = 10;
+
+   struct rpcrdma2_hdr_call_inline {
+           uint32                      rdma_inv_handle;
+
+           struct rpcrdma2_read_list   *rdma_reads;
+           struct rpcrdma2_write_list  *rdma_provisional_writes;
+           struct rpcrdma2_write_chunk *rdma_provisional_reply;
+
+           /* The rpc message starts here and continues
+            * through the end of the transmission. */
+           uint32                      rdma_rpc_first_word;
+   };
+   <CODE ENDS>
+
+   rdma_inv_handle:  The rdma_inv_handle field contains a 32-bit RDMA
+      handle that the Responder may use in a Send With Invalidation
+      operation.  See Section 6.5.
+
+   rdma_reads:  The rdma_reads field anchors a list of zero or more Read
+      segments that contain only data item chunks.  A Requester MUST NOT
+      insert Position-zero Read chunks in this list.
+
+   rdma_provisional_writes:  The rdma_writes field anchors a list of
+      zero or more provisional Write chunks.
+
+   rdma_provisional_reply:  The rdma_reply field is a list containing
+      zero or one provisional Reply chunk.
+
+6.3.8.  RDMA2_REPLY_EXTERNAL: Convey External RPC Reply Message
+
+   RDMA2_REPLY_EXTERNAL conveys an RPC Reply message payload using
+   explicit RDMA operations.  In particular, it is referred to as a
+   Special Format Reply when the Responder writes the RPC payload into a
+   memory area specified by a Reply chunk.  The sender MUST set the
+   rdma_xid field to the same value as the xid of the RPC Reply message
+   payload.
+
+   <CODE BEGINS>
+   const rpcrdma2_proc RDMA2_REPLY_EXTERNAL = 11;
+
+   struct rpcrdma2_hdr_reply_external {
+           struct rpcrdma2_write_list  *rdma_writes;
+           struct rpcrdma2_write_chunk *rdma_reply;
+   };
+   <CODE ENDS>
+
+   rdma_writes:  The rdma_writes field anchors a list of zero or more
+      Write chunks that are either empty or contain reduced data items.
+
+   rdma_reply:  The rdma_reply field is a list that MUST contain exactly
+      one Reply chunk.
+
+6.3.9.  RDMA2_REPLY_MIDDLE: Convey Continued RPC Reply Message
+
+   RDMA2_REPLY_MIDDLE conveys a beginning or middle portion of an RPC
+   Reply message immediately following the transport header in the send
+   buffer.  The sender MUST set the rdma_xid field to the same value as
+   the xid of the RPC Reply message payload.  The sender sets the
+   rdma_remaining field to the number of bytes in the RPC Call message
+   payload that remain to be sent.  The rdma_rpc_first_word field
+   demarks the first word of the Payload stream.
+
+   <CODE BEGINS>
+   const rpcrdma2_proc RDMA2_REPLY_MIDDLE = 12;
+
+   struct rpcrdma2_hdr_reply_middle {
+           uint32                      rdma_remaining;
+
+           /* The rpc message starts here and continues
+            * through the end of the transmission. */
+           uint32                      rdma_rpc_first_word;
+   };
+   <CODE ENDS>
+
+   If a peer sends follows an RDMA2_REPLY_MIDDLE header type with
+   anything other than an RDMA2_REPLY_MIDDLE message or an
+   RDMA2_REPLY_INLINE message, the receiver MUST respond with an
+   RDMA2_ERROR header type and set its rdma_err field to
+   RDMA2_ERR_INVAL_CONT and drop the incoming message without processing
+   it further.
+
+6.3.10.  RDMA2_REPLY_INLINE: Convey RPC Reply Message Inline
+
+   RDMA2_REPLY_INLINE conveys the only or final portion of an RPC Reply
+   message immediately following the transport header in the send
+   buffer.  If the Reply message payload has been reduced, the
+   rdma_chunks object carries the reduced data item chunks.
+
+   <CODE BEGINS>
+   const rpcrdma2_proc RDMA2_REPLY_INLINE = 13;
+
+   struct rpcrdma2_hdr_reply_inline {
+           struct rpcrdma2_write_list  *rdma_writes;
+
+           /* The rpc message starts here and continues
+            * through the end of the transmission. */
+           uint32                      rdma_rpc_first_word;
+   };
+   <CODE ENDS>
+
+   rdma_writes:  The rdma_writes field anchors a list of zero or more
+      Write chunks that are either empty or contain reduced data items.
+
+6.4.  Transport Header Prefix
+
+   The following prefix structure appears at the start of each RPC-over-
+   RDMA version 2 transport header.
+
+   <CODE BEGINS>
+   struct rpcrdma2_hdr_prefix {
+           struct rpcrdma_common       rdma_start;
+   };
+   <CODE ENDS>
+
+6.5.  Remote Invalidation
+
+   To solicit the use of Remote Invalidation, a Requester sets the value
+   of the rdma_inv_handle field in an RPC Call's transport header to a
+   non-zero value that matches one of the rdma_handle fields in that
+   header.  If the Responder may invalidate none of the rdma_handle
+   values in the header conveying the Call, the Requester sets the RPC
+   Call's rdma_inv_handle field to the value zero.
+
+   If the Responder chooses not to use remote invalidation for this
+   particular RPC Reply, or the RPC Call's rdma_inv_handle field
+   contains the value zero, the Responder simply uses RDMA Send to
+   transmit the matching RPC reply.  However, if the Responder chooses
+   to use Remote Invalidation, it uses RDMA Send With Invalidate to
+   transmit the RPC Reply.  It MUST use the value in the corresponding
+   Call's rdma_inv_handle field to construct the Send With Invalidate
+   Work Request.
+
+   A Responder never uses a Send With Invalidate Work Request when
+   sending a control plane header type.  This includes the RDMA2_ERROR
+   header type, the RDMA2_GRANT header type, the RDMA2_CONNPROP_MIDDLE
+   header type, and the RDMA2_CONNPROP_FINAL header type.
+
+6.6.  Payload Formats
+
+   RPC-over-RDMA version 2 provides several ways, known as "payload
+   formats", to convey an RPC-over-RDMA message.  A sender chooses the
+   payload format for each message based on several factors:
+
+   *  The existence of DDP-eligible data items in the RPC message
+      payload
+
+   *  The size of the RPC message payload
+
+   *  The direction of the RPC message (i.e., Call or Reply)
+
+   *  The available hardware resources
+
+   *  The arrangement of source and sink memory buffers
+
+   The following subsections describe in detail how Requesters and
+   Responders format RPC-over-RDMA message payloads.
+
+6.6.1.  Simple Format
+
+   All RPC messages conveyed via RPC-over-RDMA version 2 need at least
+   one RDMA Send operation to convey.  Thus, the most efficient way to
+   send an RPC message that is smaller than the inline threshold is to
+   append the Payload stream directly to the Transport stream and use an
+   RDMA Send to convey both.  When no chunks are present, senders
+   construct Calls and Replies the same way, and no other operations are
+   needed.
+
+6.6.1.1.  Simple Format with Data Item Chunks
+
+   If DDP-eligible data items are present in a Payload stream, a sender
+   MAY reduce some or all of these items, removing them from the Payload
+   stream.  The sender then uses a separate mechanism to transfer the
+   reduced data items.  The Transport stream immediately followed by the
+   reduced Payload stream is then transferred using one RDMA Send
+   operation.
+
+   When data item chunks are present, senders construct Calls
+   differently than Replies.
+
+   Simple Call
+      After receiving the Transport and Payload streams of an RPC Call
+      message with Read chunks, the Responder uses RDMA Read operations
+      to move the reduced data items contained in the Read chunks.  RPC-
+      over-RDMA Calls can carry Write chunks for the Responder to use
+      when sending the matching Reply.
+
+   Simple Reply
+      The Responder uses RDMA Write operations to move reduced data
+      items contained in Write chunks.  Afterward, it sends the
+      Transport and Payload streams of the RPC Reply message using one
+      RDMA Send.  RPC-over-RDMA Replies always carry an empty Read chunk
+      list.
+
+6.6.1.2.  Simple Format Examples
+
+        Requester                                 Responder
+            |      RDMA Send (RDMA2_CALL_INLINE)      |
+       Call |   ---------------------------------->   |
+            |                                         |
+            |                                         | Processing
+            |                                         |
+            |      RDMA Send (RDMA2_REPLY_INLINE)     |
+            |   <----------------------------------   | Reply
+
+       Figure 1: A Simple Call without data item chunks and a Simple
+                       Reply without data item chunks
+
+        Requester                                 Responder
+            |      RDMA Send (RDMA2_CALL_INLINE)      |
+       Call |   ---------------------------------->   |
+            |               RDMA Read                 |
+            |   <----------------------------------   |
+            |         RDMA Response (arg data)        |
+            |   ---------------------------------->   |
+            |                                         |
+            |                                         | Processing
+            |                                         |
+            |      RDMA Send (RDMA2_REPLY_INLINE)     |
+            |   <----------------------------------   | Reply
+
+        Figure 2: A Simple Call with a Read chunk and a Simple Reply
+                          without data item chunks
+
+        Requester                                 Responder
+            |      RDMA Send (RDMA2_CALL_INLINE)      |
+       Call |   ---------------------------------->   |
+            |                                         |
+            |                                         | Processing
+            |                                         |
+            |         RDMA Write (result data)        |
+            |   <----------------------------------   |
+            |      RDMA Send (RDMA2_REPLY_INLINE)     |
+            |   <----------------------------------   | Reply
+
+       Figure 3: A Simple Call without data item chunks and a Simple
+                          Reply with a Write chunk
+
+6.6.2.  Continued Format
+
+   For various reasons, a sender can choose to split a message payload
+   over multiple RPC-over-RDMA messages.  The Payload stream of each
+   RPC-over-RDMA message contains a part of the RPC message.  The
+   receiver reconstructs the original RPC message by concatenating the
+   Payload stream of each RPC-over-RDMA message in received order.  A
+   sender MAY split the Payload stream on any convenient boundary.
+
+6.6.2.1.  Continued Format with Data Item Chunks
+
+   If DDP-eligible data items are present in the Payload stream, a
+   sender MAY reduce some or all of these items, removing them from the
+   Payload stream.  The sender then uses a separate mechanism to
+   transfer the reduced data items.  The Transport stream immediately
+   follwed by the reduced Payload stream is then transferred using one
+   RDMA Send operation.
+
+   As with Simple Format messages, when chunks are present, senders
+   construct Calls differently than Replies.
+
+   Continued Call
+      After receiving the Transport and Payload streams of an RPC Call
+      message with Read chunks, the Responder uses RDMA Read operations
+      to move the reduced data items contained in Read chunks.  RPC-
+      over-RDMA Calls can carry Write chunks for the Responder to use
+      when sending the matching Reply.
+
+   Continued Reply
+      The Responder uses RDMA Write operations to move reduced data
+      items contained in Write chunks.  Afterward, it sends the
+      Transport and Payload streams of the RPC Reply message using
+      multiple RDMA Sends.  RPC-over-RDMA Replies always carry an empty
+      Read chunk list.
+
+6.6.2.2.  Continued Format Examples
+
+        Requester                                 Responder
+            |      RDMA Send (RDMA2_CALL_MIDDLE)      |
+       Call |   ---------------------------------->   |
+            |      RDMA Send (RDMA2_CALL_MIDDLE)      |
+            |   ---------------------------------->   |
+            |      RDMA Send (RDMA2_CALL_INLINE)      |
+            |   ---------------------------------->   |
+            |                                         |
+            |                                         | Processing
+            |                                         |
+            |      RDMA Send (RDMA2_REPLY_MIDDLE)     |
+            |   <----------------------------------   | Reply
+            |      RDMA Send (RDMA2_REPLY_MIDDLE)     |
+            |   <----------------------------------   |
+            |      RDMA Send (RDMA2_REPLY_INLINE)     |
+            |   <----------------------------------   |
+
+         Figure 4: A Continued Call without data item chunks and a
+                  Continued Reply without data item chunks
+
+        Requester                                 Responder
+            |      RDMA Send (RDMA2_CALL_MIDDLE)      |
+       Call |   ---------------------------------->   |
+            |      RDMA Send (RDMA2_CALL_MIDDLE)      |
+            |   ---------------------------------->   |
+            |      RDMA Send (RDMA2_CALL_INLINE)      |
+            |   ---------------------------------->   |
+            |              RDMA Read                  |
+            |   <----------------------------------   |
+            |         RDMA Response (arg data)        |
+            |   ---------------------------------->   |
+            |                                         |
+            |                                         | Processing
+            |                                         |
+            |      RDMA Send (RDMA2_REPLY_INLINE)     |
+            |   <----------------------------------   | Reply
+
+      Figure 5: A Continued Call with a Read chunk and a Simple Reply
+                          without data item chunks
+
+        Requester                                 Responder
+            |      RDMA Send (RDMA2_CALL_INLINE)      |
+       Call |   ---------------------------------->   |
+            |                                         |
+            |                                         | Processing
+            |                                         |
+            |         RDMA Write (result data)        |
+            |   <----------------------------------   |
+            |      RDMA Send (RDMA2_REPLY_MIDDLE)     |
+            |   <----------------------------------   | Reply
+            |      RDMA Send (RDMA2_REPLY_MIDDLE)     |
+            |   <----------------------------------   |
+            |      RDMA Send (RDMA2_REPLY_INLINE)     |
+            |   <----------------------------------   |
+
+      Figure 6: A Simple Call without data item chunks and a Continued
+                          Reply with a Write chunk
+
+6.6.3.  Special Format
+
+   Even after DDP-eligible data items have been removed, a Payload
+   stream can sometimes be too large to send using only RDMA Send
+   operations.  In those cases, the sender can use RDMA Read or Write
+   operations to convey the entire RPC message.  We refer to this as a
+   "Special Format" message.
+
+   To transmit a Special Format message, the sender transmits only the
+   Transport stream with an RDMA Send operation.  The sender does not
+   include the Payload stream in the send buffer.  Instead, the
+   Requester provides a body chunk that the Responder uses to move the
+   Payload stream.
+
+   Because chunks are always present in Special Format messages, the
+   sender always handles Calls and Replies differently.
+
+   Special Call
+      The Requester provides a Read chunk that contains the RPC Call
+      message's Payload stream.  Every Read segment in this chunk MUST
+      contain zero (0) in its Position field.  This type of Read chunk
+      is a body chunk known as a Call chunk.
+
+   Special Reply
+      The Requester provisions a Reply chunk in advance.  This body
+      chunk is a Write chunk into which the Responder places the RPC
+      Reply message's Payload stream.  The Requester provisions the
+      Reply chunk to accommodate the maximum expected reply size for
+      that upper-layer operation.
+
+   One purpose of a Special Format message is to handle large RPC
+   messages.  However, Requesters MAY use a Special Format message at
+   any time to convey an RPC Call message.
+
+   When it has alternatives, a Responder chooses which Format to use
+   based on the chunks provided by the Requester.  If a Requester
+   provided a Write chunk and the Responder has a DDP-eligible result,
+   it first reduces the reply Payload stream.  If a Requester provided a
+   Reply chunk and the reduced Payload stream is larger than the reply
+   inline threshold, the Responder MUST use the Requester-provided Reply
+   chunk for the reply.
+
+6.6.3.1.  Special Format Examples
+
+        Requester                                 Responder
+            |     RDMA Send (RDMA2_CALL_EXTERNAL)     |
+       Call |   ---------------------------------->   |
+            |               RDMA Read                 |
+            |   <----------------------------------   |
+            |         RDMA Response (RPC call)        |
+            |   ---------------------------------->   |
+            |                                         |
+            |                                         | Processing
+            |                                         |
+            |      RDMA Send (RDMA2_REPLY_INLINE)     |
+            |   <----------------------------------   | Reply
+
+    Figure 7: A Special Call and a Simple Reply without data item chunks
+
+        Requester                                 Responder
+            |      RDMA Send (RDMA2_CALL_INLINE)      |
+       Call |   ---------------------------------->   |
+            |                                         |
+            |                                         | Processing
+            |                                         |
+            |          RDMA Write (RPC reply)         |
+            |   <----------------------------------   |
+            |     RDMA Send (RDMA2_REPLY_EXTERNAL)    |
+            |   <----------------------------------   | Reply
+
+    Figure 8: A Simple Call without data item chunks and a Special Reply
+
+6.6.4.  Choosing a Reply Payload Format
 
    A Requester provisions all necessary registered memory resources for
    both an RPC Call and its matching RPC Reply.  A Requester constructs
@@ -2677,18 +2184,9 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    it can decide to use another means to convey the RPC Reply.  If the
    combination of the provided Write chunk list and Reply chunk is not
    adequate to convey a Reply, the Responder SHOULD use Message
-   Continuation (see Section 6.2.2.2) to send that Reply.  If even that
-   is not possible, the Responder sends an RDMA2_ERROR message to the
-   Requester, as described in Section 6.3.3:
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 48]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
+   Continuation to send that Reply.  If even that is not possible, the
+   Responder sends an RDMA2_ERROR message to the Requester, as described
+   in Section 6.3.1:
 
    *  If the Write chunk list cannot accommodate the ULP's DDP-eligible
       data payload, the Responder sends an RDMA2_ERR_WRITE_RESOURCE
@@ -2707,12 +2205,12 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
 7.  Error Handling
 
    A receiver performs validity checks on each ingress RPC-over-RDMA
-   message before it passes that message to the RPC layer.  For example,
-   if an ingress RPC-over-RDMA message is not as long as the size of
-   struct rpcrdma2_hdr_prefix (20 octets), the receiver cannot trust the
-   value of the rdma_xid field.  In this case, the receiver MUST
-   silently discard the ingress message without processing it further,
-   and without a response to the sender.
+   message before it assembles that message's Payload stream and passes
+   it to the RPC layer.  For example, if an ingress RPC-over-RDMA
+   message is not as long as the size of struct rpcrdma2_hdr_prefix (20
+   octets), the receiver cannot trust the value of the rdma_xid field.
+   In this case, the receiver MUST silently discard the ingress message
+   without processing it further, and without a response to the sender.
 
    When a request (for instance, an RPC Call or a control plane
    operation) is made, typically an RPC consumer blocks while waiting
@@ -2737,15 +2235,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
 
    *  The rdma_htype field MUST contain the value RDMA2_ERROR.
 
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 49]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    *  The rdma_err field contains a value that reflects the type of
       error that occurred, as described in the subsections below.
 
@@ -2763,17 +2252,33 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    RDMA2_ERR_VERS.  The Responder then fills in the rpcrdma2_err_vers
    structure with the RPC-over-RDMA versions it supports.  The Responder
    MUST silently discard the ingress message without passing it to the
-   RPC layer
+   RPC layer.
 
-   When a Requester receives this error, it uses the information in the
-   rpcrdma2_err_vers structure to select an RPC-over-RDMA version that
-   both peers support.  A Requester MUST NOT subsequently send a message
-   that uses a version that the Responder has indciated it does not
-   support.  RDMA2_ERR_VERS indicates a permanent error.  Receipt of
-   this error completes the RPC transaction associated with XID in the
-   rdma_xid field.
+   When a Requester receives this error message, it uses the information
+   in the rpcrdma2_err_vers structure to select an RPC-over-RDMA version
+   that both peers support for subsequent operations on the connection.
+   A Requester MUST NOT subsequently send a message that uses a version
+   that the Responder has indicated it does not support.  RDMA2_ERR_VERS
+   indicates a permanent error.  Receipt of this error completes the RPC
+   transaction associated with XID in the rdma_xid field.
 
-7.1.2.  RDMA2_ERR_INVAL_HTYPE
+7.1.2.  RDMA2_ERR_VERS_MISMATCH
+
+   When a Responder receives a message with a transport protocol version
+   that does not match the protocol version that was used in previous
+   successful exchanges on the same connection, it MUST respond with an
+   RDMA2_ERROR message type and set its rdma_err field to
+   RDMA2_ERR_VERS_MISMATCH.  The Responder MUST silently discard the
+   ingress message without passing it to the RPC layer.
+
+   A Requester MUST NOT subsequently send a message that uses a protocol
+   version that the Responder has indicated it does not recognize on
+   this connection.  The Requester can recover by sending the message
+   again using a corrected protocol version, or it can terminate the RPC
+   transaction associated with the XID in the rdma_xid field with an
+   error.
+
+7.1.3.  RDMA2_ERR_INVAL_HTYPE
 
    If a Responder recognizes the value in an ingress rdma_vers field,
    but it does not recognize the value in the rdma_htype field or does
@@ -2781,33 +2286,17 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    RDMA2_ERR_INVAL_HTYPE.  The Responder MUST silently discard the
    incoming message without passing it to the RPC layer.
 
-   A Requester MUST NOT subsequently send a message that uses an htype
-   that the Responder has indicated it does not support.
-   RDMA2_ERR_INVAL_HTYPE indicates a permanent error.  Receipt of this
-   error completes the RPC transaction associated with XID in the
-   rdma_xid field.
+   A Requester MUST NOT subsequently send a message on the connection
+   that uses an htype that the Responder has indicated it does not
+   support.  RDMA2_ERR_INVAL_HTYPE indicates a permanent error.  Receipt
+   of this error completes the RPC transaction associated with XID in
+   the rdma_xid field.
 
-
-
-
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 50]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-7.1.3.  RDMA2_ERR_INVAL_CONT
+7.1.4.  RDMA2_ERR_INVAL_CONT
 
    If a Responder detects a problem with an ingress RPC-over-RDMA
    message that is part of a Message Continuation sequence, the
-   Responder MUST set the rdma_err field to RDMA2_ERR_INVAL_CONT.
-   Section 6.2.2.2 discusses the types of problems to watch for.  The
+   Responder MUST set the rdma_err field to RDMA2_ERR_INVAL_CONT.  The
    Responder MUST silently discard all ingress messages with an rdma_xid
    field that matches the failing message without reassembling the
    payload.
@@ -2822,19 +2311,21 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    processing an ingress Transport stream.  Examples of such errors
    include:
 
-   *  An invalid value in the rdma_proc field.
-
    *  The value of the rdma_xid field does not match the value of the
       XID field in the accompanying RPC message.
 
-   When a Responder receives a valid RPC-over-RDMA header but the
-   Responder's ULP implementation cannot parse the RPC arguments in the
-   RPC Call, the Responder returns an RPC Reply with status
-   GARBAGE_ARGS, using an RDMA2_MSG message type.  This type of parsing
-   failure might be due to mismatches between chunk sizes or offsets and
-   the contents of the Payload stream, for example.  In this case, the
-   error is permanent, but the Requester has no way to know how much
-   processing the Responder has completed for this RPC transaction.
+   *  The receive buffer ends before the end of a data object contained
+      in the Transport stream.
+
+   Moreover, when a Responder receives a valid RPC-over-RDMA header but
+   the Responder's ULP implementation cannot parse the RPC arguments in
+   the RPC Call, the Responder returns an RPC Reply with status
+   GARBAGE_ARGS, using an RDMA2_REPLY_INLINE message type.  This type of
+   parsing failure might be due to mismatches between chunk sizes or
+   offsets and the contents of the Payload stream, for example.  In this
+   case, the error is permanent, but the Requester has no way to know
+   how much processing the Responder has completed for this RPC
+   transaction.
 
 7.2.1.  RDMA2_ERR_BAD_XDR
 
@@ -2846,17 +2337,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    RDMA2_ERR_BAD_XDR indicates a permanent error.  Receipt of this error
    completes the RPC transaction associated with XID in the rdma_xid
    field.
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 51]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
 7.2.2.  RDMA2_ERR_BAD_PROPVAL
 
@@ -2890,7 +2370,7 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    RDMA operational errors can be fatal to the connection.  To avoid a
    retransmission loop and repeated connection loss that deadlocks the
    connection, once the Requester has re-established a connection, the
-   Responder should send an RDMA2_ERROR response to indicate that no
+   Responder SHOULD send an RDMA2_ERROR response to indicate that no
    RPC-level reply is possible for that transaction.
 
 7.3.1.  RDMA2_ERR_READ_CHUNKS
@@ -2904,19 +2384,9 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    Responder MUST silently discard the ingress message without
    processing it further.
 
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 52]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    The Requester can reconstruct the Call using Message Continuation or
-   a Special Format payload and resend it.  If the Requester does not
-   resend the Call, it MUST terminate this RPC transaction with an
+   a Special Format payload and resend it.  If the Requester chooses not
+   to resend the Call, it MUST terminate this RPC transaction with an
    error.
 
 7.3.2.  RDMA2_ERR_WRITE_CHUNKS
@@ -2960,15 +2430,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    resend it.  If the Requester does not resend the Call (for instance,
    if the Responder set the index and length fields to zero), it MUST
    terminate this RPC transaction with an error.
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 53]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
 7.3.5.  RDMA2_ERR_REPLY_RESOURCE
 
@@ -3017,23 +2478,14 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    associated with the XID value in the RDMA2_ERROR message's rdma_xid
    field.
 
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 54]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
 7.5.  RDMA Transport Errors
 
    The RDMA connection and physical link provide some degree of error
-   detection and retransmission. iWARP's Marker PDU Aligned (MPA) layer
-   (when used over TCP), the Stream Control Transmission Protocol
-   (SCTP), as well as the InfiniBand link layer [IBA] all provide Cyclic
-   Redundancy Check (CRC) protection of RDMA payloads.  CRC-class
-   protection is a general attribute of such transports.
+   detection and retransmission.  The Marker PDU Aligned Framing (MPA)
+   protocol (as described in Section 7.1 of [RFC5044]) as well as the
+   InfiniBand link layer [IBA] provide Cyclic Redundancy Check (CRC)
+   protection of RDMA payloads.  CRC-class protection is a general
+   attribute of such transports.
 
    Additionally, the RPC layer itself can accept errors from the
    transport and recover via retransmission.  RPC recovery can typically
@@ -3059,32 +2511,9 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    other XDR code which has an identical license, only a single copy of
    the license text needs to be retained.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 55]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    <CODE BEGINS>
    /// /*
-   ///  * Copyright (c) 2010-2018 IETF Trust and the persons
+   ///  * Copyright (c) 2010, 2020 IETF Trust and the persons
    ///  * identified as authors of the code.  All rights reserved.
    ///  *
    ///  * The authors of the code are:
@@ -3127,17 +2556,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    ///
    <CODE ENDS>
 
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 56]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
 8.2.  Extraction of the XDR Definition
 
    Implementers can apply the following sed script to the current
@@ -3152,7 +2570,7 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    implementers can do the following to extract an XDR description file
    and store it in the file rpcrdma-v2.x.
 
-   <CODE BEGINS> file "rpcrdma-v2.x"
+   <CODE BEGINS>
    sed -n -e 's:^ */// ::p' -e 's:^ *///$::p' \
     < spec.txt > rpcrdma-v2.x
    <CODE ENDS>
@@ -3184,15 +2602,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    <CODE ENDS>
 
    Running the above script results in two files:
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 57]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
    *  The file common.x, containing the license plus the shared XDR
       definitions that need to be made available to both the base
@@ -3228,13 +2637,8 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    ///         uint32         rdma_htype;
    /// };
    ///
-   /// const RDMA2_F_RESPONSE           0x00000001;
-   /// const RDMA2_F_MORE               0x00000002;
-   /// const RDMA2_F_TPMORE             0x00000004;
-   ///
-   /// struct rpcrdma2_hdr_prefix
+   /// struct rpcrdma2_hdr_prefix {
    ///         struct rpcrdma_common       rdma_start;
-   ///         uint32                      rdma_flags;
    /// };
    ///
    /// /***************************************************************
@@ -3242,14 +2646,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    ///  ***************************************************************/
    ///
    /// struct rpcrdma2_segment {
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 58]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    ///         uint32 rdma_handle;
    ///         uint32 rdma_length;
    ///         uint64 rdma_offset;
@@ -3274,13 +2670,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    ///         struct rpcrdma2_write_list  *rdma_next;
    /// };
    ///
-   /// struct rpcrdma2_chunk_lists {
-   ///         uint32                      rdma_inv_handle;
-   ///         struct rpcrdma2_read_list   *rdma_reads;
-   ///         struct rpcrdma2_write_list  *rdma_writes;
-   ///         struct rpcrdma2_write_chunk *rdma_reply;
-   /// };
-   ///
    /// /***************************************************************
    ///  *    Transport Properties
    ///  ***************************************************************/
@@ -3298,23 +2687,15 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    /// typedef rpcrdma2_propval rpcrdma2_propset<>;
    /// typedef uint32 rpcrdma2_propsubset<>;
    ///
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 59]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    /// /*
    ///  * Transport propid values for basic properties
    ///  */
-   /// const uint32 RDMA2_PROPID_SBSIZ = 1;
-   /// const uint32 RDMA2_PROPID_RBSIZ = 2;
-   /// const uint32 RDMA2_PROPID_RSSIZ = 3;
-   /// const uint32 RDMA2_PROPID_RCSIZ = 4;
-   /// const uint32 RDMA2_PROPID_BRS = 5;
-   /// const uint32 RDMA2_PROPID_HOSTAUTH = 6;
+   /// const RDMA2_PROPID_SBSIZ = 1;
+   /// const RDMA2_PROPID_RBSIZ = 2;
+   /// const RDMA2_PROPID_RSSIZ = 3;
+   /// const RDMA2_PROPID_RCSIZ = 4;
+   /// const RDMA2_PROPID_BRS = 5;
+   /// const RDMA2_PROPID_HOSTAUTH = 6;
    ///
    /// /*
    ///  * Types specific to particular properties
@@ -3326,10 +2707,10 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    /// typedef uint32 rpcrdma2_prop_brs;
    /// typedef opaque rpcrdma2_prop_hostauth<>;
    ///
-   /// const uint32 RDMA2_RVRSDIR_NONE = 0;
-   /// const uint32 RDMA2_RVRSDIR_SIMPLE = 1;
-   /// const uint32 RDMA2_RVRSDIR_CONT = 1;
-   /// const uint32 RDMA2_RVRSDIR_GENL = 3;
+   /// const RDMA2_RVRSDIR_NONE = 0;
+   /// const RDMA2_RVRSDIR_SIMPLE = 1;
+   /// const RDMA2_RVRSDIR_CONT = 2;
+   /// const RDMA2_RVRSDIR_GENL = 3;
    ///
    /// /* FILE ENDS: common.x; */
    <CODE ENDS>
@@ -3342,51 +2723,42 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    ///  ***************************************************************/
    ///
    /// /*
-   ///  * Header Type Codes.
+   ///  * Header Type Codes: Control plane operations.
    ///  */
-   /// const rpcrdma2_proc RDMA2_MSG = 0;
-   /// const rpcrdma2_proc RDMA2_NOMSG = 1;
-   /// const rpcrdma2_proc RDMA2_ERROR = 4;
-   /// const rpcrdma2_proc RDMA2_CONNPROP = 5;
-   /// const rpcrdma2_proc RDMA2_GRANT = 6;
+   /// const RDMA2_ERROR = 4;
+   /// const RDMA2_GRANT = 5;
+   /// const RDMA2_CONNPROP_MIDDLE = 6;
+   /// const RDMA2_CONNPROP_FINAL = 7;
    ///
    /// /*
-   ///  * Header Types to Convey RPC Messages.
+   ///  * Header Type Codes: Call messages.
    ///  */
-   /// struct rpcrdma2_msg {
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 60]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
-   ///         struct rpcrdma2_chunk_lists rdma_chunks;
+   /// const RDMA2_CALL_EXTERNAL = 8;
+   /// const RDMA2_CALL_MIDDLE = 9;
+   /// const RDMA2_CALL_INLINE = 10;
    ///
-   ///         /* The rpc message starts here and continues
-   ///          * through the end of the transmission. */
-   ///         uint32                      rdma_rpc_first_word;
-   /// };
-   ///
-   /// struct rpcrdma2_nomsg {
-   ///         struct rpcrdma2_chunk_lists rdma_chunks;
-   /// };
+   /// /*
+   ///  * Header Type Codes: Reply messages.
+   ///  */
+   /// const RDMA2_REPLY_EXTERNAL = 11;
+   /// const RDMA2_REPLY_MIDDLE = 12;
+   /// const RDMA2_REPLY_INLINE = 13;
    ///
    /// /*
    ///  * Header Type to Report Errors.
    ///  */
-   /// const uint32 RDMA2_ERR_VERS = 1;
-   /// const uint32 RDMA2_ERR_BAD_XDR = 2;
-   /// const uint32 RDMA2_ERR_BAD_PROPVAL = 3;
-   /// const uint32 RDMA2_ERR_INVAL_HTYPE = 4;
-   /// const uint32 RDMA2_ERR_INVAL_CONT = 5;
-   /// const uint32 RDMA2_ERR_READ_CHUNKS = 6;
-   /// const uint32 RDMA2_ERR_WRITE_CHUNKS = 7;
-   /// const uint32 RDMA2_ERR_SEGMENTS = 8;
-   /// const uint32 RDMA2_ERR_WRITE_RESOURCE = 9;
-   /// const uint32 RDMA2_ERR_REPLY_RESOURCE = 10;
-   /// const uint32 RDMA2_ERR_SYSTEM = 100;
+   /// const RDMA2_ERR_VERS = 1;
+   /// const RDMA2_ERR_BAD_XDR = 2;
+   /// const RDMA2_ERR_BAD_PROPVAL = 3;
+   /// const RDMA2_ERR_INVAL_HTYPE = 4;
+   /// const RDMA2_ERR_INVAL_CONT = 5;
+   /// const RDMA2_ERR_READ_CHUNKS = 6;
+   /// const RDMA2_ERR_WRITE_CHUNKS = 7;
+   /// const RDMA2_ERR_SEGMENTS = 8;
+   /// const RDMA2_ERR_WRITE_RESOURCE = 9;
+   /// const RDMA2_ERR_REPLY_RESOURCE = 10;
+   /// const RDMA2_ERR_VERS_MISMATCH = 11;
+   /// const RDMA2_ERR_SYSTEM = 100;
    ///
    /// struct rpcrdma2_err_vers {
    ///         uint32 rdma_vers_low;
@@ -3398,7 +2770,7 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    ///         uint32 rdma_length_needed;
    /// };
    ///
-   /// union rpcrdma2_error switch (rpcrdma2_errcode rdma_err) {
+   /// union rpcrdma2_hdr_error switch (rpcrdma2_errcode rdma_err) {
    ///         case RDMA2_ERR_VERS:
    ///           rpcrdma2_err_vers rdma_vrange;
    ///         case RDMA2_ERR_READ_CHUNKS:
@@ -3410,14 +2782,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    ///         case RDMA2_ERR_WRITE_RESOURCE:
    ///           rpcrdma2_err_write rdma_writeres;
    ///         case RDMA2_ERR_REPLY_RESOURCE:
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 61]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    ///           uint32 rdma_length_needed;
    ///         default:
    ///           void;
@@ -3426,8 +2790,61 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    /// /*
    ///  * Header Type to Exchange Transport Properties.
    ///  */
-   /// struct rpcrdma2_connprop {
+   /// struct rpcrdma2_hdr_connprop {
    ///         rpcrdma2_propset rdma_props;
+   /// };
+   ///
+   /// /*
+   ///  * Header Types to Convey RPC Messages.
+   ///  */
+   /// struct rpcrdma2_hdr_call_external {
+   ///         uint32                      rdma_inv_handle;
+   ///
+   ///         struct rpcrdma2_read_list   *rdma_call;
+   ///         struct rpcrdma2_read_list   *rdma_reads;
+   ///         struct rpcrdma2_write_list  *rdma_provisional_writes;
+   ///         struct rpcrdma2_write_chunk *rdma_provisional_reply;
+   /// };
+   ///
+   /// struct rpcrdma2_hdr_call_middle {
+   ///         uint32                      rdma_remaining;
+   ///
+   ///         /* The rpc message starts here and continues
+   ///          * through the end of the transmission. */
+   ///         uint32                      rdma_rpc_first_word;
+   /// };
+   ///
+   /// struct rpcrdma2_hdr_call_inline {
+   ///         uint32                      rdma_inv_handle;
+   ///
+   ///         struct rpcrdma2_read_list   *rdma_reads;
+   ///         struct rpcrdma2_write_list  *rdma_provisional_writes;
+   ///         struct rpcrdma2_write_chunk *rdma_provisional_reply;
+   ///
+   ///         /* The rpc message starts here and continues
+   ///          * through the end of the transmission. */
+   ///         uint32                      rdma_rpc_first_word;
+   /// };
+   ///
+   /// struct rpcrdma2_hdr_reply_external {
+   ///         struct rpcrdma2_write_list  *rdma_writes;
+   ///         struct rpcrdma2_write_chunk *rdma_reply;
+   /// };
+   ///
+   /// struct rpcrdma2_hdr_reply_middle {
+   ///         uint32                      rdma_remaining;
+   ///
+   ///         /* The rpc message starts here and continues
+   ///          * through the end of the transmission. */
+   ///         uint32                      rdma_rpc_first_word;
+   /// };
+   ///
+   /// struct rpcrdma2_hdr_reply_inline {
+   ///         struct rpcrdma2_write_list  *rdma_writes;
+   ///
+   ///         /* The rpc message starts here and continues
+   ///          * through the end of the transmission. */
+   ///         uint32                      rdma_rpc_first_word;
    /// };
    ///
    /// /* FILE ENDS: baseops.x; */
@@ -3463,17 +2880,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
       requires that message assembly facilities not specifiable within
       XDR are part of transport implementations.
 
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 62]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    *  Transport properties are constant integer values.  Table 1
       expresses the mapping between each property's code point and the
       XDR typedef that represents the structure of the property's value.
@@ -3502,11 +2908,11 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    a distinct service address (port number) is sometimes required for
    operation on RPC-over-RDMA.
 
-   When mapped atop the iWARP transport [RFC5040] [RFC5041], which uses
-   IP port addressing due to its layering on TCP or SCTP, port mapping
-   is trivial and consists merely of issuing the port in the connection
-   process.  The NFS/RDMA protocol service address has been assigned
-   port 20049 by IANA, for both iWARP/TCP and iWARP/SCTP [RFC8267].
+   When mapped atop MPA [RFC5044], which uses IP port addressing due to
+   its layering on TCP or SCTP, port mapping is trivial and consists
+   merely of issuing the port in the connection process.  The NFS/RDMA
+   protocol service address has been assigned port 20049 by IANA for
+   this deployment scenario [RFC8267].
 
    When mapped atop InfiniBand [IBA], which uses a service endpoint
    naming scheme based on a Group Identifier (GID), a translation MUST
@@ -3521,15 +2927,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    interconnect, there are several possibilities for each upper layer to
    consider:
 
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 63]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    *  One possibility is to have the server register its mapped IP port
       with the rpcbind service under the netid (or netids) defined in
       [RFC8166].  An RPC-over-RDMA-aware RPC client can then resolve its
@@ -3542,22 +2939,22 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
       address (on UDP or TCP, this corresponds to port 111).  An RPC
       client can connect to this service address and use the portmap
       protocol to obtain a service address in response to a program
-      number (e.g., an iWARP port number or an InfiniBand GID).
+      number (e.g., a TCP port number or an InfiniBand GID).
 
    *  Alternately, an RPC client can connect to the mapped well-known
       port for the service itself, if it is appropriately defined.  By
-      convention, the NFS/RDMA service, when operating atop such an
-      InfiniBand fabric, uses the same 20049 assignment as for iWARP.
+      convention, the NFS/RDMA service, when operating atop an
+      InfiniBand fabric, uses the same 20049 assignment as for MPA.
 
    Historically, different RPC protocols have taken different approaches
    to their port assignments.  The current document leaves the specific
    method for each RPC-over-RDMA-enabled ULB.
 
    [RFC8166] defines two new netid values to be used for registration of
-   upper layers atop iWARP [RFC5040] [RFC5041] and (when a suitable port
-   translation service is available) InfiniBand [IBA].  Additional RDMA-
-   capable networks MAY define their own netids, or if they provide a
-   port translation, they MAY share the one defined in [RFC8166].
+   upper layers atop MPA and (when a suitable port translation service
+   is available) InfiniBand.  Additional RDMA-capable networks MAY
+   define their own netids, or if they provide a port translation, they
+   MAY share the one defined in [RFC8166].
 
 10.  Implementation Status
 
@@ -3577,14 +2974,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    construed to be, a catalog of available implementations or their
    features.  Readers are advised to note that other implementations may
    exist.
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 64]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
    At this time, no known implementations of the protocol described in
    the current document exist.
@@ -3631,17 +3020,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    and before the RPC consumer can use or alter the contents of the
    exposed memory region.
 
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 65]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    An RPC transaction on a Requester can terminate before a Reply
    arrives, for example, if the RPC consumer is signaled, or a
    segmentation fault occurs.  When an RPC terminates abnormally, memory
@@ -3659,15 +3037,15 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    unreadable Read chunks.  If a Responder transmits more data than a
    Requester is prepared to receive in a Write or Reply chunk, the RDMA
    provider typically terminates the connection.  For further
-   discussion, see Section 6.3.3.  Such repeated connection termination
+   discussion, see Section 6.3.1.  Such repeated connection termination
    can deny service to other users sharing the connection from the
    errant Requester.
 
    An RPC-over-RDMA transport implementation is not responsible for
    throttling the RPC request rate, other than to keep the number of
-   concurrent RPC transactions at or under the number of credits granted
-   per connection (see Section 4.2.1).  A sender can trigger a self-
-   denial of service by exceeding the credit grant repeatedly.
+   concurrent RPC transactions at or under the per connection credit
+   window (see Section 4.2.1).  A sender can trigger a self-denial of
+   service by exceeding the credit window repeatedly.
 
    When an RPC transaction terminates due to a signal or premature exit
    of an application process, a Requester should invalidate the RPC's
@@ -3680,23 +3058,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    resulting in Responder replies that terminate the underlying RPC-
    over-RDMA connection repeatedly.  Such situations can deny service to
    other users sharing the connection from that Requester.
-
-
-
-
-
-
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 66]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
 11.2.  RPC Message Security
 
@@ -3745,15 +3106,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    destroying a security context, or data items that are part of
    RPCSEC_GSS authentication material.
 
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 67]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
 11.2.2.1.  RPCSEC_GSS Context Negotiation
 
    Some NFS client implementations use a separate connection to
@@ -3797,19 +3149,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    and privacy services are end-to-end.  They protect RPC arguments and
    results from application to server endpoint, and back.
 
-
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 68]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    The RPCSEC_GSS integrity and encryption services operate on whole RPC
    messages after they have been XDR encoded, and before they have been
    XDR decoded after receipt.  Connection endpoints use intermediate
@@ -3830,9 +3169,9 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    Therefore, a sender MUST NOT reduce a Payload stream when RPCSEC_GSS
    integrity or encryption services are in use.  Effectively, no data
    item is DDP-eligible in this situation.  Senders can use only Simple
-   and Continued Formats without chunks, or Special Format.  In this
-   mode, an RPC-over-RDMA transport operates in the same manner as a
-   transport that does not support DDP.
+   and Continued Formats without data item chunks, or Special Format.
+   In this mode, an RPC-over-RDMA transport operates in the same manner
+   as a transport that does not support DDP.
 
 11.2.2.4.  Protecting RPC-over-RDMA Transport Headers
 
@@ -3857,14 +3196,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    the content of the Transport stream.  RDMA transport implementations
    should conform to [RFC5042] to address attacks on RDMA protocols
    themselves.
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 69]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
 11.3.  Transport Properties
 
@@ -3915,13 +3246,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    endpoints using IP port addressing, possibly through use of a
    translation service as described in Section 9.
 
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 70]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
 13.  References
 
 13.1.  Normative References
@@ -3970,14 +3294,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
               RFC 7942, DOI 10.17487/RFC7942, July 2016,
               <https://www.rfc-editor.org/info/rfc7942>.
 
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 71]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    [RFC8166]  Lever, C., Ed., Simpson, W., and T. Talpey, "Remote Direct
               Memory Access Transport for Remote Procedure Call Version
               1", RFC 8166, DOI 10.17487/RFC8166, June 2017,
@@ -4008,8 +3324,9 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    [I-D.ietf-nfsv4-rpc-tls]
               Myklebust, T. and C. Lever, "Towards Remote Procedure Call
               Encryption By Default", Work in Progress, Internet-Draft,
-              draft-ietf-nfsv4-rpc-tls-07, 30 April 2020,
-              <https://tools.ietf.org/html/draft-ietf-nfsv4-rpc-tls-07>.
+              draft-ietf-nfsv4-rpc-tls-11, 23 November 2020,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-nfsv4-
+              rpc-tls-11>.
 
    [IBA]      InfiniBand Trade Association, "InfiniBand Architecture
               Specification Volume 1", Release 1.3, March 2015.
@@ -4026,13 +3343,6 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    [RFC1094]  Nowicki, B., "NFS: Network File System Protocol
               specification", RFC 1094, DOI 10.17487/RFC1094, March
               1989, <https://www.rfc-editor.org/info/rfc1094>.
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 72]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
    [RFC1813]  Callaghan, B., Pawlowski, B., and P. Staubach, "NFS
               Version 3 Protocol Specification", RFC 1813,
@@ -4054,21 +3364,26 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
               DOI 10.17487/RFC5041, October 2007,
               <https://www.rfc-editor.org/info/rfc5041>.
 
+   [RFC5044]  Culley, P., Elzur, U., Recio, R., Bailey, S., and J.
+              Carrier, "Marker PDU Aligned Framing for TCP
+              Specification", RFC 5044, DOI 10.17487/RFC5044, October
+              2007, <https://www.rfc-editor.org/info/rfc5044>.
+
    [RFC5532]  Talpey, T. and C. Juszczak, "Network File System (NFS)
               Remote Direct Memory Access (RDMA) Problem Statement",
               RFC 5532, DOI 10.17487/RFC5532, May 2009,
               <https://www.rfc-editor.org/info/rfc5532>.
-
-   [RFC5661]  Shepler, S., Ed., Eisler, M., Ed., and D. Noveck, Ed.,
-              "Network File System (NFS) Version 4 Minor Version 1
-              Protocol", RFC 5661, DOI 10.17487/RFC5661, January 2010,
-              <https://www.rfc-editor.org/info/rfc5661>.
 
    [RFC5662]  Shepler, S., Ed., Eisler, M., Ed., and D. Noveck, Ed.,
               "Network File System (NFS) Version 4 Minor Version 1
               External Data Representation Standard (XDR) Description",
               RFC 5662, DOI 10.17487/RFC5662, January 2010,
               <https://www.rfc-editor.org/info/rfc5662>.
+
+   [RFC5666]  Talpey, T. and B. Callaghan, "Remote Direct Memory Access
+              Transport for Remote Procedure Call", RFC 5666,
+              DOI 10.17487/RFC5666, January 2010,
+              <https://www.rfc-editor.org/info/rfc5666>.
 
    [RFC7530]  Haynes, T., Ed. and D. Noveck, Ed., "Network File System
               (NFS) Version 4 Protocol", RFC 7530, DOI 10.17487/RFC7530,
@@ -4082,13 +3397,10 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
               over-RDMA Transports", RFC 8167, DOI 10.17487/RFC8167,
               June 2017, <https://www.rfc-editor.org/info/rfc8167>.
 
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 73]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
+   [RFC8881]  Noveck, D., Ed. and C. Lever, "Network File System (NFS)
+              Version 4 Minor Version 1 Protocol", RFC 8881,
+              DOI 10.17487/RFC8881, August 2020,
+              <https://www.rfc-editor.org/info/rfc8881>.
 
 Appendix A.  ULB Specifications
 
@@ -4139,13 +3451,6 @@ A.1.  DDP-Eligibility
       on the receiver to enable the message to be parsed correctly, or
       to enable the data item to be accessed.
 
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 74]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    *  The XDR data item itself does not contain DDP-eligible data items.
 
    In addition to defining the set of data items that are DDP-eligible,
@@ -4171,7 +3476,7 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    In general, a DDP-eligibility violation occurs when:
 
    *  A Requester reduces a non-DDP-eligible argument data item.  The
-      Responder reports the violation as described in Section 6.3.3.
+      Responder reports the violation as described in Section 6.3.1.
 
    *  A Responder reduces a non-DDP-eligible result data item.  The
       Requester terminates the pending RPC transaction and reports an
@@ -4194,13 +3499,6 @@ A.3.  Reverse-Direction Operation
 
    The direction of operation does not preclude the need for DDP-
    eligibility statements.
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 75]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
    Reverse-direction operation occurs on an already-established
    connection.  Specification of RPC binding parameters is usually not
@@ -4246,18 +3544,6 @@ A.5.  ULP Extensions
    believe I copied this section directly from RFC 8166.  Is there more
    to be said, now that we have some experience? ]
 
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 76]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
 Appendix B.  Extending RPC-over-RDMA Version 2
 
    This Appendix is not addressed to protocol implementers, but rather
@@ -4279,17 +3565,14 @@ Appendix B.  Extending RPC-over-RDMA Version 2
    *  They may introduce new OPTIONAL transport header types.
       Appendix B.2 covers such transport header types.
 
-   *  They may define new OPTIONAL transport properties.  Appendix B.4
+   *  They may define new OPTIONAL transport properties.  Appendix B.3
       describes such transport properties.
 
    These documents may also add the following sorts of ancillary
    protocol elements to the protocol to support the addition of new
    transport properties and header types:
 
-   *  They may create new error codes, as described in Appendix B.5.
-
-   *  They may define new flags to use within the rdma_flags field, as
-      discussed in Appendix B.3.
+   *  They may create new error codes, as described in Appendix B.4.
 
    New capabilities can be proposed and developed independently of each
    other.  Implementers can choose among them, making it straightforward
@@ -4306,13 +3589,6 @@ B.1.  Documentation Requirements
 
    Documents specifying extensions to RPC-over-RDMA version 2 should
    contain:
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 77]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
    *  An explanation of the purpose and use of each new protocol
       element.
@@ -4338,8 +3614,8 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
 
 B.2.  Adding New Header Types to RPC-over-RDMA Version 2
 
-   New transport header types are defined similar to Sections 6.3.1
-   through 6.3.4.  In particular, what is needed is:
+   New transport header types are defined similar to Sections 6.3.5
+   through 6.3.10.  In particular, what is needed is:
 
    *  A description of the function and use of the new header type.
 
@@ -4360,16 +3636,6 @@ B.2.  Adding New Header Types to RPC-over-RDMA Version 2
    There needs to be additional documentation that is made necessary due
    to the OPTIONAL status of new transport header types:
 
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 78]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    *  The document should discuss constraints on support for the new
       header types.  For example, if support for one header type is
       implied or foreclosed by another one, this needs to be documented.
@@ -4381,30 +3647,7 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
       when more efficient means are available (e.g., the value of a
       transport property), this should be noted.
 
-B.3.  Adding New Header Flags to the Protocol
-
-   New flag bits are to be defined similarly to Sections 6.2.2.1 and
-   6.2.2.2.  Each new flag definition should include:
-
-   *  An XDR description of the new flag.
-
-   *  A description of the function and use of the new flag.
-
-   *  An indication for which header types the flag value is meaningful,
-      and for which header types it is an error to set the flag or to
-      leave it unset.
-
-   *  A means to determine whether peers are prepared to receive
-      transport headers with the new flag set.
-
-   There needs to be additional documentation that is made necessary due
-   to the OPTIONAL status of new flags:
-
-   *  The document should discuss constraints on support for the new
-      flags.  For example, if support for one flag is implied or
-      foreclosed by another one, this needs to be documented.
-
-B.4.  Adding New Transport properties to the Protocol
+B.3.  Adding New Transport properties to the Protocol
 
    A Standards Track document defining a new transport property should
    include the following information paralleling that provided in this
@@ -4417,14 +3660,6 @@ B.4.  Adding New Transport properties to the Protocol
    *  A description of the new property.
 
    *  An explanation of how the receiver can use this information.
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 79]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
    *  The default value if a peer never receives the new property.
 
@@ -4443,16 +3678,15 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
       with the range reserved for experimental use, as defined in
       Section 8.2.
 
-      [ cel: There is no section 8.2. ]
-
-      [ cel: Should we request the creation of an IANA registry for
-      propid values? ].
+      [ cel: There is no longer a section 8.2 or an experimental range
+      of propid values.  Should we request the creation of an IANA
+      registry for propid values? ].
 
    When a Standards Track document proposes additional transport
    properties, reviewers should deal with possible security issues
    exposed by those new transport properties.
 
-B.5.  Adding New Error Codes to the Protocol
+B.4.  Adding New Error Codes to the Protocol
 
    The same Standards Track document that defines a new header type may
    introduce new error codes used to support it.  A Standards Track
@@ -4471,20 +3705,9 @@ B.5.  Adding New Error Codes to the Protocol
    of a new header type needs to be prepared to accept header types
    necessary to report associated errors.
 
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 80]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
 Appendix C.  Differences from RPC-over-RDMA Version 1
 
-   The goal of RPC-over-RDMA version 2 is to relieve certain constraints
+   The primary goal of RPC-over-RDMA version 2 is to relieve constraints
    that have become evident in RPC-over-RDMA version 1 with deployment
    experience:
 
@@ -4495,10 +3718,11 @@ Appendix C.  Differences from RPC-over-RDMA Version 1
       NFSv3 requests, requiring the use of Long messages for frequent
       operations.
 
-   *  Reply size estimation is awkward more often than expected.
+   *  Reply size estimation is difficult more often than first expected.
 
    This section details specific changes in RPC-over-RDMA version 2 that
-   address these constraints directly.
+   address these constraints directly, in addition to other changes to
+   make implementation easier.
 
 C.1.  Changes to the XDR Definition
 
@@ -4508,7 +3732,7 @@ C.1.  Changes to the XDR Definition
    [RFC8166] defines the RPC-over-RDMA version 1 transport header as a
    single XDR object, with an RPC message potentially following it.  In
    RPC-over-RDMA version 2, there are separate XDR definitions of the
-   transport header prefix (see Section 6.2.2), which specifies the
+   transport header prefix (see Section 6.4), which specifies the
    transport header type to be used, and the transport header itself
    (defined within one of the subsections of Section 6.3).  This
    construction is similar to an RPC message, which consists of an RPC
@@ -4531,13 +3755,6 @@ C.1.  Changes to the XDR Definition
       messages, a receiver should not use the contents of this field
       without consideration of the protocol version and header type.
 
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 81]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    *  The second word of the header, the rdma_vers field, retains the
       format and function that it had in RPC-over-RDMA version 1.  To
       clearly distinguish version 1 and version 2 messages, senders need
@@ -4559,10 +3776,11 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
       extension.
 
    Beyond conforming to the restrictions specified in [RFC8166], RPC-
-   over-RDMA version 2 tightly limits the scope of the changes made to
-   ensure interoperability.  Version 2 retains all existing transport
-   header types used in version 1, as defined in [RFC8166].  And, it
-   expresses chunks in the same format and uses them the same way.
+   over-RDMA version 2 attempts to limit the scope of the changes made
+   to ensure interoperability.  Although it introduces the Call chunk
+   and splits the two version 1 workhorse procedure types RDMA_MSG and
+   RDMA_NOMSG into several variants, RPC-over-RDMA version 2 otherwise
+   expresses chunks in the same format and utilizes them the same way.
 
 C.2.  Transport Properties
 
@@ -4578,21 +3796,6 @@ C.3.  Credit Management Changes
    RPC-over-RDMA transports employ credit-based flow control to ensure
    that a Requester does not emit more RDMA Sends than the Responder is
    prepared to receive.
-
-
-
-
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 82]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
    Section 3.3.1 of [RFC8166] explains the operation of RPC-over-RDMA
    version 1 credit management in detail.  In that design, each RDMA
@@ -4642,14 +3845,6 @@ C.4.  Inline Threshold Changes
    A connection's inline thresholds determine, among other things, when
    RDMA Read or Write operations are required because an RPC message
    cannot be conveyed via a single RDMA Send and Receive pair.  When an
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 83]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    RPC message does not contain DDP-eligible data items, a Requester can
    prepare a Special Format Call or Reply to convey the whole RPC
    message using RDMA Read or Write operations.
@@ -4695,16 +3890,6 @@ C.5.  Message Continuation Changes
    *  If a Requester finds that it is inefficient to convey a
       moderately-sized data payload using Read chunks, the Requester can
       use Message Continuation to send the RPC Call.
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 84]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
 
    *  If a Requester has provided insufficient Reply chunk space for a
       Responder to send an RPC Reply, the Responder can use Message
@@ -4752,16 +3937,6 @@ C.7.  Support for Remote Invalidation
    dynamically-registered STags using Memory Windows or FRWR may be
    invalidated remotely.
 
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 85]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
-
    There is no transport-level mechanism by which a Responder can
    determine how a Requester-provided STag was registered, nor whether
    it is eligible to be invalidated remotely.  A Requester that mixes
@@ -4778,10 +3953,10 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    Existing RPC-over-RDMA transport protocol specifications [RFC8166]
    [RFC8167] do not forbid direct data placement in the reverse
    direction.  Moreover, there is currently no Upper-Layer Protocol that
-   makes data items in reverse direction operations eligible for direct
+   makes data items in reverse-direction operations eligible for direct
    data placement.
 
-   When chunks are present in a reverse direction RPC request, Remote
+   When chunks are present in a reverse-direction RPC request, Remote
    Invalidation enables the Responder to trigger invalidation of a
    Requester's STags as part of sending an RPC Reply, the same way as is
    done in the forward direction.
@@ -4791,7 +3966,43 @@ Internet-Draft           RPC-over-RDMA Version 2               July 2020
    support receiving an IETH, and the server must have registered its
    STags with an appropriate registration mechanism.
 
-C.8.  Error Reporting Changes
+C.8.  Integration of Reverse-Direction Operation
+
+   Because [RFC5666] did not include specification of reverse-direction
+   operation, [RFC8166] does not include it either.  Reverse-direction
+   operation in RPC-over-RDMA version 1 is specified by a separate
+   standards track document [RFC8167].
+
+   Reverse-direction operation in RPC-over-RDMA version 1 was
+   constrained by the limited ability to extend that version of the
+   protocol.  The most awkward issue is that a receiver needs to peek at
+   ingress RPC message payloads to determine whether it is a Call or
+   Reply message.  This is necessary because the meaning of several
+   fields in the RPC-over-RDMA transport header is determined by the
+   direction of the RPC message payload:
+
+   *  The meaning of the value in the rdma_xid field is determined by
+      the direction of the message because the XID spaces in the forward
+      and reverse directions are distinct.
+
+   *  The meaning of the value in the rdma_credit field is determined by
+      the direction of the message because credits are granted
+      separately for forward and reverse direction operation.
+
+   *  The purpose of Write chunks and the meaning of their length fields
+      is determined by the direction of the message because in Call
+      messages, they are provisional, but in Reply messages, they
+      represent returned results.
+
+   The current document remedies this awkwardness by integrating
+   reverse-direction operation into RPC-over-RDMA version 2 so that it
+   can make use of all facilities that are available in the forward-
+   direction, including body chunks, remote invalidation, and message
+   continuation.  To enable this integration, the direction of the RPC
+   message payload is encoded in each RPC-over-RDMA version 2 transport
+   header.
+
+C.9.  Error Reporting Changes
 
    RPC-over-RDMA version 2 expands the repertoire of errors that
    connection peers may report to each other.  The goals of this
@@ -4806,33 +4017,49 @@ C.8.  Error Reporting Changes
       Reply when there are communications problems that prevent the
       Responder from sending it.
 
+C.10.  Changes in Terminology
 
+   The RPC-over-RDMA version 2 specification makes the following changes
+   in terminology.  These changes do not result in changes in the
+   behavior or operation of the protocol.
 
+   *  The current document explicitly acknowledges the different
+      semantics and purpose of Write chunks appearing in Call messages
+      and those appearing in Reply messages.
 
+   *  The current document introduces the term "payload format" to
+      describe the selection of a mechanism for reducing and conveying
+      an RPC message payload.  It replaces the terms "short message" and
+      "long message" with the terms "simple format" and "special format"
+      because this selection is not based only on the size of the
+      payload.
 
+   *  The current document introduces the terms "data item chunk" and
+      "body chunk" in order to distinguish the purpose and operation of
+      these two categories of chunk.
 
+   *  For improved readability, the current document replaces the terms
+      "RDMA segment" and "plain segment" with the term "segment", and
+      the term "RDMA read segment" with the term "Read segment".
 
-
-Lever & Noveck           Expires 4 January 2021                [Page 86]
-
-Internet-Draft           RPC-over-RDMA Version 2               July 2020
-
+   *  The current document refers specifically to the RDMAP, DDP, and
+      MPA standards track protocols rather than using the nebulous term
+      "iWARP".
 
 Acknowledgments
 
    The authors gratefully acknowledge the work of Brent Callaghan and
-   Tom Talpey on the original RPC-over-RDMA version 1 specification (RFC
-   5666).  The authors also wish to thank Bill Baker, Greg Marsden, and
-   Matt Benjamin for their support of this work.
+   Tom Talpey on the original RPC-over-RDMA version 1 specification
+   [RFC5666].  The authors also wish to thank Bill Baker, Greg Marsden,
+   and Matt Benjamin for their support of this work.
 
    The XDR extraction conventions were first described by the authors of
    the NFS version 4.1 XDR specification [RFC5662].  Herbert van den
    Bergh suggested the replacement sed script used in this document.
 
    Special thanks go to Transport Area Director Magnus Westerlund, NFSV4
-   Working Group Chairs Spencer Shepler, David Noveck, and Brian
-   Pawlowski, and NFSV4 Working Group Secretary Thomas Haynes for their
-   support.
+   Working Group Chairs Spencer Shepler, and Brian Pawlowski, and NFSV4
+   Working Group Secretary Thomas Haynes for their support.
 
 Authors' Addresses
 
@@ -4851,22 +4078,3 @@ Authors' Addresses
 
    Phone: +1 781 572 8038
    Email: davenoveck@gmail.com
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Lever & Noveck           Expires 4 January 2021                [Page 87]
