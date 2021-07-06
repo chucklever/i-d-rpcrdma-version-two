@@ -16,15 +16,15 @@ using Remote Direct Memory Access (RDMA).
 This version of the protocol is extensible.
  
     " name="description">
-<meta content="xml2rfc 3.8.0" name="generator">
+<meta content="xml2rfc 3.9.1" name="generator">
 <meta content="NFS-Over-RDMA" name="keyword">
 <meta content="draft-ietf-nfsv4-rpcrdma-version-two-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.8.0
+  xml2rfc 3.9.1
     Python 3.9.5
     appdirs 1.4.4
     ConfigArgParse 1.3
-    google-i18n-address 2.4.0
+    google-i18n-address 2.5.0
     html5lib 1.1
     intervaltree 3.1.0
     Jinja2 2.11.3
@@ -1017,7 +1017,7 @@ address div.right {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Lever &amp; Noveck</td>
-<td class="center">Expires 2 January 2022</td>
+<td class="center">Expires 7 January 2022</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1030,12 +1030,12 @@ address div.right {
 <dd class="internet-draft">draft-ietf-nfsv4-rpcrdma-version-two-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2021-07-01" class="published">1 July 2021</time>
+<time datetime="2021-07-06" class="published">6 July 2021</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2022-01-02">2 January 2022</time></dd>
+<dd class="expires"><time datetime="2022-01-07">7 January 2022</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1094,7 +1094,7 @@ Instructions are on that page as well.<a href="#section-note.1-3" class="pilcrow
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 2 January 2022.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 7 January 2022.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1134,243 +1134,243 @@ Instructions are on that page as well.<a href="#section-note.1-3" class="pilcrow
         <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
 <a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
         </h2>
-<nav class="toc"><ul class="ulEmpty toc compact">
-<li class="ulEmpty toc compact" id="section-toc.1-1.1">
+<nav class="toc"><ul class="ulEmpty toc ulBare compact">
+<li class="ulEmpty toc ulBare compact" id="section-toc.1-1.1">
             <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="xref">1</a>.  <a href="#name-introduction" class="xref">Introduction</a></p>
-<ul class="ulEmpty toc compact">
-<li class="ulEmpty toc compact" id="section-toc.1-1.1.2.1">
+<ul class="ulEmpty toc compact ulBare">
+<li class="ulEmpty toc compact ulBare" id="section-toc.1-1.1.2.1">
                 <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="xref">1.1</a>.  <a href="#name-design-goals" class="xref">Design Goals</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.1.2.2">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.1.2.2">
                 <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="xref">1.2</a>.  <a href="#name-motivation-for-a-new-versio" class="xref">Motivation for a New Version</a></p>
 </li>
             </ul>
 </li>
-          <li class="ulEmpty toc compact" id="section-toc.1-1.2">
+          <li class="ulEmpty toc ulBare compact" id="section-toc.1-1.2">
             <p id="section-toc.1-1.2.1"><a href="#section-2" class="xref">2</a>.  <a href="#name-requirements-language" class="xref">Requirements Language</a></p>
 </li>
-          <li class="ulEmpty toc compact" id="section-toc.1-1.3">
+          <li class="ulEmpty toc ulBare compact" id="section-toc.1-1.3">
             <p id="section-toc.1-1.3.1"><a href="#section-3" class="xref">3</a>.  <a href="#name-terminology" class="xref">Terminology</a></p>
-<ul class="ulEmpty toc compact">
-<li class="ulEmpty toc compact" id="section-toc.1-1.3.2.1">
+<ul class="ulEmpty toc compact ulBare">
+<li class="ulEmpty toc compact ulBare" id="section-toc.1-1.3.2.1">
                 <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="xref">3.1</a>.  <a href="#name-remote-procedure-calls" class="xref">Remote Procedure Calls</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.3.2.2">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.3.2.2">
                 <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="xref">3.2</a>.  <a href="#name-remote-direct-memory-access" class="xref">Remote Direct Memory Access</a></p>
 </li>
             </ul>
 </li>
-          <li class="ulEmpty toc compact" id="section-toc.1-1.4">
+          <li class="ulEmpty toc ulBare compact" id="section-toc.1-1.4">
             <p id="section-toc.1-1.4.1"><a href="#section-4" class="xref">4</a>.  <a href="#name-rpc-over-rdma-framework" class="xref">RPC-over-RDMA Framework</a></p>
-<ul class="ulEmpty toc compact">
-<li class="ulEmpty toc compact" id="section-toc.1-1.4.2.1">
+<ul class="ulEmpty toc compact ulBare">
+<li class="ulEmpty toc compact ulBare" id="section-toc.1-1.4.2.1">
                 <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="xref">4.1</a>.  <a href="#name-message-framing" class="xref">Message Framing</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.4.2.2">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.4.2.2">
                 <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="xref">4.2</a>.  <a href="#name-reliable-message-delivery" class="xref">Reliable Message Delivery</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.4.2.3">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.4.2.3">
                 <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="xref">4.3</a>.  <a href="#name-initial-connection-state" class="xref">Initial Connection State</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.4.2.4">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.4.2.4">
                 <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="xref">4.4</a>.  <a href="#name-using-direct-data-placement" class="xref">Using Direct Data Placement</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.4.2.5">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.4.2.5">
                 <p id="section-toc.1-1.4.2.5.1"><a href="#section-4.5" class="xref">4.5</a>.  <a href="#name-encoding-chunks" class="xref">Encoding Chunks</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.4.2.6">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.4.2.6">
                 <p id="section-toc.1-1.4.2.6.1"><a href="#section-4.6" class="xref">4.6</a>.  <a href="#name-reverse-direction-operation" class="xref">Reverse-Direction Operation</a></p>
 </li>
             </ul>
 </li>
-          <li class="ulEmpty toc compact" id="section-toc.1-1.5">
+          <li class="ulEmpty toc ulBare compact" id="section-toc.1-1.5">
             <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-transport-properties" class="xref">Transport Properties</a></p>
-<ul class="ulEmpty toc compact">
-<li class="ulEmpty toc compact" id="section-toc.1-1.5.2.1">
+<ul class="ulEmpty toc compact ulBare">
+<li class="ulEmpty toc compact ulBare" id="section-toc.1-1.5.2.1">
                 <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="xref">5.1</a>.  <a href="#name-transport-properties-model" class="xref">Transport Properties Model</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.5.2.2">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.5.2.2">
                 <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="xref">5.2</a>.  <a href="#name-current-transport-propertie" class="xref">Current Transport Properties</a></p>
 </li>
             </ul>
 </li>
-          <li class="ulEmpty toc compact" id="section-toc.1-1.6">
+          <li class="ulEmpty toc ulBare compact" id="section-toc.1-1.6">
             <p id="section-toc.1-1.6.1"><a href="#section-6" class="xref">6</a>.  <a href="#name-transport-messages" class="xref">Transport Messages</a></p>
-<ul class="ulEmpty toc compact">
-<li class="ulEmpty toc compact" id="section-toc.1-1.6.2.1">
+<ul class="ulEmpty toc compact ulBare">
+<li class="ulEmpty toc compact ulBare" id="section-toc.1-1.6.2.1">
                 <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="xref">6.1</a>.  <a href="#name-transport-header-types" class="xref">Transport Header Types</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.6.2.2">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.6.2.2">
                 <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="xref">6.2</a>.  <a href="#name-headers-and-chunks" class="xref">Headers and Chunks</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.6.2.3">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.6.2.3">
                 <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="xref">6.3</a>.  <a href="#name-header-types" class="xref">Header Types</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.6.2.4">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.6.2.4">
                 <p id="section-toc.1-1.6.2.4.1"><a href="#section-6.4" class="xref">6.4</a>.  <a href="#name-transport-header-prefix" class="xref">Transport Header Prefix</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.6.2.5">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.6.2.5">
                 <p id="section-toc.1-1.6.2.5.1"><a href="#section-6.5" class="xref">6.5</a>.  <a href="#name-remote-invalidation" class="xref">Remote Invalidation</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.6.2.6">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.6.2.6">
                 <p id="section-toc.1-1.6.2.6.1"><a href="#section-6.6" class="xref">6.6</a>.  <a href="#name-payload-formats" class="xref">Payload Formats</a></p>
 </li>
             </ul>
 </li>
-          <li class="ulEmpty toc compact" id="section-toc.1-1.7">
+          <li class="ulEmpty toc ulBare compact" id="section-toc.1-1.7">
             <p id="section-toc.1-1.7.1"><a href="#section-7" class="xref">7</a>.  <a href="#name-error-handling" class="xref">Error Handling</a></p>
-<ul class="ulEmpty toc compact">
-<li class="ulEmpty toc compact" id="section-toc.1-1.7.2.1">
+<ul class="ulEmpty toc compact ulBare">
+<li class="ulEmpty toc compact ulBare" id="section-toc.1-1.7.2.1">
                 <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="xref">7.1</a>.  <a href="#name-basic-transport-stream-pars" class="xref">Basic Transport Stream Parsing Errors</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.7.2.2">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.7.2.2">
                 <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="xref">7.2</a>.  <a href="#name-xdr-errors" class="xref">XDR Errors</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.7.2.3">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.7.2.3">
                 <p id="section-toc.1-1.7.2.3.1"><a href="#section-7.3" class="xref">7.3</a>.  <a href="#name-responder-rdma-operational-" class="xref">Responder RDMA Operational Errors</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.7.2.4">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.7.2.4">
                 <p id="section-toc.1-1.7.2.4.1"><a href="#section-7.4" class="xref">7.4</a>.  <a href="#name-other-operational-errors" class="xref">Other Operational Errors</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.7.2.5">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.7.2.5">
                 <p id="section-toc.1-1.7.2.5.1"><a href="#section-7.5" class="xref">7.5</a>.  <a href="#name-rdma-transport-errors" class="xref">RDMA Transport Errors</a></p>
 </li>
             </ul>
 </li>
-          <li class="ulEmpty toc compact" id="section-toc.1-1.8">
+          <li class="ulEmpty toc ulBare compact" id="section-toc.1-1.8">
             <p id="section-toc.1-1.8.1"><a href="#section-8" class="xref">8</a>.  <a href="#name-xdr-protocol-definition" class="xref">XDR Protocol Definition</a></p>
-<ul class="ulEmpty toc compact">
-<li class="ulEmpty toc compact" id="section-toc.1-1.8.2.1">
+<ul class="ulEmpty toc compact ulBare">
+<li class="ulEmpty toc compact ulBare" id="section-toc.1-1.8.2.1">
                 <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="xref">8.1</a>.  <a href="#name-code-component-license" class="xref">Code Component License</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.8.2.2">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.8.2.2">
                 <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="xref">8.2</a>.  <a href="#name-extraction-of-the-xdr-defin" class="xref">Extraction of the XDR Definition</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.8.2.3">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.8.2.3">
                 <p id="section-toc.1-1.8.2.3.1"><a href="#section-8.3" class="xref">8.3</a>.  <a href="#name-xdr-definition-for-rpc-over" class="xref">XDR Definition for RPC-over-RDMA Version 2 Core Structures</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.8.2.4">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.8.2.4">
                 <p id="section-toc.1-1.8.2.4.1"><a href="#section-8.4" class="xref">8.4</a>.  <a href="#name-xdr-definition-for-rpc-over-" class="xref">XDR Definition for RPC-over-RDMA Version 2 Base Header Types</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.8.2.5">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.8.2.5">
                 <p id="section-toc.1-1.8.2.5.1"><a href="#section-8.5" class="xref">8.5</a>.  <a href="#name-use-of-the-xdr-description" class="xref">Use of the XDR Description</a></p>
 </li>
             </ul>
 </li>
-          <li class="ulEmpty toc compact" id="section-toc.1-1.9">
+          <li class="ulEmpty toc ulBare compact" id="section-toc.1-1.9">
             <p id="section-toc.1-1.9.1"><a href="#section-9" class="xref">9</a>.  <a href="#name-rpc-bind-parameters" class="xref">RPC Bind Parameters</a></p>
 </li>
-          <li class="ulEmpty toc compact" id="section-toc.1-1.10">
+          <li class="ulEmpty toc ulBare compact" id="section-toc.1-1.10">
             <p id="section-toc.1-1.10.1"><a href="#section-10" class="xref">10</a>. <a href="#name-implementation-status" class="xref">Implementation Status</a></p>
 </li>
-          <li class="ulEmpty toc compact" id="section-toc.1-1.11">
+          <li class="ulEmpty toc ulBare compact" id="section-toc.1-1.11">
             <p id="section-toc.1-1.11.1"><a href="#section-11" class="xref">11</a>. <a href="#name-security-considerations" class="xref">Security Considerations</a></p>
-<ul class="ulEmpty toc compact">
-<li class="ulEmpty toc compact" id="section-toc.1-1.11.2.1">
+<ul class="ulEmpty toc compact ulBare">
+<li class="ulEmpty toc compact ulBare" id="section-toc.1-1.11.2.1">
                 <p id="section-toc.1-1.11.2.1.1"><a href="#section-11.1" class="xref">11.1</a>.  <a href="#name-memory-protection" class="xref">Memory Protection</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.11.2.2">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.11.2.2">
                 <p id="section-toc.1-1.11.2.2.1"><a href="#section-11.2" class="xref">11.2</a>.  <a href="#name-rpc-message-security" class="xref">RPC Message Security</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.11.2.3">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.11.2.3">
                 <p id="section-toc.1-1.11.2.3.1"><a href="#section-11.3" class="xref">11.3</a>.  <a href="#name-transport-properties-2" class="xref">Transport Properties</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.11.2.4">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.11.2.4">
                 <p id="section-toc.1-1.11.2.4.1"><a href="#section-11.4" class="xref">11.4</a>.  <a href="#name-host-authentication" class="xref">Host Authentication</a></p>
 </li>
             </ul>
 </li>
-          <li class="ulEmpty toc compact" id="section-toc.1-1.12">
+          <li class="ulEmpty toc ulBare compact" id="section-toc.1-1.12">
             <p id="section-toc.1-1.12.1"><a href="#section-12" class="xref">12</a>. <a href="#name-iana-considerations" class="xref">IANA Considerations</a></p>
 </li>
-          <li class="ulEmpty toc compact" id="section-toc.1-1.13">
+          <li class="ulEmpty toc ulBare compact" id="section-toc.1-1.13">
             <p id="section-toc.1-1.13.1"><a href="#section-13" class="xref">13</a>. <a href="#name-references" class="xref">References</a></p>
-<ul class="ulEmpty toc compact">
-<li class="ulEmpty toc compact" id="section-toc.1-1.13.2.1">
+<ul class="ulEmpty toc compact ulBare">
+<li class="ulEmpty toc compact ulBare" id="section-toc.1-1.13.2.1">
                 <p id="section-toc.1-1.13.2.1.1"><a href="#section-13.1" class="xref">13.1</a>.  <a href="#name-normative-references" class="xref">Normative References</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.13.2.2">
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.13.2.2">
                 <p id="section-toc.1-1.13.2.2.1"><a href="#section-13.2" class="xref">13.2</a>.  <a href="#name-informative-references" class="xref">Informative References</a></p>
 </li>
             </ul>
 </li>
-          <li class="ulEmpty toc compact" id="section-toc.1-1.14">
-            <p id="section-toc.1-1.14.1"><a href="#section-appendix.a" class="xref">Appendix A</a>.  <a href="#name-ulb-specifications" class="xref">ULB Specifications</a></p>
-<ul class="ulEmpty toc compact">
-<li class="ulEmpty toc compact" id="section-toc.1-1.14.2.1">
-                <p id="section-toc.1-1.14.2.1.1"><a href="#section-a.1" class="xref">A.1</a>.  <a href="#name-ddp-eligibility" class="xref">DDP-Eligibility</a></p>
+          <li class="ulEmpty toc ulBare compact" id="section-toc.1-1.14">
+            <p id="section-toc.1-1.14.1"><a href="#appendix-A" class="xref">Appendix A</a>.  <a href="#name-ulb-specifications" class="xref">ULB Specifications</a></p>
+<ul class="ulEmpty toc compact ulBare">
+<li class="ulEmpty toc compact ulBare" id="section-toc.1-1.14.2.1">
+                <p id="section-toc.1-1.14.2.1.1"><a href="#appendix-A.1" class="xref">A.1</a>.  <a href="#name-ddp-eligibility" class="xref">DDP-Eligibility</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.14.2.2">
-                <p id="section-toc.1-1.14.2.2.1"><a href="#section-a.2" class="xref">A.2</a>.  <a href="#name-maximum-reply-size" class="xref">Maximum Reply Size</a></p>
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.14.2.2">
+                <p id="section-toc.1-1.14.2.2.1"><a href="#appendix-A.2" class="xref">A.2</a>.  <a href="#name-maximum-reply-size" class="xref">Maximum Reply Size</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.14.2.3">
-                <p id="section-toc.1-1.14.2.3.1"><a href="#section-a.3" class="xref">A.3</a>.  <a href="#name-reverse-direction-operation-2" class="xref">Reverse-Direction Operation</a></p>
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.14.2.3">
+                <p id="section-toc.1-1.14.2.3.1"><a href="#appendix-A.3" class="xref">A.3</a>.  <a href="#name-reverse-direction-operation-2" class="xref">Reverse-Direction Operation</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.14.2.4">
-                <p id="section-toc.1-1.14.2.4.1"><a href="#section-a.4" class="xref">A.4</a>.  <a href="#name-additional-considerations" class="xref">Additional Considerations</a></p>
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.14.2.4">
+                <p id="section-toc.1-1.14.2.4.1"><a href="#appendix-A.4" class="xref">A.4</a>.  <a href="#name-additional-considerations" class="xref">Additional Considerations</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.14.2.5">
-                <p id="section-toc.1-1.14.2.5.1"><a href="#section-a.5" class="xref">A.5</a>.  <a href="#name-ulp-extensions" class="xref">ULP Extensions</a></p>
-</li>
-            </ul>
-</li>
-          <li class="ulEmpty toc compact" id="section-toc.1-1.15">
-            <p id="section-toc.1-1.15.1"><a href="#section-appendix.b" class="xref">Appendix B</a>.  <a href="#name-extending-rpc-over-rdma-ver" class="xref">Extending RPC-over-RDMA Version 2</a></p>
-<ul class="ulEmpty toc compact">
-<li class="ulEmpty toc compact" id="section-toc.1-1.15.2.1">
-                <p id="section-toc.1-1.15.2.1.1"><a href="#section-b.1" class="xref">B.1</a>.  <a href="#name-documentation-requirements" class="xref">Documentation Requirements</a></p>
-</li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.15.2.2">
-                <p id="section-toc.1-1.15.2.2.1"><a href="#section-b.2" class="xref">B.2</a>.  <a href="#name-adding-new-header-types-to-" class="xref">Adding New Header Types to RPC-over-RDMA Version 2</a></p>
-</li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.15.2.3">
-                <p id="section-toc.1-1.15.2.3.1"><a href="#section-b.3" class="xref">B.3</a>.  <a href="#name-adding-new-transport-proper" class="xref">Adding New Transport properties to the Protocol</a></p>
-</li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.15.2.4">
-                <p id="section-toc.1-1.15.2.4.1"><a href="#section-b.4" class="xref">B.4</a>.  <a href="#name-adding-new-error-codes-to-t" class="xref">Adding New Error Codes to the Protocol</a></p>
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.14.2.5">
+                <p id="section-toc.1-1.14.2.5.1"><a href="#appendix-A.5" class="xref">A.5</a>.  <a href="#name-ulp-extensions" class="xref">ULP Extensions</a></p>
 </li>
             </ul>
 </li>
-          <li class="ulEmpty toc compact" id="section-toc.1-1.16">
-            <p id="section-toc.1-1.16.1"><a href="#section-appendix.c" class="xref">Appendix C</a>.  <a href="#name-differences-from-rpc-over-r" class="xref">Differences from RPC-over-RDMA Version 1</a></p>
-<ul class="ulEmpty toc compact">
-<li class="ulEmpty toc compact" id="section-toc.1-1.16.2.1">
-                <p id="section-toc.1-1.16.2.1.1"><a href="#section-c.1" class="xref">C.1</a>.  <a href="#name-changes-to-the-xdr-definiti" class="xref">Changes to the XDR Definition</a></p>
+          <li class="ulEmpty toc ulBare compact" id="section-toc.1-1.15">
+            <p id="section-toc.1-1.15.1"><a href="#appendix-B" class="xref">Appendix B</a>.  <a href="#name-extending-rpc-over-rdma-ver" class="xref">Extending RPC-over-RDMA Version 2</a></p>
+<ul class="ulEmpty toc compact ulBare">
+<li class="ulEmpty toc compact ulBare" id="section-toc.1-1.15.2.1">
+                <p id="section-toc.1-1.15.2.1.1"><a href="#appendix-B.1" class="xref">B.1</a>.  <a href="#name-documentation-requirements" class="xref">Documentation Requirements</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.16.2.2">
-                <p id="section-toc.1-1.16.2.2.1"><a href="#section-c.2" class="xref">C.2</a>.  <a href="#name-transport-properties-3" class="xref">Transport Properties</a></p>
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.15.2.2">
+                <p id="section-toc.1-1.15.2.2.1"><a href="#appendix-B.2" class="xref">B.2</a>.  <a href="#name-adding-new-header-types-to-" class="xref">Adding New Header Types to RPC-over-RDMA Version 2</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.16.2.3">
-                <p id="section-toc.1-1.16.2.3.1"><a href="#section-c.3" class="xref">C.3</a>.  <a href="#name-credit-management-changes" class="xref">Credit Management Changes</a></p>
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.15.2.3">
+                <p id="section-toc.1-1.15.2.3.1"><a href="#appendix-B.3" class="xref">B.3</a>.  <a href="#name-adding-new-transport-proper" class="xref">Adding New Transport properties to the Protocol</a></p>
 </li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.16.2.4">
-                <p id="section-toc.1-1.16.2.4.1"><a href="#section-c.4" class="xref">C.4</a>.  <a href="#name-inline-threshold-changes" class="xref">Inline Threshold Changes</a></p>
-</li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.16.2.5">
-                <p id="section-toc.1-1.16.2.5.1"><a href="#section-c.5" class="xref">C.5</a>.  <a href="#name-message-continuation-change" class="xref">Message Continuation Changes</a></p>
-</li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.16.2.6">
-                <p id="section-toc.1-1.16.2.6.1"><a href="#section-c.6" class="xref">C.6</a>.  <a href="#name-host-authentication-changes" class="xref">Host Authentication Changes</a></p>
-</li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.16.2.7">
-                <p id="section-toc.1-1.16.2.7.1"><a href="#section-c.7" class="xref">C.7</a>.  <a href="#name-support-for-remote-invalida" class="xref">Support for Remote Invalidation</a></p>
-</li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.16.2.8">
-                <p id="section-toc.1-1.16.2.8.1"><a href="#section-c.8" class="xref">C.8</a>.  <a href="#name-integration-of-reverse-dire" class="xref">Integration of Reverse-Direction Operation</a></p>
-</li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.16.2.9">
-                <p id="section-toc.1-1.16.2.9.1"><a href="#section-c.9" class="xref">C.9</a>.  <a href="#name-error-reporting-changes" class="xref">Error Reporting Changes</a></p>
-</li>
-              <li class="ulEmpty toc compact" id="section-toc.1-1.16.2.10">
-                <p id="section-toc.1-1.16.2.10.1"><a href="#section-c.10" class="xref">C.10</a>. <a href="#name-changes-in-terminology" class="xref">Changes in Terminology</a></p>
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.15.2.4">
+                <p id="section-toc.1-1.15.2.4.1"><a href="#appendix-B.4" class="xref">B.4</a>.  <a href="#name-adding-new-error-codes-to-t" class="xref">Adding New Error Codes to the Protocol</a></p>
 </li>
             </ul>
 </li>
-          <li class="ulEmpty toc compact" id="section-toc.1-1.17">
-            <p id="section-toc.1-1.17.1"><a href="#section-appendix.d" class="xref"></a><a href="#name-acknowledgments" class="xref">Acknowledgments</a></p>
+          <li class="ulEmpty toc ulBare compact" id="section-toc.1-1.16">
+            <p id="section-toc.1-1.16.1"><a href="#appendix-C" class="xref">Appendix C</a>.  <a href="#name-differences-from-rpc-over-r" class="xref">Differences from RPC-over-RDMA Version 1</a></p>
+<ul class="ulEmpty toc compact ulBare">
+<li class="ulEmpty toc compact ulBare" id="section-toc.1-1.16.2.1">
+                <p id="section-toc.1-1.16.2.1.1"><a href="#appendix-C.1" class="xref">C.1</a>.  <a href="#name-changes-to-the-xdr-definiti" class="xref">Changes to the XDR Definition</a></p>
 </li>
-          <li class="ulEmpty toc compact" id="section-toc.1-1.18">
-            <p id="section-toc.1-1.18.1"><a href="#section-appendix.e" class="xref"></a><a href="#name-authors-addresses" class="xref">Authors' Addresses</a></p>
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.16.2.2">
+                <p id="section-toc.1-1.16.2.2.1"><a href="#appendix-C.2" class="xref">C.2</a>.  <a href="#name-transport-properties-3" class="xref">Transport Properties</a></p>
+</li>
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.16.2.3">
+                <p id="section-toc.1-1.16.2.3.1"><a href="#appendix-C.3" class="xref">C.3</a>.  <a href="#name-credit-management-changes" class="xref">Credit Management Changes</a></p>
+</li>
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.16.2.4">
+                <p id="section-toc.1-1.16.2.4.1"><a href="#appendix-C.4" class="xref">C.4</a>.  <a href="#name-inline-threshold-changes" class="xref">Inline Threshold Changes</a></p>
+</li>
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.16.2.5">
+                <p id="section-toc.1-1.16.2.5.1"><a href="#appendix-C.5" class="xref">C.5</a>.  <a href="#name-message-continuation-change" class="xref">Message Continuation Changes</a></p>
+</li>
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.16.2.6">
+                <p id="section-toc.1-1.16.2.6.1"><a href="#appendix-C.6" class="xref">C.6</a>.  <a href="#name-host-authentication-changes" class="xref">Host Authentication Changes</a></p>
+</li>
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.16.2.7">
+                <p id="section-toc.1-1.16.2.7.1"><a href="#appendix-C.7" class="xref">C.7</a>.  <a href="#name-support-for-remote-invalida" class="xref">Support for Remote Invalidation</a></p>
+</li>
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.16.2.8">
+                <p id="section-toc.1-1.16.2.8.1"><a href="#appendix-C.8" class="xref">C.8</a>.  <a href="#name-integration-of-reverse-dire" class="xref">Integration of Reverse-Direction Operation</a></p>
+</li>
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.16.2.9">
+                <p id="section-toc.1-1.16.2.9.1"><a href="#appendix-C.9" class="xref">C.9</a>.  <a href="#name-error-reporting-changes" class="xref">Error Reporting Changes</a></p>
+</li>
+              <li class="ulEmpty toc compact ulBare" id="section-toc.1-1.16.2.10">
+                <p id="section-toc.1-1.16.2.10.1"><a href="#appendix-C.10" class="xref">C.10</a>. <a href="#name-changes-in-terminology" class="xref">Changes in Terminology</a></p>
+</li>
+            </ul>
+</li>
+          <li class="ulEmpty toc ulBare compact" id="section-toc.1-1.17">
+            <p id="section-toc.1-1.17.1"><a href="#appendix-D" class="xref"></a><a href="#name-acknowledgments" class="xref">Acknowledgments</a></p>
+</li>
+          <li class="ulEmpty toc ulBare compact" id="section-toc.1-1.18">
+            <p id="section-toc.1-1.18.1"><a href="#appendix-E" class="xref"></a><a href="#name-authors-addresses" class="xref">Authors' Addresses</a></p>
 </li>
         </ul>
 </nav>
@@ -6371,7 +6371,7 @@ possibly through use of a translation service as described in
 <dd class="break"></dd>
 <dt id="I-D.ietf-nfsv4-rpc-tls">[I-D.ietf-nfsv4-rpc-tls]</dt>
         <dd>
-<span class="refAuthor">Myklebust, T.</span> and <span class="refAuthor">C. Lever</span>, <span class="refTitle">"Towards Remote Procedure Call Encryption By Default"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-nfsv4-rpc-tls-11</span>, <time datetime="2020-11-23" class="refDate">23 November 2020</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-nfsv4-rpc-tls-11.txt">https://datatracker.ietf.org/doc/html/draft-ietf-nfsv4-rpc-tls-11.txt</a>&gt;</span>. </dd>
+<span class="refAuthor">Myklebust, T.</span> and <span class="refAuthor">C. Lever</span>, <span class="refTitle">"Towards Remote Procedure Call Encryption By Default"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-nfsv4-rpc-tls-11</span>, <time datetime="2020-11-23" class="refDate">23 November 2020</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-nfsv4-rpc-tls-11">https://datatracker.ietf.org/doc/html/draft-ietf-nfsv4-rpc-tls-11</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="IBA">[IBA]</dt>
         <dd>
@@ -6444,46 +6444,46 @@ Available from https://www.infinibandta.org/
 </section>
 </section>
 <div id="section_9e003b83-66b5-43d7-b9ef-0f271c8d301b">
-<section id="section-appendix.a">
+<section id="appendix-A">
       <h2 id="name-ulb-specifications">
-<a href="#section-appendix.a" class="section-number selfRef">Appendix A. </a><a href="#name-ulb-specifications" class="section-name selfRef">ULB Specifications</a>
+<a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-ulb-specifications" class="section-name selfRef">ULB Specifications</a>
       </h2>
-<p id="section-appendix.a-1">
+<p id="appendix-A-1">
 Typically, an Upper-Layer Protocol (ULP) is defined
 without regard to a particular RPC transport.
 An Upper-Layer Binding (ULB) specification
 provides guidance that helps a ULP interoperate
 correctly and efficiently over a particular transport.
-For RPC-over-RDMA version 2, a ULB may provide:<a href="#section-appendix.a-1" class="pilcrow">¶</a></p>
+For RPC-over-RDMA version 2, a ULB may provide:<a href="#appendix-A-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-appendix.a-2.1">
-A taxonomy of XDR data items that are eligible for DDP<a href="#section-appendix.a-2.1" class="pilcrow">¶</a>
+<li class="normal" id="appendix-A-2.1">
+A taxonomy of XDR data items that are eligible for DDP<a href="#appendix-A-2.1" class="pilcrow">¶</a>
 </li>
-        <li class="normal" id="section-appendix.a-2.2">
+        <li class="normal" id="appendix-A-2.2">
 Constraints on which upper-layer procedures
 a sender may reduce,
 and
-on how many chunks may appear in a single RPC message<a href="#section-appendix.a-2.2" class="pilcrow">¶</a>
+on how many chunks may appear in a single RPC message<a href="#appendix-A-2.2" class="pilcrow">¶</a>
 </li>
-        <li class="normal" id="section-appendix.a-2.3">
+        <li class="normal" id="appendix-A-2.3">
 A method enabling a Requester to determine
 the maximum size of the reply Payload
-stream for all procedures in the ULP<a href="#section-appendix.a-2.3" class="pilcrow">¶</a>
+stream for all procedures in the ULP<a href="#appendix-A-2.3" class="pilcrow">¶</a>
 </li>
-        <li class="normal" id="section-appendix.a-2.4">
+        <li class="normal" id="appendix-A-2.4">
 An rpcbind port assignment for the RPC Program and Version
-when operating on the particular transport<a href="#section-appendix.a-2.4" class="pilcrow">¶</a>
+when operating on the particular transport<a href="#appendix-A-2.4" class="pilcrow">¶</a>
 </li>
       </ul>
-<p id="section-appendix.a-3">
+<p id="appendix-A-3">
 Each RPC Program and Version tuple that operates
-on RPC-over-RDMA version 2 needs to have a ULB specification.<a href="#section-appendix.a-3" class="pilcrow">¶</a></p>
+on RPC-over-RDMA version 2 needs to have a ULB specification.<a href="#appendix-A-3" class="pilcrow">¶</a></p>
 <div id="section_2f2b32a4-d78a-45f0-b6a3-fa0e2d34a97b">
-<section id="section-a.1">
-        <h2 id="name-ddp-eligibility">
-<a href="#section-a.1" class="section-number selfRef">A.1. </a><a href="#name-ddp-eligibility" class="section-name selfRef">DDP-Eligibility</a>
-        </h2>
-<p id="section-a.1-1">
+<section id="appendix-A.1">
+        <h3 id="name-ddp-eligibility">
+<a href="#appendix-A.1" class="section-number selfRef">A.1. </a><a href="#name-ddp-eligibility" class="section-name selfRef">DDP-Eligibility</a>
+        </h3>
+<p id="appendix-A.1-1">
 A ULB designates specific XDR data items as eligible for DDP.
 As a sender constructs an RPC-over-RDMA message,
 it can remove DDP-eligible data items from the Payload stream
@@ -6492,45 +6492,45 @@ directly in the receiver's memory.
 An XDR data item should be considered for DDP-eligibility
 if there is a clear benefit to moving the contents
 of the item directly from the sender's memory
-to the receiver's memory.<a href="#section-a.1-1" class="pilcrow">¶</a></p>
-<p id="section-a.1-2">
-Criteria for DDP-eligibility include:<a href="#section-a.1-2" class="pilcrow">¶</a></p>
+to the receiver's memory.<a href="#appendix-A.1-1" class="pilcrow">¶</a></p>
+<p id="appendix-A.1-2">
+Criteria for DDP-eligibility include:<a href="#appendix-A.1-2" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-a.1-3.1">
+<li class="normal" id="appendix-A.1-3.1">
 The XDR data item is frequently sent or received, and its size is
-often much larger than typical inline thresholds.<a href="#section-a.1-3.1" class="pilcrow">¶</a>
+often much larger than typical inline thresholds.<a href="#appendix-A.1-3.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-a.1-3.2">
+          <li class="normal" id="appendix-A.1-3.2">
 If the XDR data item is a result, its maximum size must be
-predictable in advance by the Requester.<a href="#section-a.1-3.2" class="pilcrow">¶</a>
+predictable in advance by the Requester.<a href="#appendix-A.1-3.2" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-a.1-3.3">
+          <li class="normal" id="appendix-A.1-3.3">
 Transport-level processing of the XDR data item is not needed.
 For example, the data item is an opaque byte array, which requires
-no XDR encoding and decoding of its content.<a href="#section-a.1-3.3" class="pilcrow">¶</a>
+no XDR encoding and decoding of its content.<a href="#appendix-A.1-3.3" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-a.1-3.4">
+          <li class="normal" id="appendix-A.1-3.4">
 The content of the XDR data item is sensitive to address alignment.
 For example, a data copy operation would be required
 on the receiver to enable the message to be parsed correctly,
 or
-to enable the data item to be accessed.<a href="#section-a.1-3.4" class="pilcrow">¶</a>
+to enable the data item to be accessed.<a href="#appendix-A.1-3.4" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-a.1-3.5">
-The XDR data item itself does not contain DDP-eligible data items.<a href="#section-a.1-3.5" class="pilcrow">¶</a>
+          <li class="normal" id="appendix-A.1-3.5">
+The XDR data item itself does not contain DDP-eligible data items.<a href="#appendix-A.1-3.5" class="pilcrow">¶</a>
 </li>
         </ul>
-<p id="section-a.1-4">
+<p id="appendix-A.1-4">
 In addition to defining the set of data items that are DDP-eligible,
 a ULB may limit the use of chunks
 to particular upper-layer procedures.
 If more than one data item in a procedure is DDP-eligible,
 the ULB may limit the number of chunks
-that a Requester can provide for a particular upper-layer procedure.<a href="#section-a.1-4" class="pilcrow">¶</a></p>
-<p id="section-a.1-5">
+that a Requester can provide for a particular upper-layer procedure.<a href="#appendix-A.1-4" class="pilcrow">¶</a></p>
+<p id="appendix-A.1-5">
 Senders never reduce data items that are not DDP-eligible.
-Such data items can, however, be part of a Special Format payload.<a href="#section-a.1-5" class="pilcrow">¶</a></p>
-<p id="section-a.1-6">
+Such data items can, however, be part of a Special Format payload.<a href="#appendix-A.1-5" class="pilcrow">¶</a></p>
+<p id="appendix-A.1-6">
 The programming interface by which an upper-layer implementation
 indicates the DDP-eligibility of a data item to the RPC transport
 is not described by this specification.
@@ -6538,110 +6538,110 @@ The only requirements are
 that the receiver can re-assemble
 the transmitted RPC-over-RDMA message into a valid XDR stream
 and
-that DDP-eligibility rules specified by the ULB are respected.<a href="#section-a.1-6" class="pilcrow">¶</a></p>
-<p id="section-a.1-7">
+that DDP-eligibility rules specified by the ULB are respected.<a href="#appendix-A.1-6" class="pilcrow">¶</a></p>
+<p id="appendix-A.1-7">
 There is no provision to express DDP-eligibility within the XDR
 language.
-The only definitive specification of DDP-eligibility is a ULB.<a href="#section-a.1-7" class="pilcrow">¶</a></p>
-<p id="section-a.1-8">
-In general, a DDP-eligibility violation occurs when:<a href="#section-a.1-8" class="pilcrow">¶</a></p>
+The only definitive specification of DDP-eligibility is a ULB.<a href="#appendix-A.1-7" class="pilcrow">¶</a></p>
+<p id="appendix-A.1-8">
+In general, a DDP-eligibility violation occurs when:<a href="#appendix-A.1-8" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-a.1-9.1">
+<li class="normal" id="appendix-A.1-9.1">
 A Requester reduces a non-DDP-eligible argument data item.
 The Responder reports the violation as described in
-<a href="#section_b1d23e5c-31df-483f-adb7-25430b5de38d" class="xref">Section 6.3.1</a>.<a href="#section-a.1-9.1" class="pilcrow">¶</a>
+<a href="#section_b1d23e5c-31df-483f-adb7-25430b5de38d" class="xref">Section 6.3.1</a>.<a href="#appendix-A.1-9.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-a.1-9.2">
+          <li class="normal" id="appendix-A.1-9.2">
 A Responder reduces a non-DDP-eligible result data item.
 The Requester terminates the pending RPC transaction
-and reports an appropriate permanent error to the RPC consumer.<a href="#section-a.1-9.2" class="pilcrow">¶</a>
+and reports an appropriate permanent error to the RPC consumer.<a href="#appendix-A.1-9.2" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-a.1-9.3">
+          <li class="normal" id="appendix-A.1-9.3">
 A Responder does not reduce a DDP-eligible result data item into
 an available Write chunk.
 The Requester terminates the pending RPC transaction
-and reports an appropriate permanent error to the RPC consumer.<a href="#section-a.1-9.3" class="pilcrow">¶</a>
+and reports an appropriate permanent error to the RPC consumer.<a href="#appendix-A.1-9.3" class="pilcrow">¶</a>
 </li>
         </ul>
 </section>
 </div>
 <div id="section_a3f15fe3-2677-4d94-adb5-afa80c7e197a">
-<section id="section-a.2">
-        <h2 id="name-maximum-reply-size">
-<a href="#section-a.2" class="section-number selfRef">A.2. </a><a href="#name-maximum-reply-size" class="section-name selfRef">Maximum Reply Size</a>
-        </h2>
-<p id="section-a.2-1">
+<section id="appendix-A.2">
+        <h3 id="name-maximum-reply-size">
+<a href="#appendix-A.2" class="section-number selfRef">A.2. </a><a href="#name-maximum-reply-size" class="section-name selfRef">Maximum Reply Size</a>
+        </h3>
+<p id="appendix-A.2-1">
 When expecting small and moderately-sized Replies,
 a Requester should rely on Message Continuation
 rather than provision a Reply chunk.
 For each ULP procedure where there is no clear Reply size maximum
 and the maximum can be substantial,
 the ULB should specify a dependable means
-for determining the maximum Reply size.<a href="#section-a.2-1" class="pilcrow">¶</a></p>
+for determining the maximum Reply size.<a href="#appendix-A.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="section_a5e8ada2-5473-4321-beee-41c29e04227f">
-<section id="section-a.3">
-        <h2 id="name-reverse-direction-operation-2">
-<a href="#section-a.3" class="section-number selfRef">A.3. </a><a href="#name-reverse-direction-operation-2" class="section-name selfRef">Reverse-Direction Operation</a>
-        </h2>
-<p id="section-a.3-1">
+<section id="appendix-A.3">
+        <h3 id="name-reverse-direction-operation-2">
+<a href="#appendix-A.3" class="section-number selfRef">A.3. </a><a href="#name-reverse-direction-operation-2" class="section-name selfRef">Reverse-Direction Operation</a>
+        </h3>
+<p id="appendix-A.3-1">
 The direction of operation does not preclude
-the need for DDP-eligibility statements.<a href="#section-a.3-1" class="pilcrow">¶</a></p>
-<p id="section-a.3-2">
+the need for DDP-eligibility statements.<a href="#appendix-A.3-1" class="pilcrow">¶</a></p>
+<p id="appendix-A.3-2">
 Reverse-direction operation occurs
 on an already-established connection.
 Specification of RPC binding parameters is
-usually not necessary in this case.<a href="#section-a.3-2" class="pilcrow">¶</a></p>
-<p id="section-a.3-3">
+usually not necessary in this case.<a href="#appendix-A.3-2" class="pilcrow">¶</a></p>
+<p id="appendix-A.3-3">
 Other considerations may apply
 when distinct RPC Programs
-share an RPC-over-RDMA transport connection concurrently.<a href="#section-a.3-3" class="pilcrow">¶</a></p>
+share an RPC-over-RDMA transport connection concurrently.<a href="#appendix-A.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="section_e568723e-3dd8-4a54-9401-92ae4f98f88f">
-<section id="section-a.4">
-        <h2 id="name-additional-considerations">
-<a href="#section-a.4" class="section-number selfRef">A.4. </a><a href="#name-additional-considerations" class="section-name selfRef">Additional Considerations</a>
-        </h2>
-<p id="section-a.4-1">
-There may be other details provided in a ULB.<a href="#section-a.4-1" class="pilcrow">¶</a></p>
+<section id="appendix-A.4">
+        <h3 id="name-additional-considerations">
+<a href="#appendix-A.4" class="section-number selfRef">A.4. </a><a href="#name-additional-considerations" class="section-name selfRef">Additional Considerations</a>
+        </h3>
+<p id="appendix-A.4-1">
+There may be other details provided in a ULB.<a href="#appendix-A.4-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-a.4-2.1">
+<li class="normal" id="appendix-A.4-2.1">
 A ULB may recommend
 inline threshold values
 or
 other transport-related parameters
-for RPC-over-RDMA version 2 connections bearing that ULP.<a href="#section-a.4-2.1" class="pilcrow">¶</a>
+for RPC-over-RDMA version 2 connections bearing that ULP.<a href="#appendix-A.4-2.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-a.4-2.2">
+          <li class="normal" id="appendix-A.4-2.2">
 A ULP may provide a means to communicate transport-related parameters
-between peers.<a href="#section-a.4-2.2" class="pilcrow">¶</a>
+between peers.<a href="#appendix-A.4-2.2" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-a.4-2.3">
+          <li class="normal" id="appendix-A.4-2.3">
 Multiple ULPs may share
 a single RPC-over-RDMA version 2 connection when
 their ULBs allow the use of RPC-over-RDMA version 2
 and
 the rpcbind port assignments for those protocols permit connection sharing.
 In this case, the same transport parameters (such as inline threshold)
-apply to all ULPs using that connection.<a href="#section-a.4-2.3" class="pilcrow">¶</a>
+apply to all ULPs using that connection.<a href="#appendix-A.4-2.3" class="pilcrow">¶</a>
 </li>
         </ul>
-<p id="section-a.4-3">
+<p id="appendix-A.4-3">
 Each ULB needs to be designed to allow correct interoperation
 without regard to the transport parameters actually in use.
 Furthermore, implementations of ULPs must be designed
 to interoperate correctly
-regardless of the connection parameters in effect on a connection.<a href="#section-a.4-3" class="pilcrow">¶</a></p>
+regardless of the connection parameters in effect on a connection.<a href="#appendix-A.4-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="section_db58c83f-091c-481e-ba7c-a0246d1c475b">
-<section id="section-a.5">
-        <h2 id="name-ulp-extensions">
-<a href="#section-a.5" class="section-number selfRef">A.5. </a><a href="#name-ulp-extensions" class="section-name selfRef">ULP Extensions</a>
-        </h2>
-<p id="section-a.5-1">
+<section id="appendix-A.5">
+        <h3 id="name-ulp-extensions">
+<a href="#appendix-A.5" class="section-number selfRef">A.5. </a><a href="#name-ulp-extensions" class="section-name selfRef">ULP Extensions</a>
+        </h3>
+<p id="appendix-A.5-1">
 An RPC Program and Version tuple may be extensible.
 For instance,
 the RPC version number may not reflect a ULP minor versioning scheme,
@@ -6650,26 +6650,26 @@ the ULP may allow the specification of additional features
 after the publication of the original RPC Program specification.
 ULBs are provided for interoperable RPC Programs and Versions by
 extending existing ULBs to reflect the changes made necessary by each
-addition to the existing XDR.<a href="#section-a.5-1" class="pilcrow">¶</a></p>
-<p id="section-a.5-2">
+addition to the existing XDR.<a href="#appendix-A.5-1" class="pilcrow">¶</a></p>
+<p id="appendix-A.5-2">
 [ cel:
 The final sentence is unclear, and may be inaccurate.
 I believe I copied this section directly from RFC 8166.
-Is there more to be said, now that we have some experience? ]<a href="#section-a.5-2" class="pilcrow">¶</a></p>
+Is there more to be said, now that we have some experience? ]<a href="#appendix-A.5-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
 </div>
 <div id="section_84e1ffc4-d916-4eb4-9fd8-a8218d084503">
-<section id="section-appendix.b">
+<section id="appendix-B">
       <h2 id="name-extending-rpc-over-rdma-ver">
-<a href="#section-appendix.b" class="section-number selfRef">Appendix B. </a><a href="#name-extending-rpc-over-rdma-ver" class="section-name selfRef">Extending RPC-over-RDMA Version 2</a>
+<a href="#appendix-B" class="section-number selfRef">Appendix B. </a><a href="#name-extending-rpc-over-rdma-ver" class="section-name selfRef">Extending RPC-over-RDMA Version 2</a>
       </h2>
-<p id="section-appendix.b-1">
+<p id="appendix-B-1">
 This Appendix is not addressed to protocol implementers,
 but rather to authors of documents that
-extend the protocol specified in the current document.<a href="#section-appendix.b-1" class="pilcrow">¶</a></p>
-<p id="section-appendix.b-2">
+extend the protocol specified in the current document.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
+<p id="appendix-B-2">
 RPC-over-RDMA version 2 extensibility facilitates
 limited extensions to the base protocol
 presented in the current document
@@ -6680,34 +6680,34 @@ with existing RPC-over-RDMA version 2 implementations.
 It allows extensions to be defined,
 including the definition of new protocol elements,
 without requiring modification or recompilation
-of the XDR for the base protocol.<a href="#section-appendix.b-2" class="pilcrow">¶</a></p>
-<p id="section-appendix.b-3">
+of the XDR for the base protocol.<a href="#appendix-B-2" class="pilcrow">¶</a></p>
+<p id="appendix-B-3">
 Standards Track documents may introduce extensions
-to the base RPC-over-RDMA version 2 protocol in two ways:<a href="#section-appendix.b-3" class="pilcrow">¶</a></p>
+to the base RPC-over-RDMA version 2 protocol in two ways:<a href="#appendix-B-3" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-appendix.b-4.1">
+<li class="normal" id="appendix-B-4.1">
 They may introduce new <span class="bcp14">OPTIONAL</span> transport header types.
 <a href="#section_d4650151-40f0-4e85-8755-02c38cf8f444" class="xref">Appendix B.2</a>
-covers such transport header types.<a href="#section-appendix.b-4.1" class="pilcrow">¶</a>
+covers such transport header types.<a href="#appendix-B-4.1" class="pilcrow">¶</a>
 </li>
-        <li class="normal" id="section-appendix.b-4.2">
+        <li class="normal" id="appendix-B-4.2">
 They may define new <span class="bcp14">OPTIONAL</span> transport properties.
 <a href="#section_a355adad-f03b-41a6-94a8-4128b10301bb" class="xref">Appendix B.3</a>
-describes such transport properties.<a href="#section-appendix.b-4.2" class="pilcrow">¶</a>
+describes such transport properties.<a href="#appendix-B-4.2" class="pilcrow">¶</a>
 </li>
       </ul>
-<p id="section-appendix.b-5">
+<p id="appendix-B-5">
 These documents may also add the following sorts
 of ancillary protocol elements to the protocol
 to support the addition of
-new transport properties and header types:<a href="#section-appendix.b-5" class="pilcrow">¶</a></p>
+new transport properties and header types:<a href="#appendix-B-5" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-appendix.b-6.1">
+<li class="normal" id="appendix-B-6.1">
 They may create new error codes, as described in
-<a href="#section_c2f5e937-d612-4e3a-a380-e0b15261f6a0" class="xref">Appendix B.4</a>.<a href="#section-appendix.b-6.1" class="pilcrow">¶</a>
+<a href="#section_c2f5e937-d612-4e3a-a380-e0b15261f6a0" class="xref">Appendix B.4</a>.<a href="#appendix-B-6.1" class="pilcrow">¶</a>
 </li>
       </ul>
-<p id="section-appendix.b-7">
+<p id="appendix-B-7">
 New capabilities can be
 proposed
 and
@@ -6719,39 +6719,39 @@ to create
 and
 document
 experimental features
-and then bring them through the standards process.<a href="#section-appendix.b-7" class="pilcrow">¶</a></p>
+and then bring them through the standards process.<a href="#appendix-B-7" class="pilcrow">¶</a></p>
 <div id="section_1c2304a3-0dc6-4ca1-b710-77a7b07f3d19">
-<section id="section-b.1">
-        <h2 id="name-documentation-requirements">
-<a href="#section-b.1" class="section-number selfRef">B.1. </a><a href="#name-documentation-requirements" class="section-name selfRef">Documentation Requirements</a>
-        </h2>
-<p id="section-b.1-1">
+<section id="appendix-B.1">
+        <h3 id="name-documentation-requirements">
+<a href="#appendix-B.1" class="section-number selfRef">B.1. </a><a href="#name-documentation-requirements" class="section-name selfRef">Documentation Requirements</a>
+        </h3>
+<p id="appendix-B.1-1">
 As described earlier,
 a Standards Track document introduces a set of new protocol elements.
 Together these elements are considered an <span class="bcp14">OPTIONAL</span> feature.
 Each implementation is either
 aware of all the protocol elements introduced by that feature
 or
-is aware of none of them.<a href="#section-b.1-1" class="pilcrow">¶</a></p>
-<p id="section-b.1-2">
-Documents specifying extensions to RPC-over-RDMA version 2 should contain:<a href="#section-b.1-2" class="pilcrow">¶</a></p>
+is aware of none of them.<a href="#appendix-B.1-1" class="pilcrow">¶</a></p>
+<p id="appendix-B.1-2">
+Documents specifying extensions to RPC-over-RDMA version 2 should contain:<a href="#appendix-B.1-2" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-b.1-3.1">
-An explanation of the purpose and use of each new protocol element.<a href="#section-b.1-3.1" class="pilcrow">¶</a>
+<li class="normal" id="appendix-B.1-3.1">
+An explanation of the purpose and use of each new protocol element.<a href="#appendix-B.1-3.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-b.1-3.2">
+          <li class="normal" id="appendix-B.1-3.2">
 An XDR description including all of the new protocol elements,
-and a script to extract it.<a href="#section-b.1-3.2" class="pilcrow">¶</a>
+and a script to extract it.<a href="#appendix-B.1-3.2" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-b.1-3.3">
+          <li class="normal" id="appendix-B.1-3.3">
 A discussion of interactions with other extensions.
 This discussion includes
 requirements for other <span class="bcp14">OPTIONAL</span> features to be present,
 or
-that a particular level of support for an <span class="bcp14">OPTIONAL</span> facility is required.<a href="#section-b.1-3.3" class="pilcrow">¶</a>
+that a particular level of support for an <span class="bcp14">OPTIONAL</span> facility is required.<a href="#appendix-B.1-3.3" class="pilcrow">¶</a>
 </li>
         </ul>
-<p id="section-b.1-4">
+<p id="appendix-B.1-4">
 Implementers combine the XDR descriptions
 of the new features they intend to use
 with
@@ -6760,60 +6760,60 @@ This combination is necessary to create a valid XDR input file
 because extensions are
 free to use XDR types defined in the base protocol,
 and
-later extensions may use types defined by earlier extensions.<a href="#section-b.1-4" class="pilcrow">¶</a></p>
-<p id="section-b.1-5">
+later extensions may use types defined by earlier extensions.<a href="#appendix-B.1-4" class="pilcrow">¶</a></p>
+<p id="appendix-B.1-5">
 The XDR description for the RPC-over-RDMA version 2 base protocol
 combined with that for any selected extensions
 should provide a human-readable and compilable definition
-of the extended protocol.<a href="#section-b.1-5" class="pilcrow">¶</a></p>
+of the extended protocol.<a href="#appendix-B.1-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="section_d4650151-40f0-4e85-8755-02c38cf8f444">
-<section id="section-b.2">
-        <h2 id="name-adding-new-header-types-to-">
-<a href="#section-b.2" class="section-number selfRef">B.2. </a><a href="#name-adding-new-header-types-to-" class="section-name selfRef">Adding New Header Types to RPC-over-RDMA Version 2</a>
-        </h2>
-<p id="section-b.2-1">
+<section id="appendix-B.2">
+        <h3 id="name-adding-new-header-types-to-">
+<a href="#appendix-B.2" class="section-number selfRef">B.2. </a><a href="#name-adding-new-header-types-to-" class="section-name selfRef">Adding New Header Types to RPC-over-RDMA Version 2</a>
+        </h3>
+<p id="appendix-B.2-1">
 New transport header types are defined similar to Sections
 <a href="#section_7e1de71a-9b68-4bd0-8213-97991139ab87" class="xref">6.3.5</a>
 through
 <a href="#section_67bf730f-38f1-40bc-8eec-1bedde7b0449" class="xref">6.3.10</a>.
-In particular, what is needed is:<a href="#section-b.2-1" class="pilcrow">¶</a></p>
+In particular, what is needed is:<a href="#appendix-B.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-b.2-2.1">
-A description of the function and use of the new header type.<a href="#section-b.2-2.1" class="pilcrow">¶</a>
+<li class="normal" id="appendix-B.2-2.1">
+A description of the function and use of the new header type.<a href="#appendix-B.2-2.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-b.2-2.2">
-A complete XDR description of the new header type.<a href="#section-b.2-2.2" class="pilcrow">¶</a>
+          <li class="normal" id="appendix-B.2-2.2">
+A complete XDR description of the new header type.<a href="#appendix-B.2-2.2" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-b.2-2.3">
+          <li class="normal" id="appendix-B.2-2.3">
 A description of how receivers report errors,
 including mechanisms for reporting errors
 outside the available choices already available
-in the base protocol or other extensions.<a href="#section-b.2-2.3" class="pilcrow">¶</a>
+in the base protocol or other extensions.<a href="#appendix-B.2-2.3" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-b.2-2.4">
+          <li class="normal" id="appendix-B.2-2.4">
 An indication of whether a Payload stream must be present,
 and a description of its contents
 and
-how receivers use such Payload streams to reconstruct RPC messages.<a href="#section-b.2-2.4" class="pilcrow">¶</a>
+how receivers use such Payload streams to reconstruct RPC messages.<a href="#appendix-B.2-2.4" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-b.2-2.5">
+          <li class="normal" id="appendix-B.2-2.5">
 As appropriate, a statement of
 whether a Responder may use Remote Invalidation
-when sending messages that contain the new header type.<a href="#section-b.2-2.5" class="pilcrow">¶</a>
+when sending messages that contain the new header type.<a href="#appendix-B.2-2.5" class="pilcrow">¶</a>
 </li>
         </ul>
-<p id="section-b.2-3">
+<p id="appendix-B.2-3">
 There needs to be additional documentation that is made necessary
-due to the <span class="bcp14">OPTIONAL</span> status of new transport header types:<a href="#section-b.2-3" class="pilcrow">¶</a></p>
+due to the <span class="bcp14">OPTIONAL</span> status of new transport header types:<a href="#appendix-B.2-3" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-b.2-4.1">
+<li class="normal" id="appendix-B.2-4.1">
 The document should discuss constraints on support for the new header types.
 For example, if support for one header type is implied or foreclosed
-by another one, this needs to be documented.<a href="#section-b.2-4.1" class="pilcrow">¶</a>
+by another one, this needs to be documented.<a href="#appendix-B.2-4.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-b.2-4.2">
+          <li class="normal" id="appendix-B.2-4.2">
 The document should describe the preferred method
 by which a sender determines whether its peer
 supports a particular header type.
@@ -6821,133 +6821,133 @@ It is always possible to send a test invocation
 of a particular header type to see if support is available.
 However, when more efficient means are available
 (e.g., the value of a transport property),
-this should be noted.<a href="#section-b.2-4.2" class="pilcrow">¶</a>
+this should be noted.<a href="#appendix-B.2-4.2" class="pilcrow">¶</a>
 </li>
         </ul>
 </section>
 </div>
 <div id="section_a355adad-f03b-41a6-94a8-4128b10301bb">
-<section id="section-b.3">
-        <h2 id="name-adding-new-transport-proper">
-<a href="#section-b.3" class="section-number selfRef">B.3. </a><a href="#name-adding-new-transport-proper" class="section-name selfRef">Adding New Transport properties to the Protocol</a>
-        </h2>
-<p id="section-b.3-1">
+<section id="appendix-B.3">
+        <h3 id="name-adding-new-transport-proper">
+<a href="#appendix-B.3" class="section-number selfRef">B.3. </a><a href="#name-adding-new-transport-proper" class="section-name selfRef">Adding New Transport properties to the Protocol</a>
+        </h3>
+<p id="appendix-B.3-1">
 A Standards Track document defining a new transport property
 should include the following information
 paralleling that provided in this document
-for the transport properties defined herein:<a href="#section-b.3-1" class="pilcrow">¶</a></p>
+for the transport properties defined herein:<a href="#appendix-B.3-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-b.3-2.1">
-The rpcrdma2_propid value identifying the new property.<a href="#section-b.3-2.1" class="pilcrow">¶</a>
+<li class="normal" id="appendix-B.3-2.1">
+The rpcrdma2_propid value identifying the new property.<a href="#appendix-B.3-2.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-b.3-2.2">
-The XDR typedef specifying the structure of its property value.<a href="#section-b.3-2.2" class="pilcrow">¶</a>
+          <li class="normal" id="appendix-B.3-2.2">
+The XDR typedef specifying the structure of its property value.<a href="#appendix-B.3-2.2" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-b.3-2.3">
-A description of the new property.<a href="#section-b.3-2.3" class="pilcrow">¶</a>
+          <li class="normal" id="appendix-B.3-2.3">
+A description of the new property.<a href="#appendix-B.3-2.3" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-b.3-2.4">
-An explanation of how the receiver can use this information.<a href="#section-b.3-2.4" class="pilcrow">¶</a>
+          <li class="normal" id="appendix-B.3-2.4">
+An explanation of how the receiver can use this information.<a href="#appendix-B.3-2.4" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-b.3-2.5">
-The default value if a peer never receives the new property.<a href="#section-b.3-2.5" class="pilcrow">¶</a>
+          <li class="normal" id="appendix-B.3-2.5">
+The default value if a peer never receives the new property.<a href="#appendix-B.3-2.5" class="pilcrow">¶</a>
 </li>
         </ul>
-<p id="section-b.3-3">
+<p id="appendix-B.3-3">
 There is no requirement that propid assignments
 occur in a continuous range of values.
-Implementations should not rely on all such values being small integers.<a href="#section-b.3-3" class="pilcrow">¶</a></p>
-<p id="section-b.3-4">
+Implementations should not rely on all such values being small integers.<a href="#appendix-B.3-3" class="pilcrow">¶</a></p>
+<p id="appendix-B.3-4">
 Before the defining Standards Track document is published,
-the nfsv4 Working Group should select a unique propid value, and ensure that:<a href="#section-b.3-4" class="pilcrow">¶</a></p>
+the nfsv4 Working Group should select a unique propid value, and ensure that:<a href="#appendix-B.3-4" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-b.3-5.1">
+<li class="normal" id="appendix-B.3-5.1">
 rpcrdma2_propid values specified in the document do not conflict with
 those currently assigned
 or
-in use by other pending working group documents defining transport properties.<a href="#section-b.3-5.1" class="pilcrow">¶</a>
+in use by other pending working group documents defining transport properties.<a href="#appendix-B.3-5.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-b.3-5.2">
-            <p id="section-b.3-5.2.1">
+          <li class="normal" id="appendix-B.3-5.2">
+            <p id="appendix-B.3-5.2.1">
 rpcrdma2_propid values specified in the document do not conflict with
 the range reserved for experimental use,
-as defined in Section 8.2.<a href="#section-b.3-5.2.1" class="pilcrow">¶</a></p>
-<p id="section-b.3-5.2.2">
+as defined in Section 8.2.<a href="#appendix-B.3-5.2.1" class="pilcrow">¶</a></p>
+<p id="appendix-B.3-5.2.2">
 [ cel:
  There is no longer a section 8.2 or an experimental range of propid values.
- Should we request the creation of an IANA registry for propid values? ].<a href="#section-b.3-5.2.2" class="pilcrow">¶</a></p>
+ Should we request the creation of an IANA registry for propid values? ].<a href="#appendix-B.3-5.2.2" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-b.3-6">
+<p id="appendix-B.3-6">
 When a Standards Track document proposes additional transport properties,
 reviewers should deal with possible security issues
-exposed by those new transport properties.<a href="#section-b.3-6" class="pilcrow">¶</a></p>
+exposed by those new transport properties.<a href="#appendix-B.3-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="section_c2f5e937-d612-4e3a-a380-e0b15261f6a0">
-<section id="section-b.4">
-        <h2 id="name-adding-new-error-codes-to-t">
-<a href="#section-b.4" class="section-number selfRef">B.4. </a><a href="#name-adding-new-error-codes-to-t" class="section-name selfRef">Adding New Error Codes to the Protocol</a>
-        </h2>
-<p id="section-b.4-1">
+<section id="appendix-B.4">
+        <h3 id="name-adding-new-error-codes-to-t">
+<a href="#appendix-B.4" class="section-number selfRef">B.4. </a><a href="#name-adding-new-error-codes-to-t" class="section-name selfRef">Adding New Error Codes to the Protocol</a>
+        </h3>
+<p id="appendix-B.4-1">
 The same Standards Track document that defines a new header type
 may introduce new error codes used to support it.
 A Standards Track document may similarly define
-new error codes that an existing header type can return.<a href="#section-b.4-1" class="pilcrow">¶</a></p>
-<p id="section-b.4-2">
+new error codes that an existing header type can return.<a href="#appendix-B.4-1" class="pilcrow">¶</a></p>
+<p id="appendix-B.4-2">
 For error codes that do not require
 the return of additional information,
 a peer can use the existing RDMA_ERR2 header type to report the new error.
 The sender sets the new error code
 as the value of rdma_err with the result
-that the default switch arm of the rpcrdma2_error (i.e., void) is selected.<a href="#section-b.4-2" class="pilcrow">¶</a></p>
-<p id="section-b.4-3">
+that the default switch arm of the rpcrdma2_error (i.e., void) is selected.<a href="#appendix-B.4-2" class="pilcrow">¶</a></p>
+<p id="appendix-B.4-3">
 For error codes that do require
 the return of related information together with the error,
 a new header type should be defined that returns the error
 together with the related information.
 The sender of a new header type needs to be prepared
-to accept header types necessary to report associated errors.<a href="#section-b.4-3" class="pilcrow">¶</a></p>
+to accept header types necessary to report associated errors.<a href="#appendix-B.4-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
 </div>
 <div id="section_c2574344-5aec-427d-a5ed-048d7fcc0d95">
-<section id="section-appendix.c">
+<section id="appendix-C">
       <h2 id="name-differences-from-rpc-over-r">
-<a href="#section-appendix.c" class="section-number selfRef">Appendix C. </a><a href="#name-differences-from-rpc-over-r" class="section-name selfRef">Differences from RPC-over-RDMA Version 1</a>
+<a href="#appendix-C" class="section-number selfRef">Appendix C. </a><a href="#name-differences-from-rpc-over-r" class="section-name selfRef">Differences from RPC-over-RDMA Version 1</a>
       </h2>
-<p id="section-appendix.c-1">
+<p id="appendix-C-1">
 The primary goal of RPC-over-RDMA version 2 is
 to relieve constraints that have
 become evident in RPC-over-RDMA version 1
-with deployment experience:<a href="#section-appendix.c-1" class="pilcrow">¶</a></p>
+with deployment experience:<a href="#appendix-C-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-appendix.c-2.1">
+<li class="normal" id="appendix-C-2.1">
 RPC-over-RDMA version 1 has been challenging to update
-to address shortcomings or improve data transfer efficiency.<a href="#section-appendix.c-2.1" class="pilcrow">¶</a>
+to address shortcomings or improve data transfer efficiency.<a href="#appendix-C-2.1" class="pilcrow">¶</a>
 </li>
-        <li class="normal" id="section-appendix.c-2.2">
+        <li class="normal" id="appendix-C-2.2">
 The average size of NFSv4 COMPOUNDs is significantly greater than
-NFSv3 requests, requiring the use of Long messages for frequent operations.<a href="#section-appendix.c-2.2" class="pilcrow">¶</a>
+NFSv3 requests, requiring the use of Long messages for frequent operations.<a href="#appendix-C-2.2" class="pilcrow">¶</a>
 </li>
-        <li class="normal" id="section-appendix.c-2.3">
-Reply size estimation is difficult more often than first expected.<a href="#section-appendix.c-2.3" class="pilcrow">¶</a>
+        <li class="normal" id="appendix-C-2.3">
+Reply size estimation is difficult more often than first expected.<a href="#appendix-C-2.3" class="pilcrow">¶</a>
 </li>
       </ul>
-<p id="section-appendix.c-3">
+<p id="appendix-C-3">
 This section details specific changes in RPC-over-RDMA version 2
 that address these constraints directly,
-in addition to other changes to make implementation easier.<a href="#section-appendix.c-3" class="pilcrow">¶</a></p>
+in addition to other changes to make implementation easier.<a href="#appendix-C-3" class="pilcrow">¶</a></p>
 <div id="section_d945b9f0-0666-4db7-9126-be57cf7b5f4f">
-<section id="section-c.1">
-        <h2 id="name-changes-to-the-xdr-definiti">
-<a href="#section-c.1" class="section-number selfRef">C.1. </a><a href="#name-changes-to-the-xdr-definiti" class="section-name selfRef">Changes to the XDR Definition</a>
-        </h2>
-<p id="section-c.1-1">
+<section id="appendix-C.1">
+        <h3 id="name-changes-to-the-xdr-definiti">
+<a href="#appendix-C.1" class="section-number selfRef">C.1. </a><a href="#name-changes-to-the-xdr-definiti" class="section-name selfRef">Changes to the XDR Definition</a>
+        </h3>
+<p id="appendix-C.1-1">
 Several XDR structural changes enable
-within-version protocol extensibility.<a href="#section-c.1-1" class="pilcrow">¶</a></p>
-<p id="section-c.1-2">
+within-version protocol extensibility.<a href="#appendix-C.1-1" class="pilcrow">¶</a></p>
+<p id="appendix-C.1-2">
 <span>[<a href="#RFC8166" class="xref">RFC8166</a>]</span>
 defines the RPC-over-RDMA version 1 transport header
 as a single XDR object,
@@ -6962,8 +6962,8 @@ and the transport header itself
 This construction is similar to an RPC message,
 which consists of an RPC header (defined in
 <span>[<a href="#RFC5531" class="xref">RFC5531</a>]</span>)
-followed by a message defined by an Upper-Layer Protocol.<a href="#section-c.1-2" class="pilcrow">¶</a></p>
-<p id="section-c.1-3">
+followed by a message defined by an Upper-Layer Protocol.<a href="#appendix-C.1-2" class="pilcrow">¶</a></p>
+<p id="appendix-C.1-3">
 As a new version of the RPC-over-RDMA transport protocol,
 RPC-over-RDMA version 2 exists within the versioning rules defined in
 <span>[<a href="#RFC8166" class="xref">RFC8166</a>]</span>.
@@ -6973,36 +6973,36 @@ as specified in
 even though, as explained in
 <a href="#section_e21d4f74-b536-47f2-9d07-c03a27a20de4" class="xref">Section 6.2.1</a>
 of the current document,
-the XDR definition of those words is structured differently.<a href="#section-c.1-3" class="pilcrow">¶</a></p>
-<p id="section-c.1-4">
+the XDR definition of those words is structured differently.<a href="#appendix-C.1-3" class="pilcrow">¶</a></p>
+<p id="appendix-C.1-4">
 Although each of the first four fields retains its semantic function,
-there are differences in interpretation:<a href="#section-c.1-4" class="pilcrow">¶</a></p>
+there are differences in interpretation:<a href="#appendix-C.1-4" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-c.1-5.1">
+<li class="normal" id="appendix-C.1-5.1">
 The first word of the header, the rdma_xid field,
 retains the format and function that it had in RPC-over-RDMA version 1.
 Because RPC-over-RDMA version 2 messages can convey non-RPC messages,
 a receiver should not use the contents of this field
-without consideration of the protocol version and header type.<a href="#section-c.1-5.1" class="pilcrow">¶</a>
+without consideration of the protocol version and header type.<a href="#appendix-C.1-5.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-c.1-5.2">
+          <li class="normal" id="appendix-C.1-5.2">
 The second word of the header, the rdma_vers field,
 retains the format and function that it had in RPC-over-RDMA version 1.
 To clearly distinguish version 1 and version 2 messages,
 senders need to fill in the correct version
 (fixed after version negotiation).
 Receivers should check that the content of the rdma_vers is correct
-before using the content of any other header field.<a href="#section-c.1-5.2" class="pilcrow">¶</a>
+before using the content of any other header field.<a href="#appendix-C.1-5.2" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-c.1-5.3">
+          <li class="normal" id="appendix-C.1-5.3">
 The third word of the header, the rdma_credit field,
 retains the size and general purpose that it had in RPC-over-RDMA version 1.
 However, RPC-over-RDMA version 2 divides this field
 into two 16-bit subfields. See
 <a href="#section_45c67eb8-8dc6-47c3-8555-14270f1514bF" class="xref">Section 4.2.1</a>
-for further details.<a href="#section-c.1-5.3" class="pilcrow">¶</a>
+for further details.<a href="#appendix-C.1-5.3" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-c.1-5.4">
+          <li class="normal" id="appendix-C.1-5.4">
 The fourth word of the header,
 previously the union discriminator field rdma_proc,
 retains its format and general function
@@ -7010,10 +7010,10 @@ even though the set of valid values has changed.
 Within RPC-over-RDMA version 2,
 this word is the rdma_htype field of the structure rdma_start.
 The value of this field is now an unsigned 32-bit integer
-rather than an enum type, to facilitate header type extension.<a href="#section-c.1-5.4" class="pilcrow">¶</a>
+rather than an enum type, to facilitate header type extension.<a href="#appendix-C.1-5.4" class="pilcrow">¶</a>
 </li>
         </ul>
-<p id="section-c.1-6">
+<p id="appendix-C.1-6">
 Beyond conforming to the restrictions specified in
 <span>[<a href="#RFC8166" class="xref">RFC8166</a>]</span>,
 RPC-over-RDMA version 2 attempts to limit
@@ -7022,15 +7022,15 @@ Although it introduces the Call chunk
 and splits the two version 1 workhorse procedure types
 RDMA_MSG and RDMA_NOMSG into several variants,
 RPC-over-RDMA version 2 otherwise
-expresses chunks in the same format and utilizes them the same way.<a href="#section-c.1-6" class="pilcrow">¶</a></p>
+expresses chunks in the same format and utilizes them the same way.<a href="#appendix-C.1-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="section_630314a8-1cf5-40f7-a5ad-5bc12c719233">
-<section id="section-c.2">
-        <h2 id="name-transport-properties-3">
-<a href="#section-c.2" class="section-number selfRef">C.2. </a><a href="#name-transport-properties-3" class="section-name selfRef">Transport Properties</a>
-        </h2>
-<p id="section-c.2-1">
+<section id="appendix-C.2">
+        <h3 id="name-transport-properties-3">
+<a href="#appendix-C.2" class="section-number selfRef">C.2. </a><a href="#name-transport-properties-3" class="section-name selfRef">Transport Properties</a>
+        </h3>
+<p id="appendix-C.2-1">
 RPC-over-RDMA version 2 provides a mechanism
 for exchanging an implementation's operational properties.
 The purpose of this exchange is to help endpoints
@@ -7039,19 +7039,19 @@ by exploiting the characteristics of both peers
 rather than falling back on
 the lowest common denominator default settings.
 A full discussion of transport properties appears in
-<a href="#section_86248e99-ca60-478a-8aff-3fb387410077" class="xref">Section 5</a>.<a href="#section-c.2-1" class="pilcrow">¶</a></p>
+<a href="#section_86248e99-ca60-478a-8aff-3fb387410077" class="xref">Section 5</a>.<a href="#appendix-C.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="section_5a2e5ff8-0f0b-454d-b9b3-c6773cd77780">
-<section id="section-c.3">
-        <h2 id="name-credit-management-changes">
-<a href="#section-c.3" class="section-number selfRef">C.3. </a><a href="#name-credit-management-changes" class="section-name selfRef">Credit Management Changes</a>
-        </h2>
-<p id="section-c.3-1">
+<section id="appendix-C.3">
+        <h3 id="name-credit-management-changes">
+<a href="#appendix-C.3" class="section-number selfRef">C.3. </a><a href="#name-credit-management-changes" class="section-name selfRef">Credit Management Changes</a>
+        </h3>
+<p id="appendix-C.3-1">
 RPC-over-RDMA transports employ credit-based flow control
 to ensure that a Requester does not emit more RDMA Sends
-than the Responder is prepared to receive.<a href="#section-c.3-1" class="pilcrow">¶</a></p>
-<p id="section-c.3-2">
+than the Responder is prepared to receive.<a href="#appendix-C.3-1" class="pilcrow">¶</a></p>
+<p id="appendix-C.3-2">
 <span><a href="https://rfc-editor.org/rfc/rfc8166#section-3.3.1" class="relref">Section 3.3.1</a> of [<a href="#RFC8166" class="xref">RFC8166</a>]</span>
 explains the operation of RPC-over-RDMA version 1 credit management
 in detail.
@@ -7062,51 +7062,51 @@ with a credit grant.
 The credit grant implies that enough Receives
 have been posted on the Responder to handle the credit grant
 minus the number of pending RPC transactions
-(the number of remaining Receive buffers might be zero).<a href="#section-c.3-2" class="pilcrow">¶</a></p>
-<p id="section-c.3-3">
+(the number of remaining Receive buffers might be zero).<a href="#appendix-C.3-2" class="pilcrow">¶</a></p>
+<p id="appendix-C.3-3">
 Each RPC Reply acts as an implicit ACK
 for a previous RPC Call from the Requester.
 Without an RPC Reply message,
 the Requester has no way to know that
-the Responder is ready for subsequent RPC Calls.<a href="#section-c.3-3" class="pilcrow">¶</a></p>
-<p id="section-c.3-4">
+the Responder is ready for subsequent RPC Calls.<a href="#appendix-C.3-3" class="pilcrow">¶</a></p>
+<p id="appendix-C.3-4">
 Because version 1 embeds credit management in each message,
 there is a strict one-to-one ratio between RDMA Send and RPC message.
 There are interesting use cases that might be enabled
-if this relationship were more flexible:<a href="#section-c.3-4" class="pilcrow">¶</a></p>
+if this relationship were more flexible:<a href="#appendix-C.3-4" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-c.3-5.1">
+<li class="normal" id="appendix-C.3-5.1">
 RPC-over-RDMA operations that do not carry an RPC message,
-e.g., control plane operations.<a href="#section-c.3-5.1" class="pilcrow">¶</a>
+e.g., control plane operations.<a href="#appendix-C.3-5.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-c.3-5.2">
+          <li class="normal" id="appendix-C.3-5.2">
 A single RDMA Send that conveys more than one RPC message,
-e.g., for interrupt mitigation.<a href="#section-c.3-5.2" class="pilcrow">¶</a>
+e.g., for interrupt mitigation.<a href="#appendix-C.3-5.2" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-c.3-5.3">
+          <li class="normal" id="appendix-C.3-5.3">
 An RPC message that requires several sequential RDMA Sends,
-e.g., to reduce the use of explicit RDMA operations for moderate-sized RPC messages.<a href="#section-c.3-5.3" class="pilcrow">¶</a>
+e.g., to reduce the use of explicit RDMA operations for moderate-sized RPC messages.<a href="#appendix-C.3-5.3" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-c.3-5.4">
+          <li class="normal" id="appendix-C.3-5.4">
 An RPC transaction that requires multiple exchanges
 or
-an odd number of RPC-over-RDMA operations to complete.<a href="#section-c.3-5.4" class="pilcrow">¶</a>
+an odd number of RPC-over-RDMA operations to complete.<a href="#appendix-C.3-5.4" class="pilcrow">¶</a>
 </li>
         </ul>
-<p id="section-c.3-6">
+<p id="appendix-C.3-6">
 RPC-over-RDMA version 2 provides
 a more sophisticated credit accounting mechanism
 to address these shortcomings.
 <a href="#section_45c67eb8-8dc6-47c3-8555-14270f1514bF" class="xref">Section 4.2.1</a>
-explains the new mechanism in detail.<a href="#section-c.3-6" class="pilcrow">¶</a></p>
+explains the new mechanism in detail.<a href="#appendix-C.3-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="section_f7fb5108-58ea-4718-84be-5119a302f5f5">
-<section id="section-c.4">
-        <h2 id="name-inline-threshold-changes">
-<a href="#section-c.4" class="section-number selfRef">C.4. </a><a href="#name-inline-threshold-changes" class="section-name selfRef">Inline Threshold Changes</a>
-        </h2>
-<p id="section-c.4-1">
+<section id="appendix-C.4">
+        <h3 id="name-inline-threshold-changes">
+<a href="#appendix-C.4" class="section-number selfRef">C.4. </a><a href="#name-inline-threshold-changes" class="section-name selfRef">Inline Threshold Changes</a>
+        </h3>
+<p id="appendix-C.4-1">
 An "inline threshold" value is the largest message size (in octets)
 that can be conveyed on an RDMA connection
 using only RDMA Send and Receive.
@@ -7114,31 +7114,31 @@ Each connection has two inline threshold values:
 one for messages flowing from client-to-server
 (referred to as the "client-to-server inline threshold")
 and one for messages flowing from server-to-client
-(referred to as the "server-to-client inline threshold").<a href="#section-c.4-1" class="pilcrow">¶</a></p>
-<p id="section-c.4-2">
+(referred to as the "server-to-client inline threshold").<a href="#appendix-C.4-1" class="pilcrow">¶</a></p>
+<p id="appendix-C.4-2">
 A connection's inline thresholds determine,
 among other things,
 when RDMA Read or Write operations are required
 because an RPC message cannot be conveyed via a single RDMA Send and Receive pair.
 When an RPC message does not contain DDP-eligible data items,
 a Requester can prepare a Special Format Call or Reply
-to convey the whole RPC message using RDMA Read or Write operations.<a href="#section-c.4-2" class="pilcrow">¶</a></p>
-<p id="section-c.4-3">
+to convey the whole RPC message using RDMA Read or Write operations.<a href="#appendix-C.4-2" class="pilcrow">¶</a></p>
+<p id="appendix-C.4-3">
 RDMA Read and Write operations require that data payloads
 reside in memory registered with the local RNIC.
 When an RPC completes,
 that memory is invalidated to fence it from the Responder.
 Memory registration and invalidation typically have a latency cost
-that is insignificant compared to data handling costs.<a href="#section-c.4-3" class="pilcrow">¶</a></p>
-<p id="section-c.4-4">
+that is insignificant compared to data handling costs.<a href="#appendix-C.4-3" class="pilcrow">¶</a></p>
+<p id="appendix-C.4-4">
 When a data payload is small, however,
 the cost of registering and invalidating
 memory where the payload resides
 becomes a significant part of total RPC latency.
 Therefore the most efficient operation of an RPC-over-RDMA transport
 occurs when the peers use explicit RDMA Read and Write operations
-for large payloads but avoid those operations for small payloads.<a href="#section-c.4-4" class="pilcrow">¶</a></p>
-<p id="section-c.4-5">
+for large payloads but avoid those operations for small payloads.<a href="#appendix-C.4-4" class="pilcrow">¶</a></p>
+<p id="appendix-C.4-5">
 When the authors of
 <span>[<a href="#RFC8166" class="xref">RFC8166</a>]</span>
 first conceived RPC-over-RDMA version 1,
@@ -7146,8 +7146,8 @@ the average size of RPC messages
 that did not involve a significant data payload
 was under 500 bytes.
 A 1024-byte inline threshold adequately minimized
-the frequency of inefficient Long messages.<a href="#section-c.4-5" class="pilcrow">¶</a></p>
-<p id="section-c.4-6">
+the frequency of inefficient Long messages.<a href="#appendix-C.4-5" class="pilcrow">¶</a></p>
+<p id="appendix-C.4-6">
 With NFS version 4
 <span>[<a href="#RFC7530" class="xref">RFC7530</a>]</span>,
 the increased size of NFS COMPOUND operations
@@ -7156,93 +7156,93 @@ larger than previous versions of NFS.
 With a 1024-byte inline threshold,
 frequent operations such as GETATTR and LOOKUP
 require RDMA Read or Write operations,
-reducing the efficiency of data transport.<a href="#section-c.4-6" class="pilcrow">¶</a></p>
-<p id="section-c.4-7">
+reducing the efficiency of data transport.<a href="#appendix-C.4-6" class="pilcrow">¶</a></p>
+<p id="appendix-C.4-7">
 To reduce the frequency of Special Format messages,
 RPC-over-RDMA version 2 increases the default size of inline thresholds.
 This change also increases the maximum size
-of reverse-direction RPC messages.<a href="#section-c.4-7" class="pilcrow">¶</a></p>
+of reverse-direction RPC messages.<a href="#appendix-C.4-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="section_1f3a1439-702f-4309-8733-5fa0e20555f4">
-<section id="section-c.5">
-        <h2 id="name-message-continuation-change">
-<a href="#section-c.5" class="section-number selfRef">C.5. </a><a href="#name-message-continuation-change" class="section-name selfRef">Message Continuation Changes</a>
-        </h2>
-<p id="section-c.5-1">
+<section id="appendix-C.5">
+        <h3 id="name-message-continuation-change">
+<a href="#appendix-C.5" class="section-number selfRef">C.5. </a><a href="#name-message-continuation-change" class="section-name selfRef">Message Continuation Changes</a>
+        </h3>
+<p id="appendix-C.5-1">
 In addition to a larger default inline threshold,
 RPC-over-RDMA version 2 introduces Message Continuation.
 Message Continuation is a mechanism
 that enables the transmission of a data payload
 using more than one RDMA Send.
 The purpose of Message Continuation is
-to provide relief in several essential cases:<a href="#section-c.5-1" class="pilcrow">¶</a></p>
+to provide relief in several essential cases:<a href="#appendix-C.5-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-c.5-2.1">
+<li class="normal" id="appendix-C.5-2.1">
 If a Requester finds that it is inefficient
 to convey a moderately-sized data payload using Read chunks,
-the Requester can use Message Continuation to send the RPC Call.<a href="#section-c.5-2.1" class="pilcrow">¶</a>
+the Requester can use Message Continuation to send the RPC Call.<a href="#appendix-C.5-2.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-c.5-2.2">
+          <li class="normal" id="appendix-C.5-2.2">
 If a Requester has provided insufficient Reply chunk space
 for a Responder to send an RPC Reply,
-the Responder can use Message Continuation to send the RPC Reply.<a href="#section-c.5-2.2" class="pilcrow">¶</a>
+the Responder can use Message Continuation to send the RPC Reply.<a href="#appendix-C.5-2.2" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-c.5-2.3">
+          <li class="normal" id="appendix-C.5-2.3">
 If a sender has to convey a sizeable non-RPC data payload
 (e.g., a large transport property),
-the sender can use Message Continuation to avoid having to register memory.<a href="#section-c.5-2.3" class="pilcrow">¶</a>
+the sender can use Message Continuation to avoid having to register memory.<a href="#appendix-C.5-2.3" class="pilcrow">¶</a>
 </li>
         </ul>
 </section>
 </div>
 <div id="section_16f03208-32cb-451d-90ab-a6f5f4b9e9b0">
-<section id="section-c.6">
-        <h2 id="name-host-authentication-changes">
-<a href="#section-c.6" class="section-number selfRef">C.6. </a><a href="#name-host-authentication-changes" class="section-name selfRef">Host Authentication Changes</a>
-        </h2>
-<p id="section-c.6-1">
+<section id="appendix-C.6">
+        <h3 id="name-host-authentication-changes">
+<a href="#appendix-C.6" class="section-number selfRef">C.6. </a><a href="#name-host-authentication-changes" class="section-name selfRef">Host Authentication Changes</a>
+        </h3>
+<p id="appendix-C.6-1">
 For the general operation of NFS on open networks,
 we eventually intend to rely on RPC-on-TLS
 <span>[<a href="#I-D.ietf-nfsv4-rpc-tls" class="xref">I-D.ietf-nfsv4-rpc-tls</a>]</span>
 to provide cryptographic authentication of the two ends of each connection.
 In turn, this can improve the trustworthiness of AUTH_SYS-style user identities
 that flow on TCP, which are not cryptographically protected.
-We do not have a similar solution for RPC-over-RDMA, however.<a href="#section-c.6-1" class="pilcrow">¶</a></p>
-<p id="section-c.6-2">
+We do not have a similar solution for RPC-over-RDMA, however.<a href="#appendix-C.6-1" class="pilcrow">¶</a></p>
+<p id="appendix-C.6-2">
 Here, the RDMA transport layer already provides
 a strong guarantee of message integrity.
 On some network fabrics, IPsec or TLS
 can protect the privacy of in-transit data.
 However, this is not the case for all fabrics
 (e.g., InfiniBand
-<span>[<a href="#IBA" class="xref">IBA</a>]</span>).<a href="#section-c.6-2" class="pilcrow">¶</a></p>
-<p id="section-c.6-3">
+<span>[<a href="#IBA" class="xref">IBA</a>]</span>).<a href="#appendix-C.6-2" class="pilcrow">¶</a></p>
+<p id="appendix-C.6-3">
 Thus, RPC-over-RDMA version 2 introduces a mechanism
 for authenticating connection peers (see
 <a href="#section_5f63e1b6-8d24-453b-b18b-b98ad66f3671" class="xref">Section 5.2.6</a>).
 And like GSS channel binding,
-there is also a way to determine when the use of host authentication is unnecessary.<a href="#section-c.6-3" class="pilcrow">¶</a></p>
+there is also a way to determine when the use of host authentication is unnecessary.<a href="#appendix-C.6-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="section_57c034d6-7129-4f7b-b8df-31e8bc691964">
-<section id="section-c.7">
-        <h2 id="name-support-for-remote-invalida">
-<a href="#section-c.7" class="section-number selfRef">C.7. </a><a href="#name-support-for-remote-invalida" class="section-name selfRef">Support for Remote Invalidation</a>
-        </h2>
-<p id="section-c.7-1">
+<section id="appendix-C.7">
+        <h3 id="name-support-for-remote-invalida">
+<a href="#appendix-C.7" class="section-number selfRef">C.7. </a><a href="#name-support-for-remote-invalida" class="section-name selfRef">Support for Remote Invalidation</a>
+        </h3>
+<p id="appendix-C.7-1">
 When an RDMA consumer uses FRWR or Memory Windows to register memory,
 that memory may be invalidated remotely [RFC5040].
 These mechanisms are available when
-a Requester's RNIC supports MEM_MGT_EXTENSIONS.<a href="#section-c.7-1" class="pilcrow">¶</a></p>
-<p id="section-c.7-2">
+a Requester's RNIC supports MEM_MGT_EXTENSIONS.<a href="#appendix-C.7-1" class="pilcrow">¶</a></p>
+<p id="appendix-C.7-2">
 For this discussion, there are two classes of STags.
 Dynamically-registered STags appear in a single RPC,
 then are invalidated.
 Persistently-registered STags survive longer than one RPC.
 They may persist for the life of an RPC-over-RDMA connection
-or even longer.<a href="#section-c.7-2" class="pilcrow">¶</a></p>
-<p id="section-c.7-3">
+or even longer.<a href="#appendix-C.7-2" class="pilcrow">¶</a></p>
+<p id="appendix-C.7-3">
 An RPC-over-RDMA Requester can provide
 more than one STag in a transport header.
 It may provide
@@ -7250,8 +7250,8 @@ a combination of dynamically- and persistently-registered STags in one RPC messa
 or
 any combination of these in a series of RPCs on the same connection.
 Only dynamically-registered STags using Memory Windows or FRWR
-may be invalidated remotely.<a href="#section-c.7-3" class="pilcrow">¶</a></p>
-<p id="section-c.7-4">
+may be invalidated remotely.<a href="#appendix-C.7-3" class="pilcrow">¶</a></p>
+<p id="appendix-C.7-4">
 There is no transport-level mechanism
 by which a Responder can determine
 how a Requester-provided STag was registered,
@@ -7260,40 +7260,40 @@ A Requester that mixes persistently- and dynamically-registered STags in one RPC
 or mixes them across RPCs on the same connection,
 must, therefore, indicate which STag the Responder may invalidate remotely
 via a mechanism provided in the Upper-Layer Protocol.
-RPC-over-RDMA version 2 provides such a mechanism.<a href="#section-c.7-4" class="pilcrow">¶</a></p>
-<p id="section-c.7-5">
+RPC-over-RDMA version 2 provides such a mechanism.<a href="#appendix-C.7-4" class="pilcrow">¶</a></p>
+<p id="appendix-C.7-5">
 A sender uses the RDMA Send With Invalidate operation
 to invalidate an STag on the remote peer.
 It is available only when both peers support MEM_MGT_EXTENSIONS
-(can send and process an IETH).<a href="#section-c.7-5" class="pilcrow">¶</a></p>
-<p id="section-c.7-6">
+(can send and process an IETH).<a href="#appendix-C.7-5" class="pilcrow">¶</a></p>
+<p id="appendix-C.7-6">
 Existing RPC-over-RDMA transport protocol specifications
 <span>[<a href="#RFC8166" class="xref">RFC8166</a>]</span>
           <span>[<a href="#RFC8167" class="xref">RFC8167</a>]</span>
 do not forbid direct data placement in the reverse direction.
 Moreover, there is currently no Upper-Layer Protocol
 that makes data items in reverse-direction operations
-eligible for direct data placement.<a href="#section-c.7-6" class="pilcrow">¶</a></p>
-<p id="section-c.7-7">
+eligible for direct data placement.<a href="#appendix-C.7-6" class="pilcrow">¶</a></p>
+<p id="appendix-C.7-7">
 When chunks are present in a reverse-direction RPC request,
 Remote Invalidation enables the Responder
 to trigger invalidation of a Requester's STags
 as part of sending an RPC Reply,
-the same way as is done in the forward direction.<a href="#section-c.7-7" class="pilcrow">¶</a></p>
-<p id="section-c.7-8">
+the same way as is done in the forward direction.<a href="#appendix-C.7-7" class="pilcrow">¶</a></p>
+<p id="appendix-C.7-8">
 However, in the reverse direction, the server acts as the Requester,
 and the client is the Responder.
 The server's RNIC, therefore, must support receiving an IETH,
 and the server must have registered its STags
-with an appropriate registration mechanism.<a href="#section-c.7-8" class="pilcrow">¶</a></p>
+with an appropriate registration mechanism.<a href="#appendix-C.7-8" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="section_e936ff03-84d1-489c-9c5f-5541adbabc94">
-<section id="section-c.8">
-        <h2 id="name-integration-of-reverse-dire">
-<a href="#section-c.8" class="section-number selfRef">C.8. </a><a href="#name-integration-of-reverse-dire" class="section-name selfRef">Integration of Reverse-Direction Operation</a>
-        </h2>
-<p id="section-c.8-1">
+<section id="appendix-C.8">
+        <h3 id="name-integration-of-reverse-dire">
+<a href="#appendix-C.8" class="section-number selfRef">C.8. </a><a href="#name-integration-of-reverse-dire" class="section-name selfRef">Integration of Reverse-Direction Operation</a>
+        </h3>
+<p id="appendix-C.8-1">
 Because
 <span>[<a href="#RFC5666" class="xref">RFC5666</a>]</span>
 did not include specification of reverse-direction operation,
@@ -7301,8 +7301,8 @@ did not include specification of reverse-direction operation,
 does not include it either.
 Reverse-direction operation in RPC-over-RDMA version 1 is
 specified by a separate standards track document
-<span>[<a href="#RFC8167" class="xref">RFC8167</a>]</span>.<a href="#section-c.8-1" class="pilcrow">¶</a></p>
-<p id="section-c.8-2">
+<span>[<a href="#RFC8167" class="xref">RFC8167</a>]</span>.<a href="#appendix-C.8-1" class="pilcrow">¶</a></p>
+<p id="appendix-C.8-2">
 Reverse-direction operation in RPC-over-RDMA version 1
 was constrained by the limited ability to extend
 that version of the protocol.
@@ -7311,27 +7311,27 @@ a receiver needs to peek at ingress RPC message payloads
 to determine whether it is a Call or Reply message.
 This is necessary because the meaning of several fields
 in the RPC-over-RDMA transport header
-is determined by the direction of the RPC message payload:<a href="#section-c.8-2" class="pilcrow">¶</a></p>
+is determined by the direction of the RPC message payload:<a href="#appendix-C.8-2" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-c.8-3.1">
+<li class="normal" id="appendix-C.8-3.1">
 The meaning of the value in the rdma_xid field
 is determined by the direction of the message because
-the XID spaces in the forward and reverse directions are distinct.<a href="#section-c.8-3.1" class="pilcrow">¶</a>
+the XID spaces in the forward and reverse directions are distinct.<a href="#appendix-C.8-3.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-c.8-3.2">
+          <li class="normal" id="appendix-C.8-3.2">
 The meaning of the value in the rdma_credit field
 is determined by the direction of the message because
 credits are granted separately
-for forward and reverse direction operation.<a href="#section-c.8-3.2" class="pilcrow">¶</a>
+for forward and reverse direction operation.<a href="#appendix-C.8-3.2" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-c.8-3.3">
+          <li class="normal" id="appendix-C.8-3.3">
 The purpose of Write chunks and the meaning of their length fields
 is determined by the direction of the message because
 in Call messages, they are provisional,
-but in Reply messages, they represent returned results.<a href="#section-c.8-3.3" class="pilcrow">¶</a>
+but in Reply messages, they represent returned results.<a href="#appendix-C.8-3.3" class="pilcrow">¶</a>
 </li>
         </ul>
-<p id="section-c.8-4">
+<p id="appendix-C.8-4">
 The current document remedies this awkwardness by
 integrating reverse-direction operation
 into RPC-over-RDMA version 2 so that it can
@@ -7339,68 +7339,68 @@ make use of all facilities that are available in the forward-direction,
 including body chunks, remote invalidation, and message continuation.
 To enable this integration,
 the direction of the RPC message payload is encoded
-in each RPC-over-RDMA version 2 transport header.<a href="#section-c.8-4" class="pilcrow">¶</a></p>
+in each RPC-over-RDMA version 2 transport header.<a href="#appendix-C.8-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="section_e554df42-6e82-4e28-96a0-8f9872eb476c">
-<section id="section-c.9">
-        <h2 id="name-error-reporting-changes">
-<a href="#section-c.9" class="section-number selfRef">C.9. </a><a href="#name-error-reporting-changes" class="section-name selfRef">Error Reporting Changes</a>
-        </h2>
-<p id="section-c.9-1">
+<section id="appendix-C.9">
+        <h3 id="name-error-reporting-changes">
+<a href="#appendix-C.9" class="section-number selfRef">C.9. </a><a href="#name-error-reporting-changes" class="section-name selfRef">Error Reporting Changes</a>
+        </h3>
+<p id="appendix-C.9-1">
 RPC-over-RDMA version 2 expands the repertoire of errors
 that connection peers may report to each other.
-The goals of this expansion are:<a href="#section-c.9-1" class="pilcrow">¶</a></p>
+The goals of this expansion are:<a href="#appendix-C.9-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-c.9-2.1">
-To fill in details of peer recovery actions.<a href="#section-c.9-2.1" class="pilcrow">¶</a>
+<li class="normal" id="appendix-C.9-2.1">
+To fill in details of peer recovery actions.<a href="#appendix-C.9-2.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-c.9-2.2">
+          <li class="normal" id="appendix-C.9-2.2">
 To enable retrying certain conditions
-caused by mis-estimation of the maximum reply size.<a href="#section-c.9-2.2" class="pilcrow">¶</a>
+caused by mis-estimation of the maximum reply size.<a href="#appendix-C.9-2.2" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-c.9-2.3">
+          <li class="normal" id="appendix-C.9-2.3">
 To minimize the likelihood of a Requester waiting forever for a Reply
 when there are communications problems that prevent the Responder
-from sending it.<a href="#section-c.9-2.3" class="pilcrow">¶</a>
+from sending it.<a href="#appendix-C.9-2.3" class="pilcrow">¶</a>
 </li>
         </ul>
 </section>
 </div>
 <div id="section_9180da71-3ea9-40f8-b6d2-ded634e4ce25">
-<section id="section-c.10">
-        <h2 id="name-changes-in-terminology">
-<a href="#section-c.10" class="section-number selfRef">C.10. </a><a href="#name-changes-in-terminology" class="section-name selfRef">Changes in Terminology</a>
-        </h2>
-<p id="section-c.10-1">
+<section id="appendix-C.10">
+        <h3 id="name-changes-in-terminology">
+<a href="#appendix-C.10" class="section-number selfRef">C.10. </a><a href="#name-changes-in-terminology" class="section-name selfRef">Changes in Terminology</a>
+        </h3>
+<p id="appendix-C.10-1">
 The RPC-over-RDMA version 2 specification makes
 the following changes in terminology.
 These changes do not result in
-changes in the behavior or operation of the protocol.<a href="#section-c.10-1" class="pilcrow">¶</a></p>
+changes in the behavior or operation of the protocol.<a href="#appendix-C.10-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-c.10-2.1">
+<li class="normal" id="appendix-C.10-2.1">
 The current document explicitly acknowledges the different semantics
 and purpose of Write chunks appearing in Call messages
-and those appearing in Reply messages.<a href="#section-c.10-2.1" class="pilcrow">¶</a>
+and those appearing in Reply messages.<a href="#appendix-C.10-2.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-c.10-2.2">
+          <li class="normal" id="appendix-C.10-2.2">
 The current document introduces the term "payload format"
 to describe the selection of a mechanism for reducing
 and conveying an RPC message payload.
 It replaces the terms "short message" and "long message"
 with the terms "simple format" and "special format"
 because this selection is not based only on
-the size of the payload.<a href="#section-c.10-2.2" class="pilcrow">¶</a>
+the size of the payload.<a href="#appendix-C.10-2.2" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-c.10-2.3">
+          <li class="normal" id="appendix-C.10-2.3">
 The current document introduces the terms
 "data item chunk"
 and
 "body chunk"
 in order to distinguish the purpose and operation
-of these two categories of chunk.<a href="#section-c.10-2.3" class="pilcrow">¶</a>
+of these two categories of chunk.<a href="#appendix-C.10-2.3" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-c.10-2.4">
+          <li class="normal" id="appendix-C.10-2.4">
 For improved readability,
 the current document replaces the terms
 "RDMA segment"
@@ -7409,12 +7409,12 @@ and
 with the term "segment",
 and the term
 "RDMA read segment"
-with the term "Read segment".<a href="#section-c.10-2.4" class="pilcrow">¶</a>
+with the term "Read segment".<a href="#appendix-C.10-2.4" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-c.10-2.5">
+          <li class="normal" id="appendix-C.10-2.5">
 The current document refers specifically to
 the RDMAP, DDP, and MPA standards track protocols
-rather than using the nebulous term "iWARP".<a href="#section-c.10-2.5" class="pilcrow">¶</a>
+rather than using the nebulous term "iWARP".<a href="#appendix-C.10-2.5" class="pilcrow">¶</a>
 </li>
         </ul>
 </section>
@@ -7422,11 +7422,11 @@ rather than using the nebulous term "iWARP".<a href="#section-c.10-2.5" class="p
 </section>
 </div>
 <div id="section_7b212a81-9c2a-4c05-891a-369cc7184585">
-<section id="section-appendix.d">
+<section id="appendix-D">
       <h2 id="name-acknowledgments">
 <a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
       </h2>
-<p id="section-appendix.d-1">
+<p id="appendix-D-1">
 The authors gratefully acknowledge the work of
 <span class="contact-name">Brent Callaghan</span>
 and
@@ -7438,15 +7438,15 @@ The authors also wish to thank
 <span class="contact-name">Greg Marsden</span>,
 and
 <span class="contact-name">Matt Benjamin</span>
-for their support of this work.<a href="#section-appendix.d-1" class="pilcrow">¶</a></p>
-<p id="section-appendix.d-2">
+for their support of this work.<a href="#appendix-D-1" class="pilcrow">¶</a></p>
+<p id="appendix-D-2">
 The XDR extraction conventions were
 first described by the authors of the NFS version 4.1
 XDR specification
 <span>[<a href="#RFC5662" class="xref">RFC5662</a>]</span>.
 <span class="contact-name">Herbert van den Bergh</span>
-suggested the replacement sed script used in this document.<a href="#section-appendix.d-2" class="pilcrow">¶</a></p>
-<p id="section-appendix.d-3">
+suggested the replacement sed script used in this document.<a href="#appendix-D-2" class="pilcrow">¶</a></p>
+<p id="appendix-D-3">
 Special thanks go to
 Transport Area Director
 <span class="contact-name">Magnus Westerlund</span>,
@@ -7457,11 +7457,11 @@ and
 and
 NFSV4 Working Group Secretary
 <span class="contact-name">Thomas Haynes</span>
-for their support.<a href="#section-appendix.d-3" class="pilcrow">¶</a></p>
+for their support.<a href="#appendix-D-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authors-addresses">
-<section id="section-appendix.e">
+<section id="appendix-E">
       <h2 id="name-authors-addresses">
 <a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
       </h2>
