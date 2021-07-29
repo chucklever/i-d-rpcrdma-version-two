@@ -2034,6 +2034,28 @@ to enable the NFS server to perform callback operations.
 
 </section>
 
+<section
+ anchor="section_65de80fe-06ae-49ac-a4d8-e88dbbf787ab"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>Call-Only Operation</name>
+<t>
+There is no corresponding Reply to a Call-only procedure.
+Thus there is no opportunity for the Responder to
+indicate it has completed its use of Read or Call chunks
+that hold arguments or the whole Call.
+In addition,
+Write and Reply chunks are not necessary
+because there are no results and no Reply message.
+Therefore, Requesters
+<bcp14>
+MUST NOT
+</bcp14>
+use chunks when sending Call-only RPC procedures.
+</t>
+</section>
+
 </section>
 
 <section
