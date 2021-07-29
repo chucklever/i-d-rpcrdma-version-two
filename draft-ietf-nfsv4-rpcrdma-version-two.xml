@@ -317,17 +317,25 @@ an implementation of a ULP running on an RPC client.
  numbered="true"
  removeInRFC="false"
  toc="default">
-<name>Requesters and Responders</name>
+<name>RPC Procedures</name>
 <t>
 Like a local procedure call,
 every RPC procedure has a set of "arguments" and a set of "results".
-A calling context invokes a procedure,
+A calling context invokes an RPC procedure,
 passing arguments to it,
 and the procedure subsequently returns a set of results.
 Unlike a local procedure call,
-the called procedure is executed remotely rather than
+an RPC procedure is executed remotely rather than
 in the local application's execution context.
 </t>
+</section>
+
+<section
+ anchor="section_97382254-b1a3-4e03-98e5-a0814b331bd0"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>RPC Transactions</name>
 <t>
 The RPC protocol as described in
 <xref target="RFC5531" format="default" sectionFormat="of"/>
@@ -344,32 +352,97 @@ ONC RPC transactions consist of two types of messages:
 A CALL message, or "Call", requests work.
 An RPC Call message is designated
 by the value zero (0) in the message's msg_type field.
-The sender places a unique 32-bit value in the message's XID field
-to match this RPC Call message to a corresponding RPC Reply message.
 </li>
 <li>
 A REPLY message, or "Reply",
 reports the results of work requested by an RPC Call message.
 An RPC Reply message is designated
 by the value one (1) in the message's msg_type field.
-The sender copies the value contained in an RPC Reply message's XID field
-from the RPC Call message whose results the sender is reporting.
 </li>
 </ul>
 <t>
-Each RPC client endpoint acts as a "Requester",
-which serializes the procedure's arguments
+<xref target="RFC5531" section="9" format="default" sectionFormat="of"/>
+introduces the RPC transaction identifier,
+or "XID" for short.
+Each connection endpoint interprets the value of an XID
+in the context of the message's msg_type field.
+</t>
+<ul spacing="normal" bare="false" empty="false">
+<li>
+The sender of a Call message generates an arbitrary XID value
+for each RPC that is unique among outstanding Calls from that sender.
+</li>
+<li>
+The sender of a Reply message copies the XID of the initiating Call
+to the Reply containing the results of that procedure.
+</li>
+</ul>
+<t>
+After receiving a Reply,
+a Requester then matches the XID value in that Reply
+with a Call it previously sent.
+</t>
+<t>
+The ratio of Call messages to Reply messages is typically
+but not always one-to-one.
+</t>
+<t>
+The most common operational paradigm is when
+a Requester sends a Call message to a Responder,
+who then sends a Reply message back to the Requester
+with the results of that procedure.
+One Call message elicits a single Reply message in response.
+A Responder never sends more than one Reply
+for each received Call message.
+</t>
+<t>
+A "retransmission" occurs when a Requester sends
+exactly the same Call message,
+with the same arguments and XID, more than once.
+A Requester can retransmit if it believes the network layer
+or Responder has dropped a Call message,
+or if the Responder's Reply has been likewise lost.
+To prevent unnecessary network traffic or the execution
+of non-idempotent procedures multiple times,
+Requesters avoid retransmitting needlessly.
+</t>
+<t>
+In rare cases, an RPC procedure may not require any
+results or even acknowledgement that the Responder
+has executed the procedure.
+In that case, the Requester sends a Call message
+but no Reply is returned.
+This document refers to that case as "Call-only".
+</t>
+</section>
+
+<section
+ anchor="section_7e64e30d-0519-449b-b0bf-45c3d103b0be"
+ numbered="true"
+ removeInRFC="false"
+ toc="default">
+<name>Message Serialization</name>
+<t>
+RPC messages are always transmitted atomically.
+RPC peers may interleave messages,
+but the contents of individual messages
+cannot be broken up or interleaved
+without making the messages illegible.
+</t>
+<t>
+An RPC peer acting as a "Requester"
+serializes the procedure's arguments
 and
-conveys them to a server endpoint via an RPC Call message.
-A Call message contains an RPC protocol header,
+conveys them to a "Responder" endpoint via an RPC Call message.
+A Call message contains an RPC protocol header with a unique XID,
 a header describing the requested upper-layer operation,
 and all arguments.
 </t>
 <t>
-An RPC server endpoint acts as a "Responder",
-which deserializes the arguments and processes the requested operation.
-It then serializes the operation's results into an RPC Reply message.
-An RPC Reply message contains an RPC protocol header,
+An RPC peer acting as a "Responder"
+deserializes these arguments and processes the requested procedure.
+It then serializes the procedure's results into an RPC Reply message.
+An RPC Reply message contains an RPC protocol header with the same XID,
 a header describing the upper-layer reply,
 and all results.
 </t>
@@ -380,13 +453,6 @@ allows the RPC consumer to proceed.
 At this point, the RPC transaction
 designated by the XID in the RPC Call message is complete,
 and the XID is retired.
-</t>
-<t>
-In summary,
-Requesters send RPC Call messages to Responders
-to initiate RPC transactions.
-Responders send RPC Reply messages to Requesters
-to complete the processing on an RPC transaction.
 </t>
 </section>
 
@@ -399,18 +465,20 @@ to complete the processing on an RPC transaction.
 <t>
 The role of an "RPC transport" is
 to mediate the exchange of RPC messages
-between Requesters and Responders.
-An RPC transport bridges the gap
-between the RPC message abstraction
+between Requesters and Responders,
+bridging the gap between
+the RPC message abstraction
 and
 the native operations of a network transport
 (e.g., a socket).
 </t>
 <t>
-RPC-over-RDMA is a connection-oriented RPC transport.
-When a transport type is connection-oriented,
-clients initiate transport connections,
-while servers wait passively to accept incoming connection requests.
+When an RPC transport type is connection-oriented,
+RPC client endpoints initiate transport connections,
+while RPC server endpoints wait passively to accept incoming connection requests.
+RPC messages may also be exchanged without a connection association.
+Because RPC-over-RDMA is a connection-oriented RPC transport,
+connectionless operation is not discussed further in the current document.
 </t>
 
 <section
@@ -514,37 +582,6 @@ independent RPC messages over a shared connection
 but in opposite directions.
 These messages may or may not be related
 to the same workloads or RPC Programs.
-</t>
-</section>
-
-<section
- anchor="section_97382254-b1a3-4e03-98e5-a0814b331bd0"
- numbered="true"
- removeInRFC="false"
- toc="default">
-<name>XID Values</name>
-<t>
-<xref target="RFC5531" section="9" format="default" sectionFormat="of"/>
-introduces the RPC transaction identifier,
-or "XID" for short.
-A connection peer interprets the value of an XID
-in the context of the message's msg_type field.
-</t>
-<ul spacing="normal" bare="false" empty="false">
-<li>
-The XID of a Call is arbitrary but is
-unique among outstanding Calls from that Requester
-on that connection.
-</li>
-<li>
-The XID of a Reply always matches
-that of the initiating Call.
-</li>
-</ul>
-<t>
-After receiving a Reply,
-a Requester matches the XID value in that Reply
-with a Call it previously sent.
 </t>
 <t>
 During bi-directional operation,
@@ -1951,11 +1988,10 @@ using one of the error values defined in
 <t>
 In rare cases, an RPC server cannot
 complete an RPC transaction
-and
+or
 cannot send a Reply.
 In these cases, the Requester may send the RPC transaction again
 using the same RPC XID.
-We refer to this as an "RPC retransmission" or a "replay."
 </t>
 <t>
 In the forward direction,
