@@ -1037,15 +1037,13 @@ to prevent senders from transmitting more messages
 than a receiver is prepared to accept
 <xref target="CBFC" format="default" sectionFormat="of"/>.
 Credit-based flow control is relatively simple, providing
-robust operation in the face of bursty traffic
-and
 automated management of receive buffer allocation
+and
+robust operation in the face of bursty traffic
 while enabling effective pipelining.
-A simplified sliding window approach is
-all that is necessary for our purposes
-because
-the underlying RDMA transport service already guarantees
-reliable and in-order message delivery.
+The RPC-over-RDMA version 2 flow control mechanism relies on
+reliable and in-order message delivery guarantees
+provided by the underlying RDMA transport service.
 </t>
 <t>
 An RPC-over-RDMA version 2 credit represents
@@ -1053,69 +1051,80 @@ the capability to convey
 exactly one RPC-over-RDMA version 2 message,
 regardless of its size,
 via an RDMA Send/Receive pair.
-This arrangement enables RPC-over-RDMA version 2
-transport connections to support
-multiple unacknowledged messages in each direction.
-</t>
-<t>
 Because an RPC-over-RDMA version 2 connection is full-duplex,
 each connection peer has its own set of credits.
-The two receivers manage their credits independently,
-although they typically communicate these values
-by piggy-backing them on a payload-bearing message
-in the opposite direction.
+The two receivers manage their credit limits independently,
+although they communicate these values
+by piggy-backing them on a message in the opposite direction.
 </t>
 <t>
-Each RPC-over-RDMA version 2 message header contains
-two fields that handle credit accounting:
+A peer tracks a few critical values for each connection.
+It uses these values to determine when it is safe to send
+a message on the connection.
 </t>
-<ul>
-<li>
-The rdma_credit field contains the receiver's credit window size.
-This field functions in much the same way
-as the RPC-over-RDMA version 1 used "credit grants".
-When sending an RPC-over-RDMA message,
-a peer fills in this field with
-the number of unacknowledged messages
-it is prepared to receive on this connection.
-</li>
-<li>
-A second field, which is yet to be defined,
-reports the number of messages received so far.
-When sending an RPC-over-RDMA message,
-a peer fills in this field with the count of messages
-it has already received on this connection.
-</li>
-</ul>
-<t>
-A sender also keeps track of the count of messages
-it has sent on the connection. The sender
+<dl newline="false" spacing="normal">
+<dt>Sent message count:</dt>
+<dd>
+The total number of RDMA Send operations it has posted.
+The peer
 <bcp14>MUST</bcp14>
-stop transmitting messages when the number of messages
-it has already sent is about to exceed the number of messages
-the receiver has acknowledged plus the receiver's credit window.
+set this value to zero (0) when a connection is first established.
+</dd>
+<dt>Received message count:</dt>
+<dd>
+The total number of RDMA Receive channel operations that have completed.
+The peer
+<bcp14>MUST</bcp14>
+set this value to zero (0) when a connection is first established.
+</dd>
+<dt>Credit limit:</dt>
+<dd>
+The number of RDMA Receive operations that are currently posted.
+</dd>
+<dt>Remote credits:</dt>
+<dd>
+The value in the rdma_start.rdma_credit field
+in the most recently received message from its peer.
+The peer
+<bcp14>MUST</bcp14>
+set this value to one (1) before it has received a message on
+a new connection.
+</dd>
+</dl>
+<t>
+When constructing a new RPC-over-RDMA header,
+each sender
+<bcp14>MUST</bcp14>
+set the header's rdma_start.rdma_credit field
+to its "Sent message count" plus its "Credit limit".
+The sender
+<bcp14>MUST NOT</bcp14>
+post this message if the sender's "Send message counter"
+is greater than the current "Remote credits" value.
+To handle counter wrapping, the sender uses appropriate modulo
+arithmetic to perform this comparison.
+</t>
+<t>
+Because the rdma_start.rdma_credit field is 32 bits wide,
+a receiver's credit limit
+<bcp14>MUST</bcp14>
+be less than 2^31 - 1.
+Given the bandwidth-delay product of the connection,
+a receiver generally chooses a credit limit
+that is large enough to maximize throughput
+while not overwhelming memory resources on the local system.
 </t>
 <t>
 A receiver
 <bcp14>MAY</bcp14>
-adjust the credit window
+adjust its credit limit
 to match the needs or policies in effect on either peer.
-For instance, a peer may reduce the size of its credit window
+For instance, a peer may reduce its credit limit
 to accommodate the available resources in a Shared Receive Queue.
 Certain RDMA implementations may impose additional flow-control restrictions,
 such as limits on RDMA Read operations in progress at the Responder.
 Accommodation of such checks is considered
 the responsibility of each RPC-over-RDMA version 2 implementation.
-</t>
-<t>
-The credit window size
-<bcp14>MUST</bcp14>
-be less than the total sequence number range
-(let's make this a more quantitative statement later).
-The receiver generally chooses a credit window
-that is large enough to maximize throughput,
-given the bandwidth-delay product of the connection,
-while not overwhelming memory resources on the local system.
 </t>
 
 <section
@@ -1126,11 +1135,11 @@ while not overwhelming memory resources on the local system.
 <name>Asynchronous Credit Grants</name>
 <t>
 Credit accounting information is usually piggy-backed
-on data-bearing messages.
+on payload-bearing messages.
 However, on occasion, a receiver might need to
-refresh its credit window without sending an RPC payload.
-A receiving peer can use an alternate header type
-when the sender's credit window is exhausted
+refresh its credit limit without sending an RPC payload.
+A receiving peer can send a message using a special header type
+when the sender's credit limit approaches exhaustion
 during a stream of unacknowledged messages.
 See
 <xref target="section_d7b171ca-326d-45ed-bfa6-eca86ae4a62e" format="default" sectionFormat="of"/>
@@ -1138,23 +1147,26 @@ for information about this header type.
 </t>
 <t>
 Unlike RPC-over-RDMA version 1,
-the credit window on an RPC-over-RDMA version 2
+the credit limit on an RPC-over-RDMA version 2
 connection
 <bcp14>MAY</bcp14>
 be zero.
 In that case, the sender waits
 until the receiver sends it an asynchronous credit refresh.
+To prevent a sender from ever having to wait for a credit limit refresh,
+a good receiver implementation provides a credit refresh
+before half its credit limit is exceeded.
 </t>
 <t>
-Therefore, receivers
+To prevent transport deadlock,
+receivers
 <bcp14>MUST</bcp14>
 always be in a position to receive
 one asynchronous credit update message,
-in addition to payload-bearing messages,
-to prevent transport deadlock.
+in addition to payload-bearing messages.
 A receiver can do this is by
 posting one more RDMA Receive
-than the advertised credit window.
+than the credit limit it advertises to its connection peer.
 </t>
 </section>
 
@@ -1206,29 +1218,23 @@ assume both inline thresholds are 4096 octets.
  toc="default">
 <name>Initial Connection State</name>
 <t>
-When an RPC-over-RDMA version 2 client establishes
-a connection to a server,
-its first order of business is
-to determine the server's highest supported protocol version.
-</t>
-<t>
-Upon connection establishment, a client <bcp14>MUST</bcp14> send
-only a single RPC-over-RDMA message until
-it receives a valid RPC-over-RDMA message
-from the server that provides a credit window update.
+Immediately upon connection establishment, both peers
+<bcp14>MUST</bcp14>
+allow only one outstanding RPC-over-RDMA message
+on the connection at a time
+until both the transport protocol version is established
+and both peers have received an initial credit limit.
+Note that because RPC-over-RDMA versions 1 and 2 each use
+a different flow control mechanism,
+the meaning of the value in the rdma_start.rdma_credit field
+depends on the value in the rdma_start.vers field.
 </t>
 <t>
 The second word of each transport header conveys
 the transport protocol version.
-In the interest of clarity,
-the current document refers to that word as rdma_vers
-even though in the RPC-over-RDMA version 2 XDR definition,
-it appears as rdma_start.rdma_vers.
-</t>
-<t>
 Immediately after the client establishes a connection,
 it sends a single valid RPC-over-RDMA message
-with the value two (2) in the rdma_vers field.
+with the value two (2) in the rdma_start.rdma_vers field.
 Because the server might support
 only RPC-over-RDMA version 1,
 this initial message <bcp14>MUST NOT</bcp14> be larger than
@@ -1244,7 +1250,7 @@ the version 1 default inline threshold of 1024 octets.
 <t>
 If the server supports RPC-over-RDMA version 2,
 it sends RPC-over-RDMA messages back to the client
-with the value two (2) in the rdma_vers field.
+with the value two (2) in the rdma_start.rdma_vers field.
 Both peers may assume the default inline threshold value
 for RPC-over-RDMA version 2 connections (4096 octets).
 </t>
@@ -5085,10 +5091,10 @@ to other users sharing the connection from the errant Requester.
 An RPC-over-RDMA transport implementation is not responsible
 for throttling the RPC request rate,
 other than to keep the number of concurrent RPC transactions
-at or under the per connection credit window (see
+within the per connection credit limits (see
 <xref target="section_45c67eb8-8dc6-47c3-8555-14270f1514bF" format="default" sectionFormat="of"/>).
 A sender can trigger a self-denial of service
-by exceeding the credit window repeatedly.
+by exceeding the credit limit repeatedly.
 </t>
 <t>
 When an RPC transaction terminates due to
@@ -6662,6 +6668,15 @@ and
 <contact fullname="Tom Talpey"/>
 on the original RPC-over-RDMA version 1 specification
 <xref target="RFC5666" format="default" sectionFormat="of"/>.
+</t>
+<t>
+We are deeply indebted to
+<contact fullname="Jana Igeyar"/>
+for contributing the RPC-over-RDMA version 2
+flow control mechanism described in
+<xref target="section_45c67eb8-8dc6-47c3-8555-14270f1514bF" format="default" sectionFormat="of"/>.
+</t>
+<t>
 The authors also wish to thank
 <contact fullname="Bill Baker"/>,
 <contact fullname="Greg Marsden"/>,
