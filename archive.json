@@ -1,0 +1,413 @@
+{
+  "magic": "E!vIA5L86J2I",
+  "timestamp": "2021-10-03T00:20:21.116404+00:00",
+  "repo": "chucklever/i-d-rpcrdma-version-two",
+  "labels": [
+    {
+      "name": "bug",
+      "description": "Something isn't working",
+      "color": "d73a4a"
+    },
+    {
+      "name": "duplicate",
+      "description": "This issue or pull request already exists",
+      "color": "cfd3d7"
+    },
+    {
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
+    },
+    {
+      "name": "good first issue",
+      "description": "Good for newcomers",
+      "color": "7057ff"
+    },
+    {
+      "name": "invalid",
+      "description": "This doesn't seem right",
+      "color": "e4e669"
+    },
+    {
+      "name": "question",
+      "description": "Further information is requested",
+      "color": "d876e3"
+    },
+    {
+      "name": "wontfix",
+      "description": "This will not be worked on",
+      "color": "ffffff"
+    }
+  ],
+  "issues": [
+    {
+      "number": 1,
+      "id": "MDU6SXNzdWU1MDcyNTA3OTE=",
+      "title": "RFC 8267 states it applies ONLY to RPC/RDMA v1",
+      "url": "https://github.com/chucklever/i-d-rpcrdma-version-two/issues/1",
+      "state": "OPEN",
+      "author": "chucklever",
+      "authorAssociation": "OWNER",
+      "assignees": [
+        "chucklever"
+      ],
+      "labels": [
+        "bug"
+      ],
+      "body": "Dave Noveck points out that RFC 8267 has a paragraph that states that the ULB specified there applies only for RPC/RDMA v1. In his opinion this is not a valid restriction, but in any event we need some language somewhere that corrects this for v2. Suggest that the v2 specification make the correction.",
+      "createdAt": "2019-10-15T13:37:16Z",
+      "updatedAt": "2019-10-26T20:01:12Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "dnoveck",
+          "authorAssociation": "NONE",
+          "body": "One way to deal with this is to have the V2 spec update rfc 8267.  If the IESG is not satisfied with that you may have to do an rfc8267bis\u2639\ufe0f.\r\n\r\nIf you add send chaining, additional work would be needed.  Will discuss elsewhere.",
+          "createdAt": "2019-10-26T17:51:16Z",
+          "updatedAt": "2019-10-26T17:51:16Z"
+        },
+        {
+          "author": "chucklever",
+          "authorAssociation": "OWNER",
+          "body": "I'm not sure I completely understand the issue here. Can you spell it out here in the comments?\r\n\r\nFor example, what's the problem with writing a separate document that is the ULB for NFS on RPC/RDMA v2? Such a document can refer to RFC 8267 pretty extensively, and provide modified text for the few areas that will be different with RPC/RDMA v2. That approach would be the correct one, IMO.",
+          "createdAt": "2019-10-26T19:34:01Z",
+          "updatedAt": "2019-10-26T19:34:01Z"
+        },
+        {
+          "author": "dnoveck",
+          "authorAssociation": "NONE",
+          "body": "  *   For example, what's the problem with writing a separate document that is the ULB for NFS on RPC/RDMA v2?\r\n\r\nI\u2019m not saying it\u2019s a big problem.   I just saying you have to write, review it, bring it through the IESG, etc.\r\n\r\n  *   Such a document can refer to RFC 8267 pretty extensively, and provide modified text for the few areas that will be different with RPC/RDMA v2.\r\n\r\nI don\u2019t think the IESG is going to like that sort of cut-and-paste approach.  You might get by, but if you go ahead with something that they don\u2019t like, the process gets really annoying.\r\n\r\n  *   That approach would be the correct one, IMO.\r\nThe problem is a that the IESG has a veto.\r\n\r\n\r\nFrom: Chuck Lever <notifications@github.com>\r\nSent: Saturday, October 26, 2019 3:34 PM\r\nTo: chucklever/i-d-rpcrdma-version-two <i-d-rpcrdma-version-two@noreply.github.com>\r\nCc: Noveck, David <David.Noveck@netapp.com>; Comment <comment@noreply.github.com>\r\nSubject: Re: [chucklever/i-d-rpcrdma-version-two] RFC 8267 states it applies ONLY to RPC/RDMA v1 (#1)\r\n\r\nNetApp Security WARNING: This is an external email. Do not click links or open attachments unless you recognize the sender and know the content is safe.\r\n\r\n\r\n\r\nI'm not sure I completely understand the issue here. Can you spell it out here in the comments?\r\n\r\nFor example, what's the problem with writing a separate document that is the ULB for NFS on RPC/RDMA v2? Such a document can refer to RFC 8267 pretty extensively, and provide modified text for the few areas that will be different with RPC/RDMA v2. That approach would be the correct one, IMO.\r\n\r\n\u2014\r\nYou are receiving this because you commented.\r\nReply to this email directly, view it on GitHub<https://github.com/chucklever/i-d-rpcrdma-version-two/issues/1?email_source=notifications&email_token=ANP2RUNPCYRIKJFDRGQN4TDQQSLSTA5CNFSM4JA4X672YY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGOECKPJKA#issuecomment-546632872>, or unsubscribe<https://github.com/notifications/unsubscribe-auth/ANP2RUPJDWLB2RIMPFOQEUTQQSLSTANCNFSM4JA4X67Q>.\r\n",
+          "createdAt": "2019-10-26T19:50:53Z",
+          "updatedAt": "2019-10-26T19:50:53Z"
+        },
+        {
+          "author": "chucklever",
+          "authorAssociation": "OWNER",
+          "body": ">> Such a document can refer to RFC 8267 pretty extensively, and provide modified text for the few areas that will be different with RPC/RDMA v2.\r\n\r\n> I don\u2019t think the IESG is going to like that sort of cut-and-paste approach. You might get by, but if you go ahead with something that they don\u2019t like, the process gets really annoying.\r\n\r\nFair enough, but building a whole new document instead of a document full of pointers should not be much more work, since RFC 82678 has already been done.",
+          "createdAt": "2019-10-26T20:01:00Z",
+          "updatedAt": "2019-10-26T20:01:12Z"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "id": "MDU6SXNzdWU1MDc4NDcwNjQ=",
+      "title": "RPC/RDMA v2 should support generic host authentication",
+      "url": "https://github.com/chucklever/i-d-rpcrdma-version-two/issues/2",
+      "state": "CLOSED",
+      "author": "chucklever",
+      "authorAssociation": "OWNER",
+      "assignees": [
+        "chucklever"
+      ],
+      "labels": [
+        "enhancement"
+      ],
+      "body": "Tom Talpey suggested we wanted to use chained Sends instead of RDMA for large authentication payloads, and that we need to support generic authentication mechanisms that require multiple round trips.",
+      "createdAt": "2019-10-16T13:19:17Z",
+      "updatedAt": "2020-03-29T16:06:59Z",
+      "closedAt": "2020-03-29T16:06:59Z",
+      "comments": [
+        {
+          "author": "dnoveck",
+          "authorAssociation": "NONE",
+          "body": "There are two separate issues mentioned here. We should look at each one to see if it is essential, highly desirable, or nice to have.",
+          "createdAt": "2019-10-26T18:05:05Z",
+          "updatedAt": "2019-10-26T18:05:05Z"
+        },
+        {
+          "author": "chucklever",
+          "authorAssociation": "OWNER",
+          "body": "The host authentication mechanisms we are already familiar with (eg. ones that are built into TLS) can generate multiple challenges and responses (multiple round trips) and some of them may convey chains of trust that are considerably longer than our inline threshold. The latter issue is what might require Send chaining, if we feel that using RDMA_NOMSG is undesirable or unworkable for a host authentication mechanism.",
+          "createdAt": "2019-10-26T19:38:39Z",
+          "updatedAt": "2019-10-26T19:38:39Z"
+        },
+        {
+          "author": "dnoveck",
+          "authorAssociation": "NONE",
+          "body": "\r\n\r\nFrom: Chuck Lever <notifications@github.com>\r\nSent: Saturday, October 26, 2019 3:39 PM\r\nTo: chucklever/i-d-rpcrdma-version-two <i-d-rpcrdma-version-two@noreply.github.com>\r\nCc: Noveck, David <David.Noveck@netapp.com>; Comment <comment@noreply.github.com>\r\nSubject: Re: [chucklever/i-d-rpcrdma-version-two] RPC/RDMA v2 should support generic host authentication (#2)\r\n\r\n\r\n  *   The host authentication mechanisms we are already familiar with (eg. ones that are built into TLS) can generate multiple challenges and responses (multiple round trips)\r\n\r\nSo it appears that multiple round trips are essential.   Conceptually it is simple but there is bunch of writing to do:\r\n\r\n  *   Will have to allow multiple INIT messages.\r\n  *   Will have to create a yea-or-nay transport characteristic that server sends to the client.\r\n  *   Could shoehorn this into the existing limited credit model by treating the INIT containing the yea-or-nay characteristic as a quasi-response to the one containing the autnentication material. \u2639\r\n\r\n  *   and some of them may convey chains of trust that are considerably longer than our inline threshold. The latter issue is what might require Send chaining, if we feel that using RDMA_NOMSG is undesirable or unworkable for a host authentication mechanism.\r\n\r\nOK, but we are working under time pressure which makes it difficult to meet a milestone target when, a few weeks ago, we had a much smaller set of changes in mind.   We made this change in response to Tom\u2019s sensible arguments but we have to be aware that Tom is not responsible for getting this done and ghis help, while real, will not be very extensive.\r\n\r\nI believe we will have trouble with a milestone more than a year from now.   I find the prospect of a 10/20 or 11/20 milestone kind of frightening but am willing to go along if you think it is doable.\r\n\r\nIf it isn\u2019t doable, we will need an alternative.   One thing I have been thinking about is a change in the contents of the certificate property (the one wrapped in a pseudo opaque).   I think we could support it being a union with two arms:\r\n\r\n  *   An inline opaque certificate.\r\n  *   A read chunk that tells the receiver were to obtain  the certificate.\r\n\r\nI know this isn\u2019t pretty but I think we have to be prepared if it doesn\u2019t look like send chaining is doable in time.  I don\u2019t think Magnus is going to accept a milestone target in 2021,  so our choice might be to do this in an ugly way or not to do it at all.\r\n\r\n\r\n\r\n\r\nNetApp Security WARNING: This is an external email. Do not click links or open attachments unless you recognize the sender and know the content is safe.\r\n\r\n\r\n\r\nThe host authentication mechanisms we are already familiar with (eg. ones that are built into TLS) can generate multiple challenges and responses (multiple round trips) and some of them may convey chains of trust that are considerably longer than our inline threshold. The latter issue is what might require Send chaining, if we feel that using RDMA_NOMSG is undesirable or unworkable for a host authentication mechanism.\r\n\r\n\u2014\r\nYou are receiving this because you commented.\r\nReply to this email directly, view it on GitHub<https://github.com/chucklever/i-d-rpcrdma-version-two/issues/2?email_source=notifications&email_token=ANP2RUMWO3YCX7B6QDMHFLDQQSMD7A5CNFSM4JBLNGF2YY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGOECKPMJA#issuecomment-546633252>, or unsubscribe<https://github.com/notifications/unsubscribe-auth/ANP2RUMKADP2K5H3DNBAAODQQSMD7ANCNFSM4JBLNGFQ>.\r\n",
+          "createdAt": "2019-10-26T23:40:36Z",
+          "updatedAt": "2019-10-26T23:40:36Z"
+        },
+        {
+          "author": "chucklever",
+          "authorAssociation": "OWNER",
+          "body": "dnoveck says:\r\n> I believe we will have trouble with a milestone more than a year from now. I find the prospect of a 10/20 or 11/20 milestone kind of frightening but am willing to go along if you think it is doable.\r\n\r\nIndependent of the other process obstacles, I think a 9/20 milestone is achievable.\r\n\r\n> If it isn\u2019t doable, we will need an alternative. One thing I have been thinking about is a change in the contents of the certificate property (the one wrapped in a pseudo opaque). I think we could support it being a union with two arms:\r\n* An inline opaque certificate.\r\n* A read chunk that tells the receiver were to obtain the certificate.\r\n\r\nMy original proposal for dealing with large certificates was to use RDMA. The problem with that is that the mechanism has to work both ways: client-to-server and server-to-client. The client has no way to predict how large the server's certification material is to set up a Reply chunk.\r\n\r\nWe could perhaps make that size a transport property so that the server can tell the client \"yes, I have certificate material, and it's 9KB in size\". That way the client can send its certificate material (possibly via RDMA) and provide a 9KB Reply chunk at the same time.\r\n\r\n",
+          "createdAt": "2019-10-27T16:46:02Z",
+          "updatedAt": "2019-10-27T16:46:02Z"
+        },
+        {
+          "author": "chucklever",
+          "authorAssociation": "OWNER",
+          "body": "The latest revision of rpcrdma-version-two includes support for the exchange of potentially large authentication material.",
+          "createdAt": "2020-03-29T16:06:59Z",
+          "updatedAt": "2020-03-29T16:06:59Z"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "id": "MDU6SXNzdWU1MDc4NTU3NTc=",
+      "title": "Base RPC/RDMA v2 should support Send chaining",
+      "url": "https://github.com/chucklever/i-d-rpcrdma-version-two/issues/3",
+      "state": "CLOSED",
+      "author": "chucklever",
+      "authorAssociation": "OWNER",
+      "assignees": [
+        "chucklever"
+      ],
+      "labels": [
+        "enhancement"
+      ],
+      "body": "Consider making the base protocol support Send chaining (aka message continuation). Note that once that mechanism is introduced, we'll have to consider possible changes to the NFS ULB related to when to use Position-Zero Read chunks and Reply chunks -- Send chaining can be used in some of those situations.",
+      "createdAt": "2019-10-16T13:33:59Z",
+      "updatedAt": "2020-03-29T16:06:07Z",
+      "closedAt": "2020-03-29T16:06:06Z",
+      "comments": [
+        {
+          "author": "dnoveck",
+          "authorAssociation": "NONE",
+          "body": "Inclusion of send chaining would make it hard to deal with rfc8267 without a bis document. Luckily, it appears that the necessary changes are limited to Section 3.",
+          "createdAt": "2019-10-26T18:01:04Z",
+          "updatedAt": "2019-10-26T18:01:04Z"
+        },
+        {
+          "author": "chucklever",
+          "authorAssociation": "OWNER",
+          "body": "Assume you mean Section 3 of RFC 8267. Arguably, handling inadequate reply size estimates should be done by the transport, not by the ULP. We should consider moving that discussion into RPC/RDMA v2 so that it applies to all Upper Layer Protocols.",
+          "createdAt": "2019-10-26T19:41:53Z",
+          "updatedAt": "2019-10-26T19:41:53Z"
+        },
+        {
+          "author": "dnoveck",
+          "authorAssociation": "NONE",
+          "body": "  *   Assume you mean Section 3 of RFC 8267.\r\n\r\nYes.\r\n\r\n  *   Arguably, handling inadequate reply size estimates should be done by the transport, not by the ULP. We should consider moving that discussion into RPC/RDMA v2 so that it applies to all Upper Layer Protocols.\r\nI agree but I still think you need a v2 binding document to correspond to rfc8267.\r\n\r\nFrom: Chuck Lever <notifications@github.com>\r\nSent: Saturday, October 26, 2019 3:42 PM\r\nTo: chucklever/i-d-rpcrdma-version-two <i-d-rpcrdma-version-two@noreply.github.com>\r\nCc: Noveck, David <David.Noveck@netapp.com>; Comment <comment@noreply.github.com>\r\nSubject: Re: [chucklever/i-d-rpcrdma-version-two] Base RPC/RDMA v2 should support Send chaining (#3)\r\n\r\nNetApp Security WARNING: This is an external email. Do not click links or open attachments unless you recognize the sender and know the content is safe.\r\n\r\n\r\n\r\nAssume you mean Section 3 of RFC 8267. Arguably, handling inadequate reply size estimates should be done by the transport, not by the ULP. We should consider moving that discussion into RPC/RDMA v2 so that it applies to all Upper Layer Protocols.\r\n\r\n\u2014\r\nYou are receiving this because you commented.\r\nReply to this email directly, view it on GitHub<https://github.com/chucklever/i-d-rpcrdma-version-two/issues/3?email_source=notifications&email_token=ANP2RUMHQMDFL3DPBIO6LODQQSMQDA5CNFSM4JBLTEL2YY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGOECKPN6I#issuecomment-546633465>, or unsubscribe<https://github.com/notifications/unsubscribe-auth/ANP2RUPP63LCI2HDDS6XNO3QQSMQDANCNFSM4JBLTELQ>.\r\n",
+          "createdAt": "2019-10-26T19:49:19Z",
+          "updatedAt": "2019-10-26T19:49:19Z"
+        },
+        {
+          "author": "chucklever",
+          "authorAssociation": "OWNER",
+          "body": "> > Arguably, handling inadequate reply size estimates should be done by the transport, not by the ULP. We should consider moving that discussion into RPC/RDMA v2 so that it applies to all Upper Layer Protocols.\r\n\r\n> I agree but I still think you need a v2 binding document to correspond to rfc8267.\r\n\r\nAgree, a separate binding of NFS to RPC/RDMA v2 is appropriate. I feel it can work best if it is a separate document from RPC/RDMA v2.\r\n",
+          "createdAt": "2019-10-26T20:05:16Z",
+          "updatedAt": "2019-10-26T20:05:16Z"
+        },
+        {
+          "author": "chucklever",
+          "authorAssociation": "OWNER",
+          "body": "As discussed before, the use of Message Continuation will alter the use of PZR and Reply chunks. Proposed changes:\r\n* Instead of a PZR chunk, Message Continuation MAY be used to convey a Long Call. A PZR chunk might be appropriate for large Call messages (e.g. 1MB krb5p WRITE).\r\n* A Reply chunk MAY be provided, but if it's missing, or the existing Reply chunk is too small, the responder MUST use Message Continuation to return a Long Reply. Discussion of retrying a request with a larger Reply chunk is no longer necessary.\r\n* Message Continuation can be used to convey a Long message in the reverse direction.\r\n* Definition of a Long message should conform with the possible use of Message Continuation.\r\n* A mechanism for handling chunks associated with a Message Continuation sequence must be defined. Let's allow non-empty chunk lists only in the last message in the sequence.\r\n* The error codes that signify an inadequate Reply chunk are no longer necessary.\r\n\r\nHave I missed anything?",
+          "createdAt": "2019-10-30T21:38:32Z",
+          "updatedAt": "2019-10-30T21:38:32Z"
+        },
+        {
+          "author": "dnoveck",
+          "authorAssociation": "NONE",
+          "body": "\r\n\r\nFrom: Chuck Lever <notifications@github.com>\r\nSent: Wednesday, October 30, 2019 5:39 PM\r\nTo: chucklever/i-d-rpcrdma-version-two <i-d-rpcrdma-version-two@noreply.github.com>\r\nCc: Noveck, David <David.Noveck@netapp.com>; Comment <comment@noreply.github.com>\r\nSubject: Re: [chucklever/i-d-rpcrdma-version-two] Base RPC/RDMA v2 should support Send chaining (#3)\r\n\r\nNetApp Security WARNING: This is an external email. Do not click links or open attachments unless you recognize the sender and know the content is safe.\r\n\r\n\r\n\r\nAs discussed before, the use of Message Continuation will alter the use of PZR and Reply chunks. Proposed changes:\r\n\r\n  *   Instead of a PZR chunk, Message Continuation MAY be used to convey a Long Call. A PZR chunk might be appropriate for large Call messages (e.g. 1MB krb5p WRITE).\r\n  *   A Reply chunk MAY be provided, but if it's missing, or the existing Reply chunk is too small, the responder MUST use Message Continuation to return a Long Reply. Discussion of retrying a request with a larger Reply chunk is no longer necessary.\r\nThat\u2019s only true if you allow unbounded use of reply chaining, and if you do, then there is no real need for reply chunks, although you might keep them around to make the changes less disruptive\r\n\r\n  *   Message Continuation can be used to convey a Long message in the reverse direction.\r\n  *   Definition of a Long message should conform with the possible use of Message Continuation.\r\nNot sure exactly what this means.\r\n\r\n  *   A mechanism for handling chunks associated with a Message Continuation sequence must be defined.\r\nYes.\r\nLet's allow non-empty chunk lists only in the last message in the sequence.\r\nI\u2019d prefer the first message.\r\n\r\n  *   The error codes that signify an inadequate Reply chunk are no longer necessary.\r\nRight.\r\n\r\nHave I missed anything?\r\n\r\nProbably \ud83d\ude0a\r\n\r\n\u2014\r\nYou are receiving this because you commented.\r\nReply to this email directly, view it on GitHub<https://github.com/chucklever/i-d-rpcrdma-version-two/issues/3?email_source=notifications&email_token=ANP2RULC5YNAETZWR64HZG3QRH5FRA5CNFSM4JBLTEL2YY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGOECV3JRY#issuecomment-548123847>, or unsubscribe<https://github.com/notifications/unsubscribe-auth/ANP2RUIA7LGSCQCHQV3LW6DQRH5FRANCNFSM4JBLTELQ>.\r\n",
+          "createdAt": "2019-10-30T21:58:17Z",
+          "updatedAt": "2019-10-30T21:58:17Z"
+        },
+        {
+          "author": "chucklever",
+          "authorAssociation": "OWNER",
+          "body": ">> A Reply chunk MAY be provided, but if it's missing, or the existing Reply chunk is too small, the responder MUST use Message Continuation to return a Long Reply. Discussion of retrying a request with a larger Reply chunk is no longer necessary.\r\n> \r\n> That\u2019s only true if you allow unbounded use of reply chaining, and if you do, then there is no real need for reply chunks, although you might keep them around to make the changes less disruptive\r\n\r\nI think we do need to keep RDMA_NOMSG around. RDMA is going to be more efficient for large messages (see the example I gave: krb5p with large I/O).\r\n\r\nThe mechanism I proposed for Message Continuation is a MORE flag, and now that we have an out-of-band credit grant mechanism (essentially a payload-less ACK that can refresh credits), unlimited Message Continuation can be supported easily.\r\n\r\n>> Message Continuation can be used to convey a Long message in the reverse direction.\r\n>> Definition of a Long message should conform with the possible use of Message Continuation.\r\n> \r\n> Not sure exactly what this means.\r\n\r\nLong message today is probably defined as \"Entire RPC message payload goes via RDMA\". If a Long message can be sent via another mechanism -- say, via Message Continuation -- then a more general definition is needed. I consider this an editorial issue.\r\n\r\n>> A mechanism for handling chunks associated with a Message Continuation sequence must be defined. Yes. Let's allow non-empty chunk lists only in the last message in the sequence.\r\n> \r\n> I\u2019d prefer the first message.\r\n\r\nI chose the last message because the MORE flag would be clear in that one, just like it's clear in non-continued messages. It's easy to say chunks are allowed only in messages where the MORE flag is clear.\r\n\r\nI can't see that there would be much performance difference between the first and last message, if that's your concern.",
+          "createdAt": "2019-10-31T14:43:53Z",
+          "updatedAt": "2019-10-31T14:43:53Z"
+        },
+        {
+          "author": "dnoveck",
+          "authorAssociation": "NONE",
+          "body": "  *   I can't see that there would be much performance difference between the first and last message, if that's your concern\r\n\r\nNo.  it\u2019s just that we\u2019re going from a situation in which the chunks are at the start of a message to one in which they are at some place near the end of the message.   It\u2019s just kind of disconcerting.   I can\u2019t see that  it is broken.\r\n\r\n\r\n\r\nFrom: Chuck Lever <notifications@github.com>\r\nSent: Thursday, October 31, 2019 10:44 AM\r\nTo: chucklever/i-d-rpcrdma-version-two <i-d-rpcrdma-version-two@noreply.github.com>\r\nCc: Noveck, David <David.Noveck@netapp.com>; Comment <comment@noreply.github.com>\r\nSubject: Re: [chucklever/i-d-rpcrdma-version-two] Base RPC/RDMA v2 should support Send chaining (#3)\r\n\r\nNetApp Security WARNING: This is an external email. Do not click links or open attachments unless you recognize the sender and know the content is safe.\r\n\r\n\r\n\r\nA Reply chunk MAY be provided, but if it's missing, or the existing Reply chunk is too small, the responder MUST use Message Continuation to return a Long Reply. Discussion of retrying a request with a larger Reply chunk is no longer necessary.\r\n\r\nThat\u2019s only true if you allow unbounded use of reply chaining, and if you do, then there is no real need for reply chunks, although you might keep them around to make the changes less disruptive\r\n\r\nI think we do need to keep RDMA_NOMSG around. RDMA is going to be more efficient for large messages (see the example I gave: krb5p with large I/O).\r\n\r\nThe mechanism I proposed for Message Continuation is a MORE flag, and now that we have an out-of-band credit grant mechanism (essentially a payload-less ACK that can refresh credits), unlimited Message Continuation can be supported easily.\r\n\r\nMessage Continuation can be used to convey a Long message in the reverse direction.\r\nDefinition of a Long message should conform with the possible use of Message Continuation.\r\n\r\nNot sure exactly what this means.\r\n\r\nLong message today is probably defined as \"Entire RPC message payload goes via RDMA\". If a Long message can be sent via another mechanism -- say, via Message Continuation -- then a more general definition is needed. I consider this an editorial issue.\r\n\r\nA mechanism for handling chunks associated with a Message Continuation sequence must be defined. Yes. Let's allow non-empty chunk lists only in the last message in the sequence.\r\n\r\nI\u2019d prefer the first message.\r\n\r\nI chose the last message because the MORE flag would be clear in that one, just like it's clear in non-continued messages. It's easy to say chunks are allowed only in messages where the MORE flag is clear.\r\n\r\nI can't see that there would be much performance difference between the first and last message, if that's your concern.\r\n\r\n\u2014\r\nYou are receiving this because you commented.\r\nReply to this email directly, view it on GitHub<https://github.com/chucklever/i-d-rpcrdma-version-two/issues/3?email_source=notifications&email_token=ANP2RUK3YDJ4BND3RW345Y3QRLVKTA5CNFSM4JBLTEL2YY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGOECYBAEI#issuecomment-548409361>, or unsubscribe<https://github.com/notifications/unsubscribe-auth/ANP2RUNGVNHI5MCNTI2SB23QRLVKTANCNFSM4JBLTELQ>.\r\n",
+          "createdAt": "2019-10-31T18:26:05Z",
+          "updatedAt": "2019-10-31T18:26:05Z"
+        },
+        {
+          "author": "chucklever",
+          "authorAssociation": "OWNER",
+          "body": ">> I can't see that there would be much performance difference between the first and last message, if that's your concern\r\n> \r\n> No. it\u2019s just that we\u2019re going from a situation in which the chunks are at the start of a message to one in which they are at some place near the end of the message. It\u2019s just kind of disconcerting. I can\u2019t see that it is broken.\r\n\r\nNothing's written in stone. I'll go with \"final message in the sequence\" for now, and prototyping will tell us if that's a stupid idea.",
+          "createdAt": "2019-10-31T18:37:01Z",
+          "updatedAt": "2019-10-31T18:37:01Z"
+        },
+        {
+          "author": "chucklever",
+          "authorAssociation": "OWNER",
+          "body": "The latest revision of the rpcrdma-version-two draft includes support for message chaining.",
+          "createdAt": "2020-03-29T16:06:06Z",
+          "updatedAt": "2020-03-29T16:06:06Z"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "id": "MDU6SXNzdWU1MDc4NTkzMDE=",
+      "title": "Enhancements to credit accounting in RPC/RDMA v2",
+      "url": "https://github.com/chucklever/i-d-rpcrdma-version-two/issues/4",
+      "state": "CLOSED",
+      "author": "chucklever",
+      "authorAssociation": "OWNER",
+      "assignees": [
+        "chucklever"
+      ],
+      "labels": [
+        "enhancement"
+      ],
+      "body": "To support messages that have no reply, and to support messages that are spread over multiple Receive buffers, the base RPC/RDMA v2 transport protocol will require additions to its credit accounting mechanism. Consider:\r\n* An rdma_proc that grants credits but does not bear a payload. RDMA_NOMSG with no chunks, or a new rdma_proc could be used for this purpose\r\n* Credits granted for each direction of message flow -- or, if you will, for each set of Receive resources -- on the connection.",
+      "createdAt": "2019-10-16T13:39:45Z",
+      "updatedAt": "2020-03-29T16:19:26Z",
+      "closedAt": "2020-03-29T16:19:26Z",
+      "comments": [
+        {
+          "author": "dnoveck",
+          "authorAssociation": "NONE",
+          "body": "With regard two these two issues:\r\n - the fact that two distinct issues are joined in this way creates difficulties resolving the issues.\r\n  - the first issue should be non-controversial and so reflected in the next draft.\r\n  - the motivation for the second is not very clear  \r\n Also, it is not clear how this proposed change is or is not related to proposed extensions such as send chaining.  We need to move to resolution of the question of send chaining pretty soon or else the issue set for this document will be hard to manage.",
+          "createdAt": "2019-10-26T10:04:51Z",
+          "updatedAt": "2019-10-26T10:04:51Z"
+        },
+        {
+          "author": "chucklever",
+          "authorAssociation": "OWNER",
+          "body": "> With regard two these two issues:\r\n> \r\n> * the fact that two distinct issues are joined in this way creates difficulties resolving the issues.\r\n\r\nPlease elucidate.\r\n\r\n> * the first issue should be non-controversial and so reflected in the next draft.\r\n\r\nGood point: that is a very simple extension to the protocol. I will work on that.\r\n\r\n> * the motivation for the second is not very clear\r\n\r\nTo you :-) I've written and presented extensively on this topic. To wit:\r\n\r\n> Also, it is not clear how this proposed change is or is not related to proposed extensions such as send chaining.  We need to move to resolution of the question of send chaining pretty soon or else the issue set for this document will be hard to manage.\r\n\r\nSend chaining will be simple to introduce once we have sorted out the transport's ability to handle asymmetric message exchange, which boils down to enhancing credit accounting so that one peer can respond with zero, one, or multiple Sends to a message from the other peer on the connection. \r\n",
+          "createdAt": "2019-10-26T19:57:32Z",
+          "updatedAt": "2019-10-26T19:57:32Z"
+        },
+        {
+          "author": "chucklever",
+          "authorAssociation": "OWNER",
+          "body": "The latest revision of rpcrdma-version-two includes provisions for asymmetric message exchange. The details are a little vague for the moment. Prototyping should enable us to clear up any ambiguities.",
+          "createdAt": "2020-03-29T16:19:26Z",
+          "updatedAt": "2020-03-29T16:19:26Z"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "id": "MDU6SXNzdWU1MTcyMjU1MTA=",
+      "title": "Co-author review of Oct 31, 2019 version of rpcrdma-version-two",
+      "url": "https://github.com/chucklever/i-d-rpcrdma-version-two/issues/5",
+      "state": "CLOSED",
+      "author": "chucklever",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Abstract\r\n\r\nI'd like to avoid use of the word \"new\" in the abstract since it, even though it is true now, it eventually (after publication) won't be.\r\nIn the first sentence suggest replace \"a new version\" by \"the second version\".\r\nIn the second sentence suggest replacing \"The new\" by \"This\".\r\n1. Introduction\r\n\r\nIn the third non-bulleted paragraph, suggest making the following changes:\r\nreplacing \"is compatible with\" by \"allows interoperation with\".\r\nreplacing \"a new\" by \"an additional\".\r\nWith regard to the last paragraph, I think that send-chaining is going to mean\r\nthat you cannot rely on RFC8166 in the way you currently do since the way that \r\nsection 3 is written pretty much assumes that rpc sends correspond one-to-one\r\nwith RPC messages.   I think we can defer that rework to a post-00 version by \r\nreplacing, for now, the last paragraph by the following: \r\n\r\nAs in [RFC8166], the terms \"RPC Payload Stream\" and \"Transport Header Stream\" (defined in Section 3.2 of that document) are used to distinguish between an RPC message as defined by [RFC5531] and the header whose job it is to describe the RPC message, its associated memory resources, and, in the case of this version, the relationship between the data beyond the transport header and the RPC message of which it is a part.  In that regard, the reader is assumed to understand how RDMA is used to transfer chunks between client and server and the role of DDP-eligibility in constraining how data payloads are to be conveyed.  Please see the discussion of terminology in Section 2 of [RFC8166].\r\n\r\n3.  RPC-over-RDMA Version 2 Flow Control\r\n\r\nIn the first sentence suggest replacing \"RC QP\" by \"Reliable connected (RC) Queue Pair (QP)\".\r\n\r\nIn the second sentence, suggest deleting the word \"fast\".\r\n\r\nWith regard to the requested citation, suggest adding the following material.\r\n\r\nFor version 1, that mechanism in  described in Section 3.3.1 of [RFC8166], while, for this version, it is descibed in the sections immediately below.\r\n\r\n3.1.  Granting Credits\r\n\r\nIn the first sentence of the second paragraph, suggest replacing \"In order to remain compatible with RPC-over-RDMA version 1\" by \"In order to conform to the requirements to maintain the version 1 offsets of existing transport header filed (See Section 7 of [RFC61886]\".\r\n\r\nAt the start of the last paragraph suggest replacing \"Put another way:\" by \"In this approach\"\r\n\r\n3.2.  Out-of-Band Credit Grant\r\n\r\nSuggest replacing the title by \"Credit Grant Refresh\".\r\n\r\nIn the first sentence suggest replacing  \"In addition to this, a new\" by \"to better support the transmissions of messages composed of a multiple sends, a\".\r\n\r\nIn the the last sentence of the section, suggest replacing \"might\" by \"needs to\".\r\n\r\n4.1.  Transport Properties Model\r\n\r\nIn the last line of the table, suggest replacing, \"opaque\" by \"opaque<>\".\r\n\r\n4.2.6.  Host Authentication Message\r\n\r\nIn the first sentence suggest replacing \"to carry\" by \"as part of\". \r\n\r\nIn the second sentence suggest replacing \"The exchange\" by \"Such exchanges\".\r\n\r\nIn the code fragement, suggest adjusting the typedef for rpcrdma2_prop_hostauth ro refelect the fact that this an opaqure array.\r\n\r\n5.1.  Overall Transport Message Structure\r\n\r\nSuggest replacing the last bullet by \"Potentially, an RPC message (or an initial section thereof) being conveyed as an addendum to the header or a section of RPC message to be appended to previous message fragments\"\r\n\r\n5.4.2.  RDMA2_NOMSG: Convey External RPC Message\r\n\r\nSuggest replacing the second sentence of the first paragraph by the folllowing:\r\n\r\nThe message conveyed, when a message is conveyed  can be either a Long message,which is read from a memory area specified by a Position Zero Read chunk;or a Long reply, which is written into a memory area specified by a Reply chunk.  In both of these cases the rdma_xid field is the xid of the associate request or reply.\r\n\r\nSuggest replacing your [...] by the following\": In this case, there is no RPC message conveyed and te sender is free to set the rdma_xid field to any arbitrary value.   The receiver should not use the value in this field for any purpose.\r\n\r\n5.4.3.  RDMA2_ERROR: Report Transport Error\r\n\r\nWith regard to your [...], there is no need to deal with the case of a resquestor sending this since he \"MUST NOT\" send it.\r\nSuggest adding the following sentences:  Except in the case of a credit refresh grant, the rdma_xid field in this messafe should be the same as that in the message header about which an error is being reported.   In the case of an error in a credit grant refreshh, the value zero is to be used.\r\n\r\nA.2.  Maximum Reply Size\r\n\r\nTo address your [...], suggest rewriting the section as follows:\r\n\r\nA Requester provides resources for both an RPC Call message and will also need to provide some resource for a matching RPC Reply message.  A Requester forms the RPC Call message itself; thus, the Requester can compute the exact resources needed.   Because the responder may use send chaining to send a reply of unlimited size, the requester only needs to provide reply resources when the request contains Write chunks.  However, the requester is free to provide a Reply chunk to use to transfer replies long than can be accommadated in a single send.\r\n\r\nA Requester must allocate resources for the RPC Reply message (an  RPC-over-RDMA credit, a Receive buffer, and possibly a Write list and Reply chunk) before the Responder has formed the actual reply.  To accommodate all possible replies for the procedure in the RPC Call message, a Requester is well-advised to allocate reply resources based on the maximum possible size of the expected RPC Reply message.   Even though the replay migt require more than single send, the Requester only needs to provide a single RPC-over-RDMA credit, since the credit frant refresh mechanism is available to provide additional credits later.\r\n\r\nIf there are procedures in the ULP for which there is no clear reply size maximum, the ULB needs to specify a dependable means for determining the maximum.\r\n\r\nA.3.  Additional Considerations\r\n\r\nWith regard to the [...], believe this can be accommondating by replacing \"established\" by \"established and  the initial transport properties exchanged.\r\n\r\nB.4.  Adding New Error Codes to the Protocol\r\n\r\nWith regard to the [ ... ], do not believe this is possible in general as the addition of a new error code implies a change in specfied behavior. Suggest replacing this paragraph by the following:\r\n\r\nNew error codes to be returned when using new header types may be introduced in the same Standards Track document that defines the new header type.   Cases in which a new error code is to be returned by an existing header type require a change of behavior about  which the peers need to agree.  Such cases can be accommodated by defining the new error code in the same Standards Track document wich defines the transport property defining the new behavor, including te new error code, is specified.",
+      "createdAt": "2019-11-04T15:26:35Z",
+      "updatedAt": "2019-11-04T19:50:28Z",
+      "closedAt": "2019-11-04T19:50:28Z",
+      "comments": []
+    },
+    {
+      "number": 6,
+      "id": "MDU6SXNzdWU1ODQ2NDQwMTM=",
+      "title": "Detect and report overlapping Read chunks",
+      "url": "https://github.com/chucklever/i-d-rpcrdma-version-two/issues/6",
+      "state": "OPEN",
+      "author": "chucklever",
+      "authorAssociation": "OWNER",
+      "assignees": [
+        "chucklever"
+      ],
+      "labels": [
+        "question"
+      ],
+      "body": "Is it possible for a requester to form an RPC/RDMA message where a byte-range appears in more than one Read chunk? For example, suppose there are two Read chunks in a message:\r\n\r\n- Inline: 32 bytes\r\n- Chunk A: 8 bytes at position 16\r\n- Chunk B: 8 bytes at position 24\r\n\r\nChunk B starts in the middle of chunk A. How is the responder going to re-assemble this message? If it can't, how does it report that the message is unparsable? ERR_CHUNK / RDMA2_ERR_BAD_XDR is probably the right choice.\r\n\r\nThe question is whether a more specific error response is needed from the responder. Probably no: this is not expected to be a frequent error condition, and it is the sign of a broken requester implementation, rather than an exigent circumstance.\r\n\r\nHowever, it might be proper and helpful if the document guided responder implementors to check for this particular case.",
+      "createdAt": "2020-03-19T19:22:20Z",
+      "updatedAt": "2020-03-19T19:27:01Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "chucklever",
+          "authorAssociation": "OWNER",
+          "body": "How about the case where a Read segment is at a position that is beyond the end of the message?",
+          "createdAt": "2020-03-19T19:27:00Z",
+          "updatedAt": "2020-03-19T19:27:00Z"
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "id": "MDU6SXNzdWU1ODczMDM1NzU=",
+      "title": "Remote invalidation outside of RDMA2_MSG / RDMA2_NOMSG",
+      "url": "https://github.com/chucklever/i-d-rpcrdma-version-two/issues/7",
+      "state": "CLOSED",
+      "author": "chucklever",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [
+        "question"
+      ],
+      "body": "We probably want to explicitly prohibit the Responder's use of Send With Invalidate outside of RDMA2_MSG and RDMA2_NOMSG type messages. For instance, never remote invalidate when sending an RDMA2_ERROR message.",
+      "createdAt": "2020-03-24T21:55:07Z",
+      "updatedAt": "2020-08-10T12:52:42Z",
+      "closedAt": "2020-08-10T12:52:42Z",
+      "comments": [
+        {
+          "author": "chucklever",
+          "authorAssociation": "OWNER",
+          "body": "A compliance statement has been added that prohibits the use of remote invalidation with header types that do not carry chunks.",
+          "createdAt": "2020-08-10T12:52:42Z",
+          "updatedAt": "2020-08-10T12:52:42Z"
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "id": "MDU6SXNzdWU1ODgwMzQyNzQ=",
+      "title": "Should the protocol allow a PZRC to be included in an RDMA_MSG?",
+      "url": "https://github.com/chucklever/i-d-rpcrdma-version-two/issues/8",
+      "state": "CLOSED",
+      "author": "chucklever",
+      "authorAssociation": "OWNER",
+      "assignees": [
+        "chucklever"
+      ],
+      "labels": [
+        "question"
+      ],
+      "body": "I just read a comment in the Linux NFS server implementation that suggested that RFC 8166 permits a Requester to construct an RDMA_MSG type message with a PZRC (position zero Read chunk). Reading between the lines, it would seem that this type of message would have both a position zero Read chunk and inline content following it.\r\n\r\nI'm wondering if RPC/RDMA v2 should continue to permit this type of construct.",
+      "createdAt": "2020-03-25T22:39:31Z",
+      "updatedAt": "2020-08-10T12:51:54Z",
+      "closedAt": "2020-08-10T12:51:53Z",
+      "comments": [
+        {
+          "author": "chucklever",
+          "authorAssociation": "OWNER",
+          "body": "We can no longer make an explicit requirement that if a Responder receives a Call message of type RDMA2_NOMSG, it must have a position zero Read chunk. I suppose that's true only if there are any Read chunks at all.",
+          "createdAt": "2020-03-28T20:06:32Z",
+          "updatedAt": "2020-03-28T20:06:32Z"
+        },
+        {
+          "author": "chucklever",
+          "authorAssociation": "OWNER",
+          "body": "-03 removes the ability to send Read chunks in a Reply, which eliminates the ambiguity of using RDMA_NOMSG with an empty Read list.",
+          "createdAt": "2020-08-10T12:51:53Z",
+          "updatedAt": "2020-08-10T12:51:53Z"
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "id": "MDU6SXNzdWU1OTY2MTAzMTA=",
+      "title": "v2 implementations MUST explicitly ignore RPC/RDMA version 1 pvt data",
+      "url": "https://github.com/chucklever/i-d-rpcrdma-version-two/issues/9",
+      "state": "OPEN",
+      "author": "chucklever",
+      "authorAssociation": "OWNER",
+      "assignees": [
+        "chucklever"
+      ],
+      "labels": [
+        "bug"
+      ],
+      "body": "The purpose of this prohibition is to avoid conflicts between settings conveyed in private data and settings conveyed via v2 transport properties.",
+      "createdAt": "2020-04-08T14:10:54Z",
+      "updatedAt": "2020-04-08T14:24:51Z",
+      "closedAt": null,
+      "comments": []
+    }
+  ],
+  "pulls": []
+}
