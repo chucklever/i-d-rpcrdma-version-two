@@ -1033,7 +1033,7 @@ credits and inline threshold.
 <t>
 RPC-over-RDMA version 2 employs
 end-to-end credit-based flow control on each connection
-to prevent senders from transmitting more messages
+to prevent a sender from transmitting more messages
 than a receiver is prepared to accept
 <xref target="CBFC" format="default" sectionFormat="of"/>.
 Credit-based flow control is relatively simple, providing
@@ -1053,38 +1053,41 @@ regardless of its size,
 via an RDMA Send/Receive pair.
 Because an RPC-over-RDMA version 2 connection is full-duplex,
 each connection peer has its own set of credits.
-The two receivers manage their credit limits independently,
+The two peers manage their credit limits independently,
 although they communicate these values
 by piggy-backing them on a message in the opposite direction.
 </t>
 <t>
-A peer tracks a few critical values for each connection.
-It uses these values to determine when it is safe to send
+Each peer tracks four critical values for each connection.
+The peer uses these values to determine when it is safe to send
 a message on the connection.
 </t>
 <dl newline="false" spacing="normal">
 <dt>Sent message count:</dt>
 <dd>
-The total number of RDMA Send operations it has posted.
+The total number of RDMA Send operations the peer has posted
+on the connection.
 The peer
 <bcp14>MUST</bcp14>
 set this value to zero (0) when a connection is first established.
 </dd>
 <dt>Received message count:</dt>
 <dd>
-The total number of RDMA Receive channel operations that have completed.
+The total number of RDMA Receive channel operations
+that have completed on the connection.
 The peer
 <bcp14>MUST</bcp14>
 set this value to zero (0) when a connection is first established.
 </dd>
-<dt>Credit limit:</dt>
+<dt>Advertised credits:</dt>
 <dd>
-The number of RDMA Receive operations that are currently posted.
+The number of RDMA Receive operations that are currently pending
+on the connection.
 </dd>
-<dt>Remote credits:</dt>
+<dt>Received credits:</dt>
 <dd>
 The value in the rdma_start.rdma_credit field
-in the most recently received message from its peer.
+in the most recently received message on the connection.
 The peer
 <bcp14>MUST</bcp14>
 set this value to one (1) before it has received a message on
@@ -1096,30 +1099,30 @@ When constructing a new RPC-over-RDMA header,
 each sender
 <bcp14>MUST</bcp14>
 set the header's rdma_start.rdma_credit field
-to its "Sent message count" plus its "Credit limit".
+to its "Sent message count" plus its "Advertised credits".
 The sender
 <bcp14>MUST NOT</bcp14>
-post this message if the sender's "Send message counter"
-is greater than the current "Remote credits" value.
+post this message if the sender's "Sent message counter"
+is greater than the current "Received credits" value.
 To handle counter wrapping, the sender uses appropriate modulo
 arithmetic to perform this comparison.
 </t>
 <t>
 Because the rdma_start.rdma_credit field is 32 bits wide,
-a receiver's credit limit
+credit limit values
 <bcp14>MUST</bcp14>
 be less than 2^31 - 1.
-Given the bandwidth-delay product of the connection,
-a receiver generally chooses a credit limit
+For a given the bandwidth-delay product for a connection,
+a receiver selects an "Advertised credits" value
 that is large enough to maximize throughput
 while not overwhelming memory resources on the local system.
 </t>
 <t>
-A receiver
+A peer
 <bcp14>MAY</bcp14>
-adjust its credit limit
+adjust its "Advertised credits"
 to match the needs or policies in effect on either peer.
-For instance, a peer may reduce its credit limit
+For instance, a peer may reduce its "Advertised credits"
 to accommodate the available resources in a Shared Receive Queue.
 Certain RDMA implementations may impose additional flow-control restrictions,
 such as limits on RDMA Read operations in progress at the Responder.
@@ -1136,8 +1139,8 @@ the responsibility of each RPC-over-RDMA version 2 implementation.
 <t>
 Credit accounting information is usually piggy-backed
 on payload-bearing messages.
-However, on occasion, a receiver might need to
-refresh its credit limit without sending an RPC payload.
+However, on occasion, a peer might need to
+reset its credit limit without sending an RPC payload.
 A receiving peer can send a message using a special header type
 when the sender's credit limit approaches exhaustion
 during a stream of unacknowledged messages.
@@ -1147,13 +1150,13 @@ for information about this header type.
 </t>
 <t>
 Unlike RPC-over-RDMA version 1,
-the credit limit on an RPC-over-RDMA version 2
+the credit grant on an RPC-over-RDMA version 2
 connection
 <bcp14>MAY</bcp14>
 be zero.
 In that case, the sender waits
 until the receiver sends it an asynchronous credit refresh.
-To prevent a sender from ever having to wait for a credit limit refresh,
+To prevent a sender from ever having to wait for a credit refresh,
 a good receiver implementation provides a credit refresh
 before half its credit limit is exceeded.
 </t>
@@ -1166,7 +1169,7 @@ one asynchronous credit update message,
 in addition to payload-bearing messages.
 A receiver can do this is by
 posting one more RDMA Receive
-than the credit limit it advertises to its connection peer.
+than its "Advertised credits" value.
 </t>
 </section>
 
