@@ -1065,8 +1065,8 @@ a message on the connection.
 <dl newline="false" spacing="normal">
 <dt>Sent message count:</dt>
 <dd>
-The total number of RDMA Send operations the peer has posted
-on the connection.
+The total number of RDMA Send channel operations
+the peer has posted on the connection.
 The peer
 <bcp14>MUST</bcp14>
 set this value to zero (0) when a connection is first established.
@@ -1081,8 +1081,10 @@ set this value to zero (0) when a connection is first established.
 </dd>
 <dt>Advertised credits:</dt>
 <dd>
-The number of RDMA Receive operations that are currently pending
-on the connection.
+The number of messages the peer is prepared to receive.
+This value is typically equal to or less than
+the number of RDMA Receive channel operations
+that are currently pending on the connection.
 </dd>
 <dt>Received credits:</dt>
 <dd>
@@ -1090,20 +1092,20 @@ The value in the rdma_start.rdma_credit field
 in the most recently received message on the connection.
 The peer
 <bcp14>MUST</bcp14>
-set this value to one (1) before it has received a message on
-a new connection.
+set this value to one (1) when a connection is first established.
 </dd>
 </dl>
 <t>
-When constructing a new RPC-over-RDMA header,
-each sender
+When constructing an RPC-over-RDMA header to be sent,
+a sender
 <bcp14>MUST</bcp14>
 set the header's rdma_start.rdma_credit field
-to its "Sent message count" plus its "Advertised credits".
+to the sum of the connection's "Sent message count"
+and "Advertised credits" values.
 The sender
 <bcp14>MUST NOT</bcp14>
-post this message if the sender's "Sent message counter"
-is greater than the current "Received credits" value.
+post this message if the connection's "Sent message counter"
+is greater than the connection's current "Received credits" value.
 To handle counter wrapping, the sender uses appropriate modulo
 arithmetic to perform this comparison.
 </t>
@@ -1112,10 +1114,10 @@ Because the rdma_start.rdma_credit field is 32 bits wide,
 credit limit values
 <bcp14>MUST</bcp14>
 be less than 2^31 - 1.
-For a given the bandwidth-delay product for a connection,
-a receiver selects an "Advertised credits" value
+For a given bandwidth-delay product,
+a peer selects an "Advertised credits" value
 that is large enough to maximize throughput
-while not overwhelming memory resources on the local system.
+while not overwhelming its local memory resources.
 </t>
 <t>
 A peer
